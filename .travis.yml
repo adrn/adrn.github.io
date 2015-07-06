@@ -12,7 +12,6 @@ notifications:
   email:
     on_success: always
     on_failure: always
-env:
 before_install:
   - git submodule update --init --recursive
 after_success: bash deploy.sh
