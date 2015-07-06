@@ -51,7 +51,7 @@ YEAR_ARCHIVE_SAVE_AS = 'posts/{date:%Y}/index.html'
 THEME = 'pelican-themes/aboutwilson'
 
 # Plugins
-PLUGIN_PATHs = ['pelican-plugins']
+PLUGIN_PATHS = ['pelican-plugins']
 PLUGINS = ['latex', 'neighbors', 'summary']
 
 # Only use LaTeX for selected articles
