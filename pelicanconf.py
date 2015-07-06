@@ -9,7 +9,6 @@ SITESUBTITLE = u'<a href="http://adrian.pw">adrn</a>'
 SITEURL = ''
 
 PATH = 'content'
-PELICAN_STUFF_PATH = os.path.expanduser("~/projects/pelican-stuff")
 
 TIMEZONE = 'America/New_York'
 
@@ -49,10 +48,10 @@ TAG_SAVE_AS = "tag/{slug}/index.html"
 YEAR_ARCHIVE_SAVE_AS = 'posts/{date:%Y}/index.html'
 
 # Themes
-THEME = os.path.join(PELICAN_STUFF_PATH, 'pelican-themes', 'aboutwilson')
+THEME = 'pelican-themes/aboutwilson'
 
 # Plugins
-PLUGIN_PATHs = [os.path.join(PELICAN_STUFF_PATH, 'pelican-plugins')]
+PLUGIN_PATHs = ['pelican-plugins']
 PLUGINS = ['latex', 'neighbors', 'summary']
 
 # Only use LaTeX for selected articles
