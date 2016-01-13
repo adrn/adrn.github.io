@@ -4,7 +4,6 @@ Category: hack
 Tags: hackday, aas, aas227, machinelearning
 Slug: aas-session-scheduling1
 Authors: adrn
-Summary:
 
 Last week was another winter meeting of the American Astronomical Society (AAS227) and another installment of the [AAS Hack Day](http://www.astrobetter.com/wiki/AASHackDay). Earlier in the week, I gave a short 5 minute talk on [Software Testing](https://speakerdeck.com/adrn/software-testing) and participated in a panel on better practices for scientific programming, then gave my [Dissertation talk](https://speakerdeck.com/adrn/chaos-and-stellar-streams) on the density evolution of stellar streams formed around chaotic orbits. At the hack day, I worked with Scott Idem (AAS) and David W. Hogg (NYU) to continue the theme of hacks [started 2 years ago](http://www.astrobetter.com/blog/2014/01/22/aas-hack-day-2014/) by Dan Foreman-Mackey (UW), Dylan Gregersen (UU), and I working with all titles and abstracts presented at the AAS meeting.
 
