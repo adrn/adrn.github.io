@@ -52,7 +52,7 @@ THEME = 'pelican-themes/aboutwilson'
 
 # Plugins
 PLUGIN_PATHS = ['pelican-plugins']
-# PLUGINS = ['latex', 'neighbors', 'summary']
+PLUGINS = ['latex', 'liquid_tags.notebook', 'summary']
 
 # Only use LaTeX for selected articles
 # LATEX = 'article'

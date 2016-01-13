@@ -1,3 +1,5 @@
 pelican
 Markdown
 fabric
+IPython
+jupyter
