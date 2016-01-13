@@ -56,3 +56,7 @@ PLUGINS = ['latex', 'liquid_tags.notebook', 'summary']
 
 # Only use LaTeX for selected articles
 # LATEX = 'article'
+
+STATIC_PATHS = [
+    'static',
+]
