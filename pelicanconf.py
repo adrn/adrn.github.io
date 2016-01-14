@@ -60,3 +60,6 @@ PLUGINS = ['latex', 'liquid_tags.notebook', 'summary']
 STATIC_PATHS = [
     'static',
 ]
+
+DISQUS_SITENAME = "inthecoldwaste"
+GOOGLE_ANALYTICS = "UA-11936482-17"
