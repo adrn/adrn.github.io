@@ -3,3 +3,4 @@ Markdown
 fabric
 IPython
 jupyter
+git+https://github.com/jakevdp/JSAnimation.git
