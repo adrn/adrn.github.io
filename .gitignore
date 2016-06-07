@@ -1,3 +1,5 @@
 output
 *.pid
 _nb_header.html
+notebooks/*.png
+notebooks/*.mov
