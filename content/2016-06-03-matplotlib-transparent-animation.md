@@ -14,20 +14,20 @@ arguments through the animation object to the individual Matplotlib `savefig` ca
 simple example below of a circle orbiting in a circle with a trail of points that fade out. First,
 imports:
 
-{% notebook transparent-matplotlib-animation.ipynb cells[0] %}
+{% notebook transparent-matplotlib-animation.ipynb cells[0:1] %}
 
 We start by defining how many frames (timesteps) to use in the animation, and how many circles to
 draw in the trail:
 
-{% notebook transparent-matplotlib-animation.ipynb cells[1] %}
+{% notebook transparent-matplotlib-animation.ipynb cells[1:2] %}
 
 The circle will orbit in a circle:
 
-{% notebook transparent-matplotlib-animation.ipynb cells[2] %}
+{% notebook transparent-matplotlib-animation.ipynb cells[2:3] %}
 
-Finally, the meat of the code (calls to Matplotlib):
+Finally, the meat of the code containing the calls to Matplotlib:
 
-{% notebook transparent-matplotlib-animation.ipynb cells[3] %}
+{% notebook transparent-matplotlib-animation.ipynb cells[3:4] %}
 
 Notice the lines that hide the plot elements and make the figure background transparent:
 
@@ -43,11 +43,7 @@ and
 fig.patch.set_alpha(0.)
 ```
 
-The other critical line is the `save()` call, especially the keyword arguments passed through via
-`savefig_kwargs`:
+To save the video out with a transparent background, the other critical arguments are to the
+`save()` call, especially the keyword arguments passed through via `savefig_kwargs`:
 
-```python
-ani.save('circle_anim.mov', codec="png",
-         dpi=100, bitrate=-1,
-         savefig_kwargs={'transparent': True, 'facecolor': 'none'})
-```
+{% notebook transparent-matplotlib-animation.ipynb cells[4:5] %}
