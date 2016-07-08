@@ -1,4 +1,4 @@
-Title: Yearly sun graph in Python
+Title: Yearly sun graphs in Python
 date: 2016-07-08 11:16
 Category: tutorial
 Tags: python, astropy
