@@ -4,3 +4,4 @@ fabric
 IPython
 jupyter
 git+https://github.com/jakevdp/JSAnimation.git
+git+https://github.com/astropy/astropy.git
