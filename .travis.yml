@@ -10,7 +10,7 @@ env:
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=development
         - PIP_DEPENDENCIES='Markdown fabric git+https://github.com/jakevdp/JSAnimation.git'
-        - CONDA_DEPENDENCIES='ipython jupyter pelican'
+        - CONDA_DEPENDENCIES='ipython jupyter pelican pytz'
 
 python:
     - 3.5
