@@ -11,8 +11,9 @@ shown. It turns out that this is possible using the Matplotlib animation objects
 tried this on Mac). The key elements to doing this are to (1) make the Matplotlib figure background
 invisible, (2) save the video using a png codec (yes, the image format), and (3) to pass keyword
 arguments through the animation object to the individual Matplotlib `savefig` calls. I'll show a
-simple example below of a circle orbiting in a circle with a trail of points that fade out. First,
-imports:
+simple example below of a circle orbiting in a circle with a trail of points that fade out. *(Note:
+running this code requires installing [JSanimation](https://github.com/jakevdp/JSAnimation).)*
+First, imports:
 
 {% notebook transparent-matplotlib-animation.ipynb cells[0:1] %}
 
