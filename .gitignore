@@ -3,3 +3,4 @@ output
 _nb_header.html
 notebooks/*.png
 notebooks/*.mov
+built_website
