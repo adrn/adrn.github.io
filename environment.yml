@@ -14,3 +14,4 @@ dependencies:
     - fabric
     - Markdown
     - git+https://github.com/jakevdp/JSAnimation.git
+    - ads
