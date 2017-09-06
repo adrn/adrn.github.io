@@ -176,3 +176,8 @@ body a {
 .pagination {
     font-size: 72%;
 }
+
+.body ul li {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
