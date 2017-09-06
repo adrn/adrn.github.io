@@ -4,12 +4,30 @@ apw/research
 :url: research
 :save_as: research.html
 
-I'm generally interested in dynamics and statistical inference; my research has
-therefore spanned a large range of topics, from small-scale dynamics of two-body
-systems to the disruption of globular clusters and satellites of the Milky Way.
-I've spent a lot of time thinking about current and future surveys of Milky Way
-stars and how to use these data to infer its dynamical history and stellar
-constituents.
+My main research has spanned from small-scale dynamics of two-body systems to
+the disruption of globular clusters and satellites of the Milky Way. I've spent
+a lot of time thinking about current and future surveys of Milky Way stars and
+how to use these data to infer its dynamical history and structure. My general
+interest in statistical inference and dynamics has also led me to projects on
+binary stars, supermassive black holes, and TODO
 
-the `Gaia mission <https://www.cosmos.esa.int/web/gaia>`_, both in my
-research and as a co-organizer of the `Gaia sprints <http://gaia.lol>`_.
+I'm particularly excited about the `Gaia mission
+<https://www.cosmos.esa.int/web/gaia>`_, both in my research and as a
+co-organizer of the `Gaia sprints <http://gaia.lol>`_.
+
+Recent papers
+=============
+
+Main projects
+=============
+
+Stellar streams and the Milky Way halo
+--------------------------------------
+
+
+The outer disk of the Milky Way
+-------------------------------
+
+
+Wide binaries and comoving stars
+--------------------------------
