@@ -28,6 +28,7 @@ EXTRA_PATH_METADATA = {
 }
 
 MENUITEMS = [('bio', 'bio.html'),
+             ('cv', 'https://github.com/adrn/cv/raw/master-pdf/cv.pdf'),
              ('research', 'research.html'),
              ('code', 'code.html'),
              ('teaching', 'teaching.html'),
