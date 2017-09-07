@@ -1,5 +1,15 @@
-Source code for @adrn's blog.
+adrian.pw
+=========
 
-This is the companion to the repo `adrn.github.io`.
+Source code for my website and blog.
 
-Note to self: I'm using a theme, but I have some custom CSS in `static/css`.
+Commands
+--------
+
+Use `make devserver` to start a development server to generate the pages and
+serve them locally at http://localhost:8000 - `make stopserver` will stop the
+server.
+
+Use `make publish` to build the production site.
+
+Use `make github` to make the production site and push to the `gh-pages` branch.
