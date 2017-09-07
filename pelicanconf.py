@@ -23,7 +23,7 @@ STATIC_PATHS = [
     'extra/'
 ]
 EXTRA_PATH_METADATA = {
-    # 'extra/robots.txt': {'path': 'robots.txt'},
+    'extra/README.md': {'path': 'README.md'},
     'extra/favicon.ico': {'path': 'favicon.ico'}
 }
 
@@ -42,7 +42,6 @@ RELATIVE_URLS = True
 
 # Formatting for dates
 DEFAULT_DATE_FORMAT = ('%Y-%m-%d')
-IGNORE_FILES = ['README.md']
 
 PAGE_PATHS = ['pages']
 PAGE_URL = '../{slug}.html'
