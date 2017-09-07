@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>{% block title %}{{ SITENAME }}{% endblock %}</title>
-	<meta name="description" content="{% block description %}Coding, scientific development, finance, data analysis, visualization, statistics, and machine learning{% endblock %}">
+	<meta name="description" content="{% block description %}Coding, astrophysics, astronomy, science, data analysis, visualization, statistics, and machine learning{% endblock %}">
 	<meta name="author" content="{{ AUTHOR }}">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
@@ -28,7 +28,11 @@
 		{% if MENUITEMS %}
 		<ul class="menu list-inline">
 	        {% for name, link in MENUITEMS %}
-	        <li><a href="{{ SITEURL }}/{{ link }}">{{ name }}</a></li>
+	        	{% if link.startswith('http') %}
+	        		<li><a href="{{ link }}">{{ name }}</a></li>
+	        	{% else %}
+	        		<li><a href="{{ SITEURL }}/{{ link }}">{{ name }}</a></li>
+	        	{% endif %}
 	        {% endfor %}
         </ul>
         {% endif %}

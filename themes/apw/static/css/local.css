@@ -178,6 +178,19 @@ body a {
 }
 
 .body ul li {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+
+.paper-title {
+    font-style: italic;
+}
+
+.paper-authors {
+    font-size: 80%;
+}
+
+.paper-authors .apw {
+    font-weight: 500;
 }
