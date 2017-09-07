@@ -1,0 +1,12 @@
+.. raw:: html
+
+	<ul>
+		<li><a href='http://arxiv.org/pdf/1709.00491' class='paper-title'>Disk Heating, Galactoseismology, and the Formation of Stellar Halos</a><br/><span class='paper-authors'>K. V. Johnston, <span class=apw>A. M. Price-Whelan</span>, M. Bergemann, C. Laporte, <i>et al.</i> (2017)</span></li>
+		<li><a href='http://arxiv.org/pdf/1706.05055' class='paper-title'>Improving \textsl{Gaia} parallax precision with a data-driven model of stars</a><br/><span class='paper-authors'>L. Anderson, D. W. Hogg, B. Leistedt, <span class=apw>A. M. Price-Whelan</span>, <i>et al.</i> (2017)</span></li>
+		<li><a href='https://doi.org/10.3847/1538-3881/aa6ffd' class='paper-title'>Comoving Stars in Gaia DR1: An Abundance of Very Wide Separation Comoving Pairs</a><br/><span class='paper-authors'>S. Oh, <span class=apw>A. M. Price-Whelan</span>, D. W. Hogg, T. D. Morton, <i>et al.</i> (2017)</span></li>
+		<li><a href='http://arxiv.org/pdf/1704.06681' class='paper-title'>Sumo Puff: Tidal Debris or Disturbed Ultra-Diffuse Galaxy?</a><br/><span class='paper-authors'>J. P. Greco, J. E. Greene, <span class=apw>A. M. Price-Whelan</span>, A. Leauthaud, <i>et al.</i> (2017)</span></li>
+		<li><a href='https://doi.org/10.3847/1538-4357/aa643b' class='paper-title'>A Probabilistic Approach to Fitting Period-luminosity Relations and Validating Gaia Parallaxes</a><br/><span class='paper-authors'>B. Sesar, M. Fouesneau, <span class=apw>A. M. Price-Whelan</span>, C. A. L. Bailer-Jones, <i>et al.</i> (2017)</span></li>
+		<li><a href='https://doi.org/10.3847/1538-4357/aa5e50' class='paper-title'>The Joker: A Custom Monte Carlo Sampler for Binary-star and Exoplanet Radial Velocity Data</a><br/><span class='paper-authors'><span class=apw>A. M. Price-Whelan</span>, D. W. Hogg, D. Foreman-Mackey, H. Rix, <i>et al.</i> (2017)</span></li>
+		<li><a href='http://arxiv.org/pdf/1703.04627' class='paper-title'>Gaps in Globular Cluster Streams: Pal 5 and the Galactic Bar</a><br/><span class='paper-authors'>S. Pearson, <span class=apw>A. M. Price-Whelan</span>, K. V. Johnston (2017)</span></li>
+		<li><a href='https://doi.org/10.1093/mnras/stw1838' class='paper-title'>A population of short-period variable quasars from PTF as supermassive black hole binary candidates</a><br/><span class='paper-authors'>M. Charisi, I. Bartos, Z. Haiman, <span class=apw>A. M. Price-Whelan</span>, <i>et al.</i> (2016)</span></li>
+	</ul>

@@ -7,5 +7,5 @@ apw/outreach
 .. raw:: html
 
     <div class="text-center" style="margin-bottom: 50px;">
-        <img src="pages/images/alps_circle.png" width="200px" />
+        <img src="pages/images/eclipse.png" width="200px" />
     </div>

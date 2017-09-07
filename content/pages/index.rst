@@ -16,3 +16,15 @@ I'm passionate about open source software and open science. [`code
 I very occasionally write a blog post or tutorial of general interest.
 [`blog </blog>`_]
 
+------
+
+.. raw:: html
+
+    <address>
+    Department of Astrophysical Sciences<br/>
+    Peyton Hall, Room 120A<br/>
+    4 Ivy Lane<br/>
+    Princeton, NJ 08544<br/>
+    USA
+    </address>
+    (609) 258 2631
