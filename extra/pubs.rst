@@ -1,6 +1,7 @@
 .. raw:: html
 
 	<ul>
+		<li><a href='http://arxiv.org/pdf/1709.03532' class='paper-title'>Spectroscopic confirmation of very-wide stellar binaries and large-separation comoving pairs from Gaia DR1</a><br/><span class='paper-authors'><span class=apw>A. M. Price-Whelan</span>, S. Oh, D. N. Spergel (2017)</span></li>
 		<li><a href='http://arxiv.org/pdf/1709.00491' class='paper-title'>Disk Heating, Galactoseismology, and the Formation of Stellar Halos</a><br/><span class='paper-authors'>K. V. Johnston, <span class=apw>A. M. Price-Whelan</span>, M. Bergemann, C. Laporte, <i>et al.</i> (2017)</span></li>
 		<li><a href='http://arxiv.org/pdf/1706.05055' class='paper-title'>Improving \textsl{Gaia} parallax precision with a data-driven model of stars</a><br/><span class='paper-authors'>L. Anderson, D. W. Hogg, B. Leistedt, <span class=apw>A. M. Price-Whelan</span>, <i>et al.</i> (2017)</span></li>
 		<li><a href='https://doi.org/10.3847/1538-3881/aa6ffd' class='paper-title'>Comoving Stars in Gaia DR1: An Abundance of Very Wide Separation Comoving Pairs</a><br/><span class='paper-authors'>S. Oh, <span class=apw>A. M. Price-Whelan</span>, D. W. Hogg, T. D. Morton, <i>et al.</i> (2017)</span></li>
