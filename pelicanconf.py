@@ -24,7 +24,8 @@ STATIC_PATHS = [
 ]
 EXTRA_PATH_METADATA = {
     'extra/README.md': {'path': 'README.md'},
-    'extra/favicon.ico': {'path': 'favicon.ico'}
+    'extra/favicon.ico': {'path': 'favicon.ico'},
+    'extra/CNAME': {'path': 'CNAME'}
 }
 
 MENUITEMS = [('bio', 'bio.html'),

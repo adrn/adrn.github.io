@@ -7,7 +7,7 @@ if not path.exists(path.join(up_one_dir, 'scripts')):
     raise RuntimeError("generate_pubs.py must be run from inside the scripts "
                        "directory.")
 
-pubs_path = path.join(up_one_dir, 'content', 'pages', 'pubs.rst')
+pubs_path = path.join(up_one_dir, 'content', 'extra', 'pubs.rst')
 
 def parse_authors(paper, max_authors):
     names = []
