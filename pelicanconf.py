@@ -65,7 +65,7 @@ PLUGIN_PATHS = ['pelican-plugins']
 PLUGINS = ['latex', 'liquid_tags.notebook', 'summary']
 
 DISQUS_SITENAME = "adrian price-whelan"
-GOOGLE_ANALYTICS = "UA-11936482-17"
+GOOGLE_ANALYTICS = "UA-11936482-16"
 
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = None
