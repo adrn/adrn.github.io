@@ -58,6 +58,9 @@ else
 	$(BASEDIR)/develop_server.sh restart
 endif
 
+pubs:
+	cd scripts; python generate_pubs.py
+
 stopserver:
 	$(BASEDIR)/develop_server.sh stop
 	@echo 'Stopped Pelican and SimpleHTTPServer processes running in background.'
@@ -68,7 +71,7 @@ publish:
 ssh_upload: publish
 	scp -P $(SSH_PORT) -r $(OUTPUTDIR)/* $(SSH_USER)@$(SSH_HOST):$(SSH_TARGET_DIR)
 
-github: publish
+github: pubs publish
 	ghp-import -m "Generated Pelican site" -b master $(OUTPUTDIR)
 	git push origin master
 
