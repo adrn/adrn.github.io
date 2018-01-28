@@ -3,3 +3,4 @@ _nb_header.html
 *.pid
 content/blog/notebooks/*.png
 content/blog/notebooks/*.mov
+content/blog/static/basemap-shapes
