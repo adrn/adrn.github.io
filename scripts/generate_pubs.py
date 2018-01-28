@@ -12,9 +12,16 @@ pubs_path = path.join(up_one_dir, 'content', 'extra', 'pubs.rst')
 def parse_authors(paper, max_authors):
     names = []
     for a in paper.author:
-        last, others = a.split(', ')
-        others = ['{0}.'.format(o[0]) for o in others.split()]
-        name = "{first} {last}".format(first=' '.join(others), last=last)
+        try:
+            last, others = a.split(', ')
+            others = ['{0}.'.format(o[0]) for o in others.split()]
+            name = "{first} {last}".format(first=' '.join(others), last=last)
+
+        except ValueError:
+            name = a
+
+        print(name)
+
         if 'Price-Whelan' in name:
             name = '<span class=apw>{0}</span>'.format(name)
 
