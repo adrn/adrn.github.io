@@ -1,5 +1,6 @@
 import datetime
 from os import path, getcwd
+import numpy as np
 import ads
 
 up_one_dir = path.abspath(path.join(getcwd(), '..'))
@@ -99,7 +100,9 @@ def main():
         authors = ", ".join(authors) + " ({0})".format(year)
 
         if paper.doi is None:
-            url = "http://arxiv.org/pdf/{0}".format(paper.identifier[0]) # why?
+            ids = paper.identifier
+            arxiv_num = ids[np.argmin([len(x) for x in ids])]
+            url = "http://arxiv.org/pdf/{0}".format(arxiv_num)
         else:
             url = "https://doi.org/{0}".format(paper.doi[0]) # why?
         text += _text_blob.format(title=paper.title[0], # why?
