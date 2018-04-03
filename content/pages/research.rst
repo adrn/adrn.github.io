@@ -16,6 +16,11 @@ My general interest in statistical inference and dynamics has also led me to
 projects on binary stars, supermassive black holes, and calibration of the
 distance ladder.
 
+Research products
+=================
+
+* `Binary companions of evolved stars in APOGEE DR14 </twoface.html>`_
+
 Recent papers
 =============
 
