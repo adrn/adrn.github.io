@@ -16,3 +16,5 @@ dependencies:
     - git+https://github.com/jakevdp/JSAnimation.git
     - ads
     - ghp-import
+    - schwimmbad
+    - emcee
