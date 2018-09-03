@@ -20,6 +20,7 @@ Research products
 =================
 
 * `Binary companions of evolved stars in APOGEE DR14 </twoface.html>`_
+* `Gaia+Pan-STARRS data for the GD-1 stream <https://zenodo.org/record/1295543>`_
 
 Recent papers
 =============
