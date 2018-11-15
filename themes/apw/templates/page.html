@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block description %}{{ page.description }}{% endblock %}
 {% block title %}{{ page.title }} — {{ SITENAME }} {% endblock %}
+{% block subtitle %}
+    {% if page.title.split('/')|length > 1 %}
+        : {{ page.title.split('/')[1] }}
+    {% endif %}
+{% endblock %}
 {% block content %}
 <section id="content" class="body">
     {{ page.content }}

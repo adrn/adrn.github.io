@@ -121,36 +121,40 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     color: #555555;
 }
 
-a, a:visited, a:active {
-    color: #777777;
+a, a:link, a:visited, a:active {
+    color: #2679a0;
 }
 
 a:hover {
-    color: #333333;
-    text-decoration: underline;
-    -moz-text-decoration-color: #d9230f; /* Code for Firefox */
-    -webkit-text-decoration-color: #d9230f; /* Code for WebKit */
-    text-decoration-color: #d9230f;
+    color: #2679a0;
+    /*text-decoration: underline;
+    -moz-text-decoration-color: #d9230f;
+    -webkit-text-decoration-color: #d9230f;
+    text-decoration-color: #d9230f;*/
+}
+
+a.imglink:hover {
+  text-decoration: none;
 }
 
 .page-header {
     border-bottom-color: #aaaaaa !important;
 }
 
-.page-header h1 a {
+.page-header h1 {
     color: #333333;
     letter-spacing: 2px;
     font-weight: 100;
 }
 
 @media screen and (min-width: 768px) {
-    .page-header h1 a {
+    .page-header h1 {
         font-size: 42px !important;
     }
 }
 
 @media screen and (min-width: 200px) and (max-width: 768px) {
-    .page-header h1 a {
+    .page-header h1 {
         font-size: 8vw !important;
     }
 }
