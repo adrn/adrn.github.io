@@ -17,3 +17,5 @@ server.
 Use `make publish` to build the production site.
 
 Use `make github` to make the production site and push to the `gh-pages` branch.
+
+Use `make pubs github` to regenerate the publication list and push.
