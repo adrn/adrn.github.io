@@ -6,6 +6,8 @@ apw/research
 
 My research ranges from mapping dark matter in the Milky Way, to the formation and evolution of our Galaxy, to characterizing binary star systems. I've spent a lot of time thinking about current and future surveys of Milky Way stars and how to use these data to infer its dynamical history and structure. I'm particularly excited about the `Gaia mission <https://www.cosmos.esa.int/web/gaia>`_ and am a co-organizer of the `Gaia sprints <http://gaia.lol>`_. The pages below give a little more detail about my research, by category:
 
+|
+
 .. raw:: html
 
     <div class="text-center">
