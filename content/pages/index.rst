@@ -10,6 +10,9 @@ I'm a 3rd year postdoc in the `Department of Astrophysical Sciences
 My main research centers on the structure and formation of the Milky Way.
 [`research </research.html>`_]
 
+You can read popular accounts of some of my recent work in the news.
+[`press </press.html>`_]
+
 I'm passionate about open source software and open science. [`code
 </code.html>`_]
 
