@@ -33,6 +33,7 @@ MENUITEMS = [('bio', 'bio.html'),
              ('research', 'research.html'),
              ('code', 'code.html'),
              ('teaching', 'teaching.html'),
+             ('press', 'press.html'),
              ('blog', 'blog/')]
 DISPLAY_PAGES_ON_MENU = False
 DISPLAY_CATEGORIES_ON_MENU = False
