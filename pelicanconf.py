@@ -32,6 +32,7 @@ MENUITEMS = [('bio', 'bio.html'),
              ('cv', 'http://adrian.pw/cv/pdf/cv.pdf'),
              ('research', 'research.html'),
              ('code', 'code.html'),
+             ('viz', 'viz.html'),
              ('teaching', 'teaching.html'),
              ('press', 'press.html'),
              ('blog', 'blog/')]

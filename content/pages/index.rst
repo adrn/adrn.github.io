@@ -16,6 +16,9 @@ You can read popular accounts of some of my recent work in the news.
 I'm passionate about open source software and open science. [`code
 </code.html>`_]
 
+I've made a few data visualizations and demos that might be useful. [`viz
+</viz.html>`_]
+
 I very occasionally write a blog post or tutorial of general interest.
 [`blog </blog>`_]
 
