@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Tags — adrian price-whelan</title>
-	<meta name="description" content="The Tags page lists all tags used to classify the posts. Each post has at least one tag helping readers find out easily what they are looking for.">
+	<title>apw/visualizations — adrian price-whelan </title>
+	<meta name="description" content="">
 	<meta name="author" content="adrn">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
@@ -17,41 +17,12 @@
 	<link href="http://adrian.pw/theme/css/local.css" rel="stylesheet">
 	<link href="http://adrian.pw/theme/css/pygments.css" rel="stylesheet">
 	<link href="http://adrian.pw/theme/fonts/academicons-1.8.0/css/academicons.css" rel="stylesheet">
-<style type="text/css" media="screen">
-ul.tagcloud {
-	list-style: none;
-	padding: 0;
-	padding-top: 7em;
-	padding-bottom: 7em;
-	width: 50%;
-	margin-left: 25%;
-}
-
-ul.tagcloud li {
-	display: inline-block;
-}
-
-li.tag-1 {
-	font-size: 150%;
-}
-
-li.tag-2 {
-	font-size: 120%;
-}
-
-li.tag-3 {
-	font-size: 100%;
-}
-
-li.tag-4 {
-	font-size: 80%;
-}
-</style>
 </head>
 <body>
 <div class="container" style="max-width: 768px;">
 	<div class="page-header">
 		<h1><a href="http://adrian.pw/">adrian price-whelan</a>
+        : visualizations
 		</h1>
 
 		<ul class="menu list-inline">
@@ -67,34 +38,82 @@ li.tag-4 {
 	</div>
 	<div class="row">
 		<div class="col-md-12">
-<h1>Tags</h1>
-<div class="text-center">
-<ul class="tagcloud">
-</ul>
+<section id="content" class="body">
+    <p>The following visualizations and movies are free to use and available via the
+Creative Commons <a class="reference external" href="https://github.com/adrn/talkviz/blob/master/LICENSE">CC-BY-SA</a> license. In short,
+if you use these, please (1) attribute &quot;A. Price-Whelan&quot;, and (2) if you
+re-distribute any of this material, you must carry along this license. All of
+these visualizations were generated with Python code hosted <a class="reference external" href="https://github.com/adrn/talkviz">in this GitHub
+repository</a>.</p>
+<div class="line-block">
+<div class="line"><br /></div>
 </div>
+<div class="section" id="stellar-streams">
+<h2>Stellar streams:</h2>
+<p>This set of movies shows the tidal disruption of a star cluster as it orbits in
+a (very simple) model for our galaxy, the Milky Way. The stars that get pulled
+out of the star cluster form &quot;leading&quot; and &quot;trailing&quot; tails that make up a
+&quot;stream&quot; of stars. Streams are useful because they roughly delineate the past
+and future trajectory of an object (i.e. the progenitor star cluster). In the
+first movie, the green line shows the orbit of the star cluster around the
+galaxy (left panel), and the red and blue points represent stars that were once
+bound to the cluster but have now been pulled out by the tidal field of the
+Galaxy and now form a leading tail (red points) and trailing tail (blue points).
+the right panel shows the formation of the stream in a reference frame that
+rotates with the star cluster.
+The second movie shows the formation of the stream in a different set of
+phase-space coordinates: &quot;action-angle&quot; coordinates.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div style="text-align: center;">
+<video width="768px" height="400px" controls loop>
+    <source src="http://adrian.pw/talkviz/movies/stream_xy.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+</div><div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div style="text-align: center;">
+<video width="768px" height="400px" controls loop>
+    <source src="http://adrian.pw/talkviz/movies/stream_actionangle.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+</div><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="binary-stars">
+<h2>Binary stars:</h2>
+<p>A gallery of binary star systems with different mass ratios (q) and different
+eccentricities (e), as labeled. The first video shows a view of the orbital
+plane of the system, and the second video shows the radial velocity signal from
+each star when viewed edge on and with all relevant angles in the Kepler problem
+set to 0 (e.g., argument of pericenter). These two videos are time-synced.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div style="text-align: center;">
+<video width="512px" height="512px" controls loop>
+    <source src="http://adrian.pw/talkviz/movies/binary-star-gallery.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+</div><div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div style="text-align: center;">
+<video width="512px" height="512px" controls loop>
+    <source src="http://adrian.pw/talkviz/movies/binary-star-gallery-rvs.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+</div></div>
+
+</section>
 		</div>
 	</div>
 	<!-- <hr> -->
 </div> <!-- /container -->
 
-<footer class="aw-footer bg-grey">
-    <div class="container"> <!-- footer -->
-        <div class="row">
-            <div class="col-md-8 col-md-offset-2">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h4>categories</h4>
-                        <ul class="list-unstyled my-list-style">
-                            <li><a href="http://adrian.pw/category/hack.html">hack (4)</a></li>
-                            <li><a href="http://adrian.pw/category/tip.html">tip (1)</a></li>
-                            <li><a href="http://adrian.pw/category/tutorial.html">tutorial (2)</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</footer>
 
 <div class="container">
 	<div class="row">
