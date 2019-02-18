@@ -7,15 +7,25 @@ apw/visualizations
 The following visualizations and movies are free to use and available via the
 Creative Commons `CC-BY-SA
 <https://github.com/adrn/talkviz/blob/master/LICENSE>`_ license. In short,
-if you use these, please (1) attribute "A. Price-Whelan", and (2) if you
-re-distribute any of this material, you must carry along this license. All of
-these visualizations were generated with Python code hosted `in this GitHub
+if you use these, please (1) **acknowledge "A. Price-Whelan"**, and (2) if you
+re-distribute any of this material, **you must carry along this license**. All
+of these visualizations were generated with Python code hosted `in this GitHub
 repository <https://github.com/adrn/talkviz>`_.
 
 |
 
 Stellar streams:
 ================
+
+Interactive:
+------------
+
+* `Stellar streams around the Milky Way <http://adrian.pw/visualizations/mwstreams/>`_
+* `Globular cluster streams simulated in the Via Lactea 2 simulation <http://adrian.pw/visualizations/vl2/>`_
+* `Stellar stream maker <http://adrian.pw/visualizations/streams/>`_
+
+Movies:
+-------
 
 This set of movies shows the tidal disruption of a star cluster as it orbits in
 a (very simple) model for our galaxy, the Milky Way. The stars that get pulled
