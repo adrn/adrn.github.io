@@ -6,6 +6,7 @@ apw/press
 
 A sampling of articles in popular media about my work:
 
+* `Streams of Stars Snaking Through the Galaxy Could Help Shine a Light on Dark Matter <https://www.smithsonianmag.com/science-nature/streams-stars-snaking-through-galaxy-could-help-shine-light-dark-matter-180971679/>`_ - *Smithsonian Magazine 2019*
 * `New Star Maps Shed Light on Milky Way’s Convulsive History <https://www.scientificamerican.com/article/new-star-maps-shed-light-on-milky-ways-convulsive-history/>`_ - *Scientific American 2019*
 * `Hidden history of the Milky Way revealed by extensive star maps <https://www.nature.com/articles/d41586-019-00123-y>`_ — *Nature 2019*
 * `Sky rivers <http://www.sciencemag.org/news/2018/10/streams-stars-reveal-galaxy-s-violent-history-and-perhaps-its-unseen-dark-matter>`_ — *Science 2018*
