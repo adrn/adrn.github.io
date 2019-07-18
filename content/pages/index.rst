@@ -4,8 +4,9 @@ apw
 :url:
 :save_as: index.html
 
-I'm a 3rd year postdoc in the `Department of Astrophysical Sciences
-<www.astro.princeton.edu>`_ at Princeton University. [`bio </bio.html>`_]
+I'm currently a Flatiron Research Fellow at the Center for Computational 
+Astrophysics at the `Flatiron Institute <https://www.simonsfoundation.org/flatiron/>`_ 
+in NYC. [`bio </bio.html>`_]
 
 My main research centers on the structure and formation of the Milky Way.
 [`research </research.html>`_]
@@ -27,9 +28,10 @@ I very occasionally write a blog post or tutorial of general interest.
 .. raw:: html
 
     <address>
-    Department of Astrophysical Sciences<br/>
-    Peyton Hall, Room 120A<br/>
-    4 Ivy Lane<br/>
-    Princeton, NJ 08544<br/>
+    Office 505<br/>
+    Center for Computational Astrophysics<br/>
+    Flatiron Institute<br/>
+    162 Fifth Avenue<br/>
+    New York, NY 10010<br/>
     USA
     </address>
