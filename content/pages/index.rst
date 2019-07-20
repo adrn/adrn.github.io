@@ -4,9 +4,9 @@ apw
 :url:
 :save_as: index.html
 
-I'm currently a Flatiron Research Fellow at the Center for Computational 
-Astrophysics at the `Flatiron Institute <https://www.simonsfoundation.org/flatiron/>`_ 
-in NYC. [`bio </bio.html>`_]
+I'm currently a postdoctoral fellow at the 
+`CCA <https://www.simonsfoundation.org/flatiron/center-for-computational-astrophysics/>`_ 
+at the `Flatiron Institute <https://www.simonsfoundation.org/flatiron/>`_ in NYC. [`bio </bio.html>`_]
 
 My main research centers on the structure and formation of the Milky Way.
 [`research </research.html>`_]
