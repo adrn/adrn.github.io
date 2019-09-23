@@ -2,7 +2,8 @@ PY?=python
 PELICAN?=pelican
 PELICANOPTS=
 
-BASEDIR=$(CURDIR)
+# BASEDIR=$(CURDIR)
+BASEDIR="/Users/apricewhelan/projects/adrn.github.io"
 INPUTDIR=$(BASEDIR)/content
 OUTPUTDIR=$(BASEDIR)/output
 CONFFILE=$(BASEDIR)/pelicanconf.py

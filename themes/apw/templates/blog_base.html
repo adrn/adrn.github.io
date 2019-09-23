@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 
+{% block head %}
+    {% if EXTRA_HEADER %}
+        {{ EXTRA_HEADER }}
+    {% endif %}
+{% endblock %}
+
 {% block blogfooter %}
 <footer class="aw-footer bg-grey">
     <div class="container"> <!-- footer -->

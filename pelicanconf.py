@@ -63,7 +63,7 @@ AUTHORS_URL = False
 AUTHORS_SAVE_AS = False
 
 # Plugins
-PLUGIN_PATHS = ['pelican-plugins']
+PLUGIN_PATHS = ['../open-source/pelican-plugins']
 PLUGINS = ['latex', 'liquid_tags.notebook', 'summary']
 
 DISQUS_SITENAME = "adrian price-whelan"
@@ -79,3 +79,12 @@ AUTHOR_FEED_RSS = None
 LOAD_CONTENT_CACHE = False
 
 NOTEBOOK_DIR = "blog/notebooks"
+
+import os
+if not os.path.exists('_nb_header.html'):
+    import warnings
+    warnings.warn("_nb_header.html not found.  "
+                  "Rerun make html to finalize build.")
+else:
+    with open('_nb_header.html', 'r') as f:
+        EXTRA_HEADER = f.read()
