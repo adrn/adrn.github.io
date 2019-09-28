@@ -63,7 +63,7 @@ AUTHORS_URL = False
 AUTHORS_SAVE_AS = False
 
 # Plugins
-PLUGIN_PATHS = ['../open-source/pelican-plugins']
+PLUGIN_PATHS = ['pelican-plugins']
 PLUGINS = ['latex', 'liquid_tags.notebook', 'summary']
 
 DISQUS_SITENAME = "adrian price-whelan"
