@@ -6,6 +6,10 @@ apw/press
 
 A sampling of articles in popular media about my work:
 
+* `Baby Stars Found in Ancient Part of Our Galaxy <https://www.skyandtelescope.com/astronomy-news/baby-stars-found-ancient-part-milky-way-galaxy/>`_ - *Sky and Telescope 2020*
+* `The Milky Way Is Gaining New Stars From A Collision That Hasn't Even Occurred Yet <https://www.forbes.com/sites/startswithabang/2020/01/09/the-milky-way-is-gaining-new-stars-from-a-collision-that-hasnt-even-occurred-yet/#197424aa1e5b>`_ - *Forbes 2020*
+* `Impending galactic clash already spawning new stars at Milky Way’s edge <https://www.nydailynews.com/news/world/ny-new-stars-in-milky-way-20200110-5n3tu26uy5cgzgvl4mylsa6q3i-story.html>`_ - *NY Daily News 2020*
+* `An Upcoming Impact With the Magellanic Clouds is Already Causing Star Formation in the Milky Way <https://www.universetoday.com/144556/an-upcoming-impact-with-the-magellanic-clouds-is-already-causing-star-formation-in-the-milky-way/>`_ - *Universe Today 2020*
 * `Streams of Stars Snaking Through the Galaxy Could Help Shine a Light on Dark Matter <https://www.smithsonianmag.com/science-nature/streams-stars-snaking-through-galaxy-could-help-shine-light-dark-matter-180971679/>`_ - *Smithsonian Magazine 2019*
 * `New Star Maps Shed Light on Milky Way’s Convulsive History <https://www.scientificamerican.com/article/new-star-maps-shed-light-on-milky-ways-convulsive-history/>`_ - *Scientific American 2019*
 * `Hidden history of the Milky Way revealed by extensive star maps <https://www.nature.com/articles/d41586-019-00123-y>`_ — *Nature 2019*
