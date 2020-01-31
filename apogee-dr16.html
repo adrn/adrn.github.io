@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>apw/twoface — adrian price-whelan </title>
+	<title>apw/APOGEE-DR16 — adrian price-whelan </title>
 	<meta name="description" content="">
 	<meta name="author" content="adrn">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,7 +22,7 @@
 <div class="container" style="max-width: 768px;">
 	<div class="page-header">
 		<h1><a href="http://adrian.pw/">adrian price-whelan</a>
-        : twoface
+        : APOGEE-DR16
 		</h1>
 
 		<ul class="menu list-inline">
@@ -39,61 +39,43 @@
 	<div class="row">
 		<div class="col-md-12">
 <section id="content" class="body">
-    <p><strong>Note: These data products are now superseded by the DR16 catalogs. See `the DR16 catalog page &lt;apogee-dr16.html&gt;`_</strong></p>
-<p>This page contains catalogs and data products from our search for binary star
-systems using data release 14 (<a class="reference external" href="http://www.sdss.org/dr14/irspec/spectro_data/">DR14</a>) of the <a class="reference external" href="http://www.sdss.org/surveys/apogee-2/">APOGEE</a> survey.</p>
-<p>All code related to this project can be found in <a class="reference external" href="https://github.com/adrn/twoface">this GitHub repository</a>.</p>
+    <p>This page contains catalogs and data products from our search for binary star
+systems using data release 16 (<a class="reference external" href="http://www.sdss.org/dr14/irspec/spectro_data/">DR14</a>) of the <a class="reference external" href="http://www.sdss.org/surveys/apogee-2/">APOGEE</a> surveys.
+The generation of these catalogs and some initial results are described in
+<a class="reference external" href="https://arxiv.org/abs/2002.XXXXX">Price-Whelan et al. 2020</a> (PW20).</p>
+<p>All code related to this project can be found in <a class="reference external" href="https://github.com/adrn/hq">this GitHub repository</a>.</p>
 <div class="section" id="catalogs">
 <h2>Catalogs</h2>
-<div class="section" id="derived-parameters">
-<h3>Derived parameters</h3>
-<p>If you're just looking for catalogs of binaries, these are probably the files
-you want.</p>
 <ul>
-<li><p class="first"><a class="reference external" href="https://s3.amazonaws.com/apogee-twoface/highK-unimodal.fits">Orbital parameters for uniquely-determined binaries</a> (320 stars)</p>
+<li><p class="first"><a class="reference external" href="https://users.flatironinstitute.org/~apricewhelan/data/dr16-binaries/gold_sample.fits">Orbital parameters for the &quot;gold sample&quot; binaries (Table 3 in PW20)</a> (1,023 sources)</p>
 <p>This file contains maximum <em>a posteriori</em> values of the orbital parameters for
-320 systems that were flagged as having unimodal posterior samplings. The
-uncertainties on the orbital parameters (<cite>_err</cite> columns) are estimated using
-percentiles from the 1D (marginal) distributions: Note that the parameters
-often have correlated posterior distributions, so if this matters to your
-analysis, you should directly use the posterior samples provided below
-(especially the MCMC samplings file). To select out a clean sample of systems
-with orbital solutions that have been visually inspected, and with converged
-MCMC samplings in Python, use:</p>
-<pre class="literal-block">
-from astropy.table import QTable
-tbl = QTable.read('highK-unimodal.fits',
-                  astropy_native=True, character_as_bytes=False)
-clean = tbl[(tbl['clean_flag'] == 0) &amp; tbl['converged']]
-</pre>
-<p>This file also contains all columns from the APOGEE DR14 allStar file, and
-columns from Melissa Ness' derived masses and ages from <a class="reference external" href="https://ui.adsabs.harvard.edu/#abs/2016ApJ...823..114N/abstract">this paper</a> (where
-available).</p>
+binary systems that have unimodal (i.e., uniquely determined) posterior
+samplings; additional quality cuts are described in PW20. The uncertainties on
+the orbital parameters (<cite>_err</cite> columns) are estimated using percentiles from
+the 1D (marginal) distributions.  Along with the orbital parameter columns,
+this file also contains all columns from the APOGEE DR16 allStar file, the
+Gaia DR2 source file, and primary star mass estimates from the STARHORSE2019
+catalog of stellar parameters.</p>
 </li>
-<li><p class="first"><a class="reference external" href="https://s3.amazonaws.com/apogee-twoface/highK-bimodal.fits">Orbital parameters for binaries with bimodal samplings</a> (106 stars)</p>
+<li><p class="first"><a class="reference external" href="https://users.flatironinstitute.org/~apricewhelan/data/dr16-binaries/bimodal.fits">Orbital parameters for binaries with bimodal samplings</a> (551 sources)</p>
 <p>This table contains two rows per system for all systems with bimodal posterior
 samplings over orbital period. Within each mode, the maximum <em>a posteriori</em>
 sample is reported.</p>
 </li>
-<li><p class="first"><a class="reference external" href="https://s3.amazonaws.com/apogee-twoface/lnK-percentiles.fits">1st percentiles computed from all posterior samplings of the velocity
-semi-amplitude, *K*</a> (96,231 stars)</p>
-<p>This file contains the 1st percentile of the velocity semi-amplitude, <em>K</em>,
-samplings for all APOGEE stars in our parent sample. You can use this value to
-select probable binaries: systems with a large value of this parameter have
-large radial velocity variations that can be explained by two-body orbital
-moton.</p>
+<li><p class="first"><a class="reference external" href="https://users.flatironinstitute.org/~apricewhelan/data/dr16-binaries/metadata.fits">Metadata for all APOGEE sources in the parent sample (Table 2 in PW20)</a> (232,531 sources)</p>
+<p>This file contains metadata computed from the orbital parameter samplings for
+all APOGEE stars in our parent sample. See the description of Table 2 in PW20.</p>
+</li>
+<li><p class="first"><a class="reference external" href="https://users.flatironinstitute.org/~apricewhelan/data/dr16-binaries/lnK0.0_logL4.6_metadata.fits">Metadata for APOGEE sources identified as candidate binary star systems</a> (19,635 sources)</p>
+<p>This file contains the same columns as in Table 2 and in the metadata file
+above, but only contains sources that were identified as candidate binary star
+systems based on the orbital parameter samplings.</p>
 </li>
 </ul>
 </div>
-<div class="section" id="raw-catalogs">
-<h3>Raw catalogs</h3>
-<ul class="simple">
-<li><a class="reference external" href="https://s3.amazonaws.com/apogee-twoface/apogee-jitter.hdf5">All posterior samplings returned by *The Joker*</a> (96,231 stars)</li>
-<li><a class="reference external" href="https://s3.amazonaws.com/apogee-twoface/apogee.sqlite">Database containing metadata for APOGEE DR14 stars</a> (96,231 stars)</li>
-<li><a class="reference external" href="https://s3.amazonaws.com/apogee-twoface/apogee-jitter-mcmc.hdf5">MCMC samplings for stars with unimodal samplings</a> (320 stars)</li>
-<li><a class="reference external" href="https://s3.amazonaws.com/apogee-twoface/apogee-jitter-control.hdf5">All posterior samplings for the (simulated) control sample</a> (16,384 stars)</li>
-</ul>
-</div>
+<div class="section" id="tutorials">
+<h2>Tutorials</h2>
+<p>Coming soon!</p>
 </div>
 
 </section>
