@@ -4,6 +4,9 @@ apw/twoface
 :url: twoface
 :save_as: twoface.html
 
+**Note: These data products are now superseded by the DR16 catalogs.** See  `the
+DR16 catalog page </apogee-dr16.html>`_
+
 This page contains catalogs and data products from our search for binary star
 systems using data release 14 (`DR14
 <http://www.sdss.org/dr14/irspec/spectro_data/>`_) of the `APOGEE
