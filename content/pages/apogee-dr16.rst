@@ -5,7 +5,7 @@ apw/APOGEE-DR16
 :save_as: apogee-dr16.html
 
 This page contains catalogs and data products from our search for binary star
-systems using data release 16 (`DR14
+systems using data release 16 (`DR16
 <http://www.sdss.org/dr16/irspec/spectro_data/>`_) of the `APOGEE
 <http://www.sdss.org/surveys/apogee-2/>`_ surveys.
 The generation of these catalogs and some initial results are described in
