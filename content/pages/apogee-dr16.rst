@@ -52,4 +52,4 @@ Catalogs
 Tutorials
 =========
 
-Coming soon!
+`Here is a short tutorial <https://binder.flatironinstitute.org/~apricewhelan/thejoker-vac-dr16plus>`_ that demonstrates how to use some of the data products linked above. Please let me know if anything is unclear, or if you would like to see other specific examples.
