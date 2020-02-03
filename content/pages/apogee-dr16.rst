@@ -37,7 +37,7 @@ Catalogs
   sample is reported.
 
 * `Metadata for all APOGEE sources in the parent sample (Table 2 in PW20)
-  <https://users.flatironinstitute.org/~apricewhelan/data/dr16-binaries/metadata.fits>`_ (232,531 sources)
+  <https://users.flatironinstitute.org/~apricewhelan/data/dr16-binaries/metadata.fits>`_ (232,495 sources)
 
   This file contains metadata computed from the orbital parameter samplings for
   all APOGEE stars in our parent sample. See the description of Table 2 in PW20.
