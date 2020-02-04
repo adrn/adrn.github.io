@@ -9,7 +9,7 @@ systems using data release 16 (`DR16
 <http://www.sdss.org/dr16/irspec/spectro_data/>`_) of the `APOGEE
 <http://www.sdss.org/surveys/apogee-2/>`_ surveys.
 The generation of these catalogs and some initial results are described in
-`Price-Whelan et al. 2020 <https://arxiv.org/abs/2002.XXXXX>`_ (PW20).
+`Price-Whelan et al. 2020 <http://arxiv.org/abs/2002.00014>`_ (PW20).
 
 All code related to this project can be found in `this GitHub repository
 <https://github.com/adrn/hq>`_.
