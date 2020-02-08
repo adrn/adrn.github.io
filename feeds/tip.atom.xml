@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>adrian price-whelan - tip</title><link href="http://adrian.pw/" rel="alternate"></link><link href="http://adrian.pw/feeds/tip.atom.xml" rel="self"></link><id>http://adrian.pw/</id><updated>2020-01-24T10:14:00-05:00</updated><entry><title>Rasterize all lines below a layer with Matplotlib</title><link href="http://adrian.pw/blog/matplotlib-rasterize/" rel="alternate"></link><published>2020-01-24T10:14:00-05:00</published><updated>2020-01-24T10:14:00-05:00</updated><author><name>adrn</name></author><id>tag:adrian.pw,2020-01-24:/blog/matplotlib-rasterize/</id><summary type="html">&lt;p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>adrian price-whelan - tip</title><link href="https://adrian.pw/" rel="alternate"></link><link href="https://adrian.pw/feeds/tip.atom.xml" rel="self"></link><id>https://adrian.pw/</id><updated>2020-01-24T10:14:00-05:00</updated><entry><title>Rasterize all lines below a layer with Matplotlib</title><link href="https://adrian.pw/blog/matplotlib-rasterize/" rel="alternate"></link><published>2020-01-24T10:14:00-05:00</published><updated>2020-01-24T10:14:00-05:00</updated><author><name>adrn</name></author><id>tag:adrian.pw,2020-01-24:/blog/matplotlib-rasterize/</id><summary type="html">&lt;p&gt;
 &lt;div class="cell border-box-sizing text_cell rendered"&gt;&lt;div class="prompt input_prompt"&gt;
 &lt;/div&gt;&lt;div class="inner_cell"&gt;
 &lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
@@ -251,7 +251,7 @@ height=252
 &lt;/div&gt;
  
 
-&lt;/p&gt;</content><category term="python"></category><category term="matplotlib"></category></entry><entry><title>Making a Matplotlib animation with a transparent background</title><link href="http://adrian.pw/blog/matplotlib-transparent-animation/" rel="alternate"></link><published>2016-06-03T16:22:00-04:00</published><updated>2016-06-03T16:22:00-04:00</updated><author><name>adrn</name></author><id>tag:adrian.pw,2016-06-03:/blog/matplotlib-transparent-animation/</id><summary type="html">&lt;p&gt;I recently needed to overlay a Matplotlib animation on an image in a keynote
+&lt;/p&gt;</content><category term="python"></category><category term="matplotlib"></category></entry><entry><title>Making a Matplotlib animation with a transparent background</title><link href="https://adrian.pw/blog/matplotlib-transparent-animation/" rel="alternate"></link><published>2016-06-03T16:22:00-04:00</published><updated>2016-06-03T16:22:00-04:00</updated><author><name>adrn</name></author><id>tag:adrian.pw,2016-06-03:/blog/matplotlib-transparent-animation/</id><summary type="html">&lt;p&gt;I recently needed to overlay a Matplotlib animation on an image in a keynote
 presentation. This requires creating an animation with a transparent background
 so that only the plot elements are shown. It turns out that this is possible
 using the Matplotlib animation objects (note: I've only tried this on …&lt;/p&gt;</summary><content type="html">&lt;p&gt;I recently needed to overlay a Matplotlib animation on an image in a keynote

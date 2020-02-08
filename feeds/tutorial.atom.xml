@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>adrian price-whelan - tutorial</title><link href="http://adrian.pw/" rel="alternate"></link><link href="http://adrian.pw/feeds/tutorial.atom.xml" rel="self"></link><id>http://adrian.pw/</id><updated>2018-06-15T08:16:00-04:00</updated><entry><title>Fitting a straight line to data</title><link href="http://adrian.pw/blog/fitting-a-line/" rel="alternate"></link><published>2018-06-15T08:16:00-04:00</published><updated>2018-06-15T08:16:00-04:00</updated><author><name>adrn</name></author><id>tag:adrian.pw,2018-06-15:/blog/fitting-a-line/</id><summary type="html">&lt;p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>adrian price-whelan - tutorial</title><link href="https://adrian.pw/" rel="alternate"></link><link href="https://adrian.pw/feeds/tutorial.atom.xml" rel="self"></link><id>https://adrian.pw/</id><updated>2018-06-15T08:16:00-04:00</updated><entry><title>Fitting a straight line to data</title><link href="https://adrian.pw/blog/fitting-a-line/" rel="alternate"></link><published>2018-06-15T08:16:00-04:00</published><updated>2018-06-15T08:16:00-04:00</updated><author><name>adrn</name></author><id>tag:adrian.pw,2018-06-15:/blog/fitting-a-line/</id><summary type="html">&lt;p&gt;
 &lt;div class="cell border-box-sizing text_cell rendered"&gt;&lt;div class="prompt input_prompt"&gt;
 &lt;/div&gt;&lt;div class="inner_cell"&gt;
 &lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
@@ -16685,7 +16685,7 @@ $a=1.13 \pm 0.04\quad b=4.65 \pm 0.04\quad $
 &lt;/div&gt;
  
 
-&lt;/p&gt;</content><category term="python"></category><category term="statistics"></category><category term="mcmc"></category></entry><entry><title>Yearly sun graphs in Python</title><link href="http://adrian.pw/blog/yearly-sun-graph/" rel="alternate"></link><published>2016-07-08T11:16:00-04:00</published><updated>2016-07-08T11:16:00-04:00</updated><author><name>adrn</name></author><id>tag:adrian.pw,2016-07-08:/blog/yearly-sun-graph/</id><summary type="html">&lt;p&gt;Molly Peeples (&lt;a href="https://twitter.com/astronomolly"&gt;@astronomolly&lt;/a&gt;) recently
+&lt;/p&gt;</content><category term="python"></category><category term="statistics"></category><category term="mcmc"></category></entry><entry><title>Yearly sun graphs in Python</title><link href="https://adrian.pw/blog/yearly-sun-graph/" rel="alternate"></link><published>2016-07-08T11:16:00-04:00</published><updated>2016-07-08T11:16:00-04:00</updated><author><name>adrn</name></author><id>tag:adrian.pw,2016-07-08:/blog/yearly-sun-graph/</id><summary type="html">&lt;p&gt;Molly Peeples (&lt;a href="https://twitter.com/astronomolly"&gt;@astronomolly&lt;/a&gt;) recently
 tweeted &lt;a href="https://twitter.com/astronomolly/status/749675563539890176"&gt;some really cool
 plots&lt;/a&gt; from
 &lt;a href="http://www.timeanddate.com/sun/uk/edinburgh"&gt;timeanddate.com&lt;/a&gt; that visualize
