@@ -28,7 +28,7 @@ I very occasionally write a blog post or tutorial of general interest.
 .. raw:: html
 
     <address>
-    Office 505<br/>
+    Office 611<br/>
     Center for Computational Astrophysics<br/>
     Flatiron Institute<br/>
     162 Fifth Avenue<br/>
