@@ -23,6 +23,10 @@ Some other Python packages of mine that might be useful:
             Galactic and gravitational dynamics.
         </li>
         <li>
+            <a href="http://pyia.readthedocs.io/"><i>pyia</i></a>: a package for
+            working with data from the Gaia Mission.
+        </li>
+        <li>
             <a href="http://schwimmbad.readthedocs.io/"><i>Schwimmbad</i></a>:
             Provides a uniform interface to parallel processing pools and
             enables switching easily between local development (e.g., with
