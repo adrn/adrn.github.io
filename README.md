@@ -8,7 +8,7 @@ The `master` branch contains the built website, code is in the branch `source`.
 Commands
 --------
 
-Use the environment `source activate adrian.pw`.
+Use the environment `conda activate adrn.github.io`.
 
 Use `make devserver` to start a development server to generate the pages and
 serve them locally at http://localhost:8000 - `make stopserver` will stop the
