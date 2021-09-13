@@ -4,7 +4,7 @@ apw
 :url:
 :save_as: index.html
 
-I'm currently a postdoctoral fellow at the 
+I'm currently an Associate Research Scientist at the 
 `CCA <https://www.simonsfoundation.org/flatiron/center-for-computational-astrophysics/>`_ 
 at the `Flatiron Institute <https://www.simonsfoundation.org/flatiron/>`_ in NYC. [`bio </bio.html>`_]
 
