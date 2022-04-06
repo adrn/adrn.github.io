@@ -7,13 +7,14 @@ apw/code
 All of the code behind my research projects and scientific papers is available
 `@adrn on GitHub <https://github.com/adrn>`_.
 
-I'm a `core contributor
-<https://github.com/astropy/astropy/graphs/contributors>`_ to `Astropy
-<http://astropy.org>`_ and the `deputy maintainer
+I'm a `coordination committee member
+<https://www.astropy.org/team.html#Coordination_committee_member>`_ of and `core
+contributor <https://github.com/astropy/astropy/graphs/contributors>`_ to
+`Astropy <http://astropy.org>`_ and a `maintainer
 <http://astropy.org/team.html>`_ of the ``astropy.coordinates`` and
 ``astropy.units`` subpackages.
 
-Some other Python packages of mine that might be useful:
+Some other, more specialized Python packages I have written:
 
 .. raw:: html
 

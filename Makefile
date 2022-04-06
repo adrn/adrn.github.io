@@ -73,7 +73,7 @@ ssh_upload: publish
 	scp -P $(SSH_PORT) -r $(OUTPUTDIR)/* $(SSH_USER)@$(SSH_HOST):$(SSH_TARGET_DIR)
 
 github: publish
-	ghp-import -m "Generated Pelican site" -b master $(OUTPUTDIR)
-	git push origin master
+	ghp-import -m "Generated Pelican site" -b main $(OUTPUTDIR)
+	git push origin main
 
 .PHONY: html help clean regenerate devserver publish ssh_upload github

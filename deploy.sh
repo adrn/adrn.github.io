@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-BRANCH=master
+BRANCH=main
 TARGET_REPO=adrn/adrn.github.io.git
 PELICAN_OUTPUT_FOLDER=output
 

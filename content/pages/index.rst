@@ -4,8 +4,8 @@ apw
 :url:
 :save_as: index.html
 
-I'm currently an Associate Research Scientist at the 
-`CCA <https://www.simonsfoundation.org/flatiron/center-for-computational-astrophysics/>`_ 
+I'm currently an Associate Research Scientist at the
+`CCA <https://www.simonsfoundation.org/flatiron/center-for-computational-astrophysics/>`_
 at the `Flatiron Institute <https://www.simonsfoundation.org/flatiron/>`_ in NYC. [`bio </bio.html>`_]
 
 My main research centers on the structure and formation of the Milky Way.
@@ -28,7 +28,7 @@ I very occasionally write a blog post or tutorial of general interest.
 .. raw:: html
 
     <address>
-    Office 611<br/>
+    Office 509<br/>
     Center for Computational Astrophysics<br/>
     Flatiron Institute<br/>
     162 Fifth Avenue<br/>
