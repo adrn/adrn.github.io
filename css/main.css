@@ -61,6 +61,7 @@ li
     margin-bottom: 25px; */
 
 }
+
 .author h1,
 .author h2,
 .author h3,
@@ -80,7 +81,6 @@ li
     overflow: auto;
 
     max-width: 50%;
-    min-width: 765px;
     padding: 0 15px;
     margin: auto;
 }
@@ -88,8 +88,7 @@ li
 {
     overflow: auto;
 
-    max-width: 75%;
-    min-width: 850px;
+    /* max-width: 75%; */
     padding: 0 15px;
     margin: auto;
 }
@@ -97,11 +96,12 @@ li
 {
     margin-top: 20px;
     margin-bottom: 20px;
+    background-color: #ffffff;
 }
 div.content
 {
     font-family: 'Lato', sans-serif;
-    font-size: 18px;
+    font-size: 1.1rem;
     font-weight: 300;
 
     color: #777;
@@ -156,7 +156,7 @@ div.content
     margin-top: 40px;
     margin-bottom: 40px;
 }
-.headshot
+.front-image
 {
     width: 20%;
     min-width: 200px;
@@ -180,8 +180,6 @@ h3.intro
 .list
 {
     font-family: 'Lato', sans-serif;
-
-    margin-top: 50px;
 }
 .list li
 {
@@ -230,11 +228,17 @@ h3.intro
 .meta
 {
     font-family: 'Lato', sans-serif;
-    font-size: 12px;
-    font-weight: 200;
+    font-size: 0.8rem;
+    font-weight: 300;
 
     color: #8b8b8b;
+    margin-bottom: 0.2rem;
 }
+.content p.meta {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
 a.meta
 {
     color: #966;
@@ -286,12 +290,6 @@ header.content-header
     padding: 0 15px;
 }
 
-header.content-header .title
-{
-    font-weight: 400;
-    font-style: italic;
-}
-
 header.content-header .author
 {
     font-weight: 300;
@@ -316,27 +314,20 @@ header.content-header .author
     }
 }
 
-@media (min-width: 768px) {
-    .wide-container {
-        width: 768px;
-    }
-}
-@media (min-width: 992px) {
-    .wide-container {
-        width: 940px;
-    }
-}
-@media (min-width: 1200px) {
-    .wide-container {
-        width: 1140px;
-    }
-}
-
 pre > code {
     white-space: pre;
     word-wrap: initial;
     word-break: initial;
-    font-size: 90%;
+    font-size: 85%;
+}
+pre {
+    overflow: auto;
+    background-color: #f2f2f5;
+    border-radius: 4px;
+    line-height: 1.3;
+    margin-top: 1.2rem;
+    padding: 16px;
+    word-wrap: normal;
 }
 
 .center
