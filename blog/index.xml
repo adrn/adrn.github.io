@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Blogs on apw</title>
+    <title>Blog on apw</title>
     <link>https://adrian.pw/blog/</link>
-    <description>Recent content in Blogs on apw</description>
+    <description>Recent content in Blog on apw</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 25 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://adrian.pw/blog/index.xml" rel="self" type="application/rss+xml" />
