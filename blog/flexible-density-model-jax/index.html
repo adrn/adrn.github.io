@@ -75,7 +75,7 @@
   
   <div class="col-md-12">
     <h6 class="text-left meta">
-        PUBLISHED ON AUG 25, 2022 
+        PUBLISHED ON AUG 31, 2022 
       
     </h6>
   </div>
@@ -135,15 +135,8 @@ plt<span style="color:#f92672">.</span>annotate(
 plt<span style="color:#f92672">.</span>xlabel(<span style="color:#e6db74">&#34;$x$&#34;</span>)
 plt<span style="color:#f92672">.</span>ylabel(<span style="color:#e6db74">&#34;$f$&#34;</span>)
 </code></pre></div><pre><code>Text(0, 0.5, '$f$')
-
-
-
-WARNING:matplotlib.font_manager:findfont: Font family ['serif'] not found. Falling back to DejaVu Sans.
-WARNING:matplotlib.font_manager:findfont: Generic family 'serif' not found because none of the following families were found: Old Standard TT
-WARNING:matplotlib.font_manager:findfont: Font family ['serif'] not found. Falling back to DejaVu Sans.
-WARNING:matplotlib.font_manager:findfont: Generic family 'serif' not found because none of the following families were found: Old Standard TT
 </code></pre>
-<p><img src="output_5_2.png" alt="png"></p>
+<p><img src="output_5_1.png" alt="png"></p>
 <p>The task of finding a spline representation of a function given samples or points is sometimes called &ldquo;spline regression.&rdquo; The problem is straightforward if we pick and fix locations for the knots of the spline function we want to fit and then add into our model the values of the function at the locations of the knots. This type of model has the advantage that the (spatial) scale of flexibility or &ldquo;degrees of freedom&rdquo; is controllable by setting the number of knots. However, unlike in GPs where kernel functions can be used to parametrize the amplitude or spatial scales of your problem, these things are not explicitly controlled in a spline model. One other disadvantage of a spline model is that the number of parameters in your model grows as you increase the number of knots (i.e. the degrees of freedom) of the model &ndash; this can make spline models intractable in some simple optimization routines (e.g., using <code>scipy.minimize</code> without gradient information) or in some Markov Chain Monte Carlo (MCMC) methods that do not use gradient information (e.g., Metropolis-Hastings or <a href="https://emcee.readthedocs.io/en/stable/"><code>emcee</code></a>).</p>
 <p>Fortunately, it is possible to use spline models with <a href="https://jax.readthedocs.io/">JAX</a>, which automatically gives us access to functional gradients and therefore opens up the possibility of using optimization and sampling methods that perform well with large numbers of parameters. Below are two examples that demonstrate how to implement spline components in density models using JAX, to optimize the parameters of the models with <a href="https://jaxopt.github.io/"><code>jaxopt</code></a>, and to generate posterior samples using Hamiltonian Monte Carlo with <a href="https://blackjax-devs.github.io/blackjax/"><code>blackjax</code></a>.</p>
 <h1 id="example-fitting-a-1d-density-profile-with-splines">Example: Fitting a 1D density profile with splines</h1>
@@ -466,7 +459,7 @@ plt<span style="color:#f92672">.</span>xlabel(<span style="color:#e6db74">&#34;$
 plt<span style="color:#f92672">.</span>ylabel(<span style="color:#e6db74">&#34;density $n(z)$&#34;</span>)
 
 plt<span style="color:#f92672">.</span>legend(loc<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;best&#34;</span>)
-</code></pre></div><pre><code>&lt;matplotlib.legend.Legend at 0x7faeba10b4c0&gt;
+</code></pre></div><pre><code>&lt;matplotlib.legend.Legend at 0x7ff53862b1c0&gt;
 </code></pre>
 <p><img src="output_33_1.png" alt="png"></p>
 <p>We can now run the optimizer with our new spline model for the density:</p>
@@ -525,7 +518,7 @@ plt<span style="color:#f92672">.</span>xlabel(<span style="color:#e6db74">&#34;$
 plt<span style="color:#f92672">.</span>ylabel(<span style="color:#e6db74">&#34;density $n(z)$&#34;</span>)
 
 plt<span style="color:#f92672">.</span>legend(loc<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;best&#34;</span>)
-</code></pre></div><pre><code>&lt;matplotlib.legend.Legend at 0x7faeb76f8220&gt;
+</code></pre></div><pre><code>&lt;matplotlib.legend.Legend at 0x7ff53ec7fd60&gt;
 </code></pre>
 <p><img src="output_37_1.png" alt="png"></p>
 <p>Excellent - this also looks like a great fit! Unexpectedly, weird things happen outside of the range where we have data, but here the splines will largely be unconstrained.</p>
@@ -1061,14 +1054,9 @@ opt_pars
     ax<span style="color:#f92672">.</span>set_xlabel(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#34;$\phi_1$&#34;</span>)
 
 ax<span style="color:#f92672">.</span>legend(loc<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;best&#34;</span>, fontsize<span style="color:#f92672">=</span><span style="color:#ae81ff">14</span>)
-</code></pre></div><pre><code>&lt;matplotlib.legend.Legend at 0x7faeb1ef7a00&gt;
-
-
-
-WARNING:matplotlib.font_manager:findfont: Font family ['serif'] not found. Falling back to DejaVu Sans.
-WARNING:matplotlib.font_manager:findfont: Generic family 'serif' not found because none of the following families were found: Old Standard TT
+</code></pre></div><pre><code>&lt;matplotlib.legend.Legend at 0x7ff4f5b089d0&gt;
 </code></pre>
-<p><img src="output_87_2.png" alt="png"></p>
+<p><img src="output_87_1.png" alt="png"></p>
 <p>We can also look at the 2D density computed from our optimized parameters and visually compare to the data:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">ln_dens_opt <span style="color:#f92672">=</span> StreamModel<span style="color:#f92672">.</span>ln_density(
     StreamModel<span style="color:#f92672">.</span>integ_grid_phi1, StreamModel<span style="color:#f92672">.</span>integ_grid_phi2, <span style="color:#f92672">**</span>opt_pars

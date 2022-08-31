@@ -303,10 +303,6 @@ header.content-header .author
         max-width: 80%;
         min-width: 0;
     }
-    .wide-container {
-        max-width: 90%;
-        min-width: 0;
-    }
     .header
     {
         margin-top: 50px;
@@ -319,6 +315,23 @@ header.content-header .author
         margin-top: 30px;
     }
 }
+
+@media (min-width: 768px) {
+    .wide-container {
+        width: 768px;
+    }
+}
+@media (min-width: 992px) {
+    .wide-container {
+        width: 940px;
+    }
+}
+@media (min-width: 1200px) {
+    .wide-container {
+        width: 1140px;
+    }
+}
+
 pre > code {
     white-space: pre;
     word-wrap: initial;
