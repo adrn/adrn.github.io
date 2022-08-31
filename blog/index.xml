@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Blogs on apw</title>
+    <link>https://adrian.pw/blog/</link>
+    <description>Recent content in Blogs on apw</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 25 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://adrian.pw/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Flexible (stellar spatial) density models with Jax</title>
+      <link>https://adrian.pw/blog/flexible-density-model-jax/</link>
+      <pubDate>Thu, 25 Aug 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://adrian.pw/blog/flexible-density-model-jax/</guid>
+      <description>A problem I have run into frequently in astronomical data analysis is the need to infer parameters of a density model where some aspects of the model are allowed to be flexible and other components are held more rigid. In these contexts, we are also sometimes interested in learning a flexible representation for the density of sources itself. This post demonstrates how to implement models with flexibility controlled by spline interpolation of function values in JAX.</description>
+    </item>
+    
+  </channel>
+</rss>

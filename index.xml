@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>apw</title>
+    <link>https://adrian.pw/</link>
+    <description>Recent content on apw</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 25 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://adrian.pw/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Flexible (stellar spatial) density models with Jax</title>
+      <link>https://adrian.pw/blog/flexible-density-model-jax/</link>
+      <pubDate>Thu, 25 Aug 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://adrian.pw/blog/flexible-density-model-jax/</guid>
+      <description>A problem I have run into frequently in astronomical data analysis is the need to infer parameters of a density model where some aspects of the model are allowed to be flexible and other components are held more rigid. In these contexts, we are also sometimes interested in learning a flexible representation for the density of sources itself. This post demonstrates how to implement models with flexibility controlled by spline interpolation of function values in JAX.</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>https://adrian.pw/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://adrian.pw/about/</guid>
+      <description>Short Bio I am currently an Associate Research Scientist and leader of the Galactic Dynamics group at the Center for Computational Astrophysics (CCA) at the Flatiron Institute in New York City.
+I received my PhD in 2016 with advisor Kathryn V. Johnston in the Department of Astronomy at Columbia University. I was then a Lyman Spitzer, Jr. Postdoctoral Fellow in the Department of Astrophysical Sciences at Princeton University. I was a Flatiron Research Fellow at the CCA from 2019 to 2021.</description>
+    </item>
+    
+    <item>
+      <title>Research</title>
+      <link>https://adrian.pw/research/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://adrian.pw/research/</guid>
+      <description>My research ranges from mapping dark matter in the Milky Way, to the formation and evolution of our Galaxy, to characterizing stellar and binary star populations. I have spent a lot of time thinking about surveys of Milky Way stars and how to use these data to infer its structure and dynamical history. I am particularly excited about the Gaia mission and am a co-organizer of the Gaia sprints.
+My full publication list is available here.</description>
+    </item>
+    
+    <item>
+      <title>Visualizations</title>
+      <link>https://adrian.pw/viz/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://adrian.pw/viz/</guid>
+      <description>The following visualizations and movies are free to use and available via the Creative Commons CC-BY-SA license. In short, if you use these, please (1) acknowledge &amp;ldquo;A. Price-Whelan&amp;rdquo;, and (2) if you re-distribute any of this material, you must carry along this license. All of these visualizations were generated with Python code hosted in this GitHub repository.
+Stellar Streams Interactive:  Stellar streams around the Milky Way Globular cluster streams simulated in the Via Lactea 2 simulation Stellar stream maker  Movies: This set of movies shows the tidal disruption of a star cluster as it orbits in a (very simple) model for our galaxy, the Milky Way.</description>
+    </item>
+    
+  </channel>
+</rss>
