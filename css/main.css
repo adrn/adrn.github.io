@@ -323,6 +323,7 @@ pre > code {
 
 code {
     color: #333333;
+    -webkit-font-smoothing: antialiased;
 }
 
 pre {
