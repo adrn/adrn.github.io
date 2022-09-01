@@ -120,8 +120,8 @@
       
     </p>
 
-    <p>A problem I have run into frequently in astronomical data analysis is the need to infer parameters of a density model where some aspects of the model are allowed to be flexible and other components are held more rigid. In these contexts, we are also sometimes interested in learning a flexible representation for the density of sources itself. This post demonstrates how to implement models with flexibility controlled by spline interpolation of function values in <a href="https://jax.readthedocs.io/en/latest/">JAX</a>.</p>
-<p>One example of the need for flexibility in density modeling is the classic Galactic astronomy problem of measuring the vertical stellar density profile (and midplane density) of the Galactic disk: In this problem, we start with observations of stellar positions (<code>$x, y, z$</code>) (probably observed under some selection function) and we want to infer the midplane density value and a model for the density profile away from the midplane. Historically, simple, parametric density profiles have been used (e.g., <a href="https://ui.adsabs.harvard.edu/abs/2017MNRAS.470.1360B/abstract">Bovy et al. 2017</a>), but we now know that there are significant asymmetries in the density of stars (e.g., <a href="https://ui.adsabs.harvard.edu/abs/2019MNRAS.482.1417B/abstract">Bennett et al. 2019</a>), and so we might now want to fit a parametric density profile plus a model component to handle this asymmetry.</p>
+    <p>A problem I have frequently run into in astronomical data analysis is the need to infer parameters of a density model in which some aspects of the model are allowed to be flexible and other components are held more rigid (i.e. with a parametrized model). In these contexts, we are sometimes also interested in learning a flexible representation of the expected number or number density of objects along with a probability density function. This post demonstrates how to implement density models with flexibility controlled by spline interpolation of function values in <a href="https://jax.readthedocs.io/en/latest/">JAX</a>.</p>
+<p>One example of the need for flexibility in density modeling is the classic Galactic astronomy problem of measuring the vertical stellar density profile (and midplane density) of the Galactic disk: In this problem, we start with observations of stellar positions <code>$(x, y, z)$</code> (probably observed under some selection function, but we will ignore selection effects in this post) and we want to infer the midplane density value and a model for the density profile away from the midplane. Historically, parametric density profiles have been used (e.g., <a href="https://ui.adsabs.harvard.edu/abs/2017MNRAS.470.1360B/abstract">Bovy et al. 2017</a>), but we now know that there are significant asymmetries in the density of stars (e.g., <a href="https://ui.adsabs.harvard.edu/abs/2019MNRAS.482.1417B/abstract">Bennett et al. 2019</a>), and so we might now want to fit a parametric density profile plus a model component to handle these deviations from symmetry.</p>
 <p>Another problem where the need to fit models with parametric and flexible components arises is in modeling the phase-space density of stellar streams (e.g., <a href="https://ui.adsabs.harvard.edu/abs/2019MNRAS.485.4726K/abstract">Koposov et al. 2019</a>, <a href="https://ui.adsabs.harvard.edu/abs/2022ApJ...925..118T/abstract">Tavangar et al. 2022</a>). In the case of stellar streams, we generally want to simultaneously fit the &ldquo;track&rdquo; or ridgeline of the stream in position and velocity components, the width of the stream, the density along the stream, and a flexible model for the background stellar density in these components.</p>
 <p>There are many possible options for adding flexibility to models (see: Machine Learning). One particularly useful tool that is used heavily in time series analysis are <a href="https://en.wikipedia.org/wiki/Gaussian_process">Gaussian processes</a> (GPs). GPs allow adding controlled flexibility in probabilistic models (i.e. weakly parametric, through specification of a kernel function) and have gained popularity in astronomy recently thanks to advances in computational efficiency in computing GP likelihoods (e.g., <a href="https://github.com/exoplanet-dev/celerite2">celerite</a> or <a href="https://github.com/dfm/tinygp">tinygp</a>). I won&rsquo;t go over GPs in this post, but there are many resources available online and on GitHub that give great introductions to GPs (e.g., <a href="https://speakerdeck.com/dfm/an-astronomers-introduction-to-gaussian-processes-v2">Dan Foreman-Mackey&rsquo;s slides</a> or <a href="https://github.com/LSSTC-DSFP/LSSTC-DSFP-Sessions/blob/main/Sessions/Session13/Day2/answers/01-Introduction-to-GPs.ipynb">Rodrigo Luger&rsquo;s tutorial</a>).</p>
 <p>In this post, we will use another frequently-used tool for specifying flexible models: <a href="https://en.wikipedia.org/wiki/Spline_(mathematics)">cubic splines</a>.</p>
@@ -514,7 +514,7 @@ plt.ylabel(&quot;density $n(z)$&quot;)
 
 plt.legend(loc=&quot;best&quot;)
 </code></pre>
-<pre><code>&lt;matplotlib.legend.Legend at 0x7fee66613070&gt;
+<pre><code>&lt;matplotlib.legend.Legend at 0x7f7ff4267070&gt;
 </code></pre>
 <p><img src="output_33_1.png" alt="png"></p>
 <p>We can now run the optimizer with our new spline model for the density:</p>
@@ -530,20 +530,20 @@ res = sco.minimize(
 )
 res
 </code></pre>
-<pre><code>      fun: -10.260887909516681
+<pre><code>      fun: -10.260887909516791
  hess_inv: &lt;11x11 LbfgsInvHessProduct with dtype=float64&gt;
-      jac: array([-2.86425742e-06,  6.56002716e-06, -4.06564723e-05, -1.03612141e-05,
-       -1.46662505e-06, -3.35052844e-06,  5.02997047e-06,  6.29047903e-06,
-        1.88062751e-05, -6.78824463e-06, -1.25840327e-06])
+      jac: array([-2.86425740e-06,  6.56002702e-06, -4.06564716e-05, -1.03612167e-05,
+       -1.46661050e-06, -3.35053437e-06,  5.02995779e-06,  6.29047702e-06,
+        1.88062757e-05, -6.78824477e-06, -1.25840325e-06])
   message: 'CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH'
      nfev: 37
       nit: 33
      njev: 37
    status: 0
   success: True
-        x: array([-18.01096061, -19.45263838, -11.97307254,   2.68899671,
+        x: array([-18.01096061, -19.45263838, -11.97307253,   2.68899672,
          9.73834031,  11.76439384,  10.06449883,   4.95208879,
-        -4.78205721, -21.05344694, -18.43766302])
+        -4.7820572 , -21.05344694, -18.43766302])
 </code></pre>
 <p>Let&rsquo;s plot our optimized spline density function and the value at the knots over our data:</p>
 <pre><code class="language-python">plt.plot(xc, dens, drawstyle=&quot;steps-mid&quot;, marker=&quot;&quot;)
@@ -575,7 +575,7 @@ plt.ylabel(&quot;density $n(z)$&quot;)
 
 plt.legend(loc=&quot;best&quot;)
 </code></pre>
-<pre><code>&lt;matplotlib.legend.Legend at 0x7fee6651bc70&gt;
+<pre><code>&lt;matplotlib.legend.Legend at 0x7f80073c0130&gt;
 </code></pre>
 <p><img src="output_37_1.png" alt="png"></p>
 <p>Excellent - this also looks like a great fit! Unexpectedly, weird things happen outside of the range where we have data, but here the splines will largely be unconstrained.</p>
@@ -1049,72 +1049,72 @@ init_p = StreamModel.pack_pars(init_pars)
 )
 res
 </code></pre>
-<pre><code>      fun: -0.41728040653316395
+<pre><code>      fun: -0.4172804414762403
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
-      jac: array([-3.01145185e-07, -9.31911438e-07, -7.36803817e-07, -6.00970429e-07,
-       -1.40485774e-06,  1.68548330e-06, -2.49200921e-07,  1.25839738e-06,
-        7.14017177e-07, -2.81689874e-06, -1.94501741e-06, -2.00374404e-06,
-       -4.45025561e-06, -1.88536540e-06, -2.71502783e-08,  1.21654127e-06,
-        8.99981459e-07,  1.67217851e-06, -2.90873445e-06, -4.06637372e-06,
-       -3.93824385e-06,  7.82960360e-07,  2.56044809e-06,  1.13377178e-06,
-        2.80311313e-07, -4.71518718e-06, -7.22281450e-07,  8.42589817e-07,
-       -2.56318536e-06, -1.22071448e-06,  5.26281621e-07,  3.02416859e-07,
-       -1.47324773e-06, -1.31161007e-06,  2.25435901e-06, -8.88808533e-07,
-       -2.22612312e-06, -1.00280662e-06, -2.91239827e-07, -1.61087808e-06,
-        1.19676171e-05,  6.42090796e-06, -9.57022505e-07,  2.72489219e-06,
-        1.56740899e-06,  1.90976803e-06, -2.91274674e-06, -1.88860117e-06,
-       -1.47331929e-06,  7.39347575e-07, -3.38372753e-06, -2.58591394e-06,
-        9.93688003e-07,  7.93221254e-07,  2.35548793e-06,  1.58778939e-05,
-       -2.52749714e-06, -3.70813016e-07,  4.16692868e-06, -2.50423262e-06,
-       -1.79773467e-06, -9.18258113e-07,  4.60287755e-06, -9.45326892e-07,
-        3.54790777e-06,  1.09770081e-07,  6.84275117e-06, -1.47446417e-06,
-        1.12955364e-06,  2.10312765e-06, -1.90942259e-06,  1.60582074e-06])
+      jac: array([-7.71418475e-07,  1.65857911e-07,  1.99453381e-07, -2.05370143e-06,
+       -1.70964779e-06, -4.62670967e-06,  1.68103189e-06,  2.09021076e-06,
+       -1.10096842e-06,  2.27286148e-06, -1.52102203e-06, -1.37678490e-06,
+       -2.28720309e-06, -2.26237554e-06, -1.30669594e-07, -3.37215730e-06,
+       -1.02103330e-06,  8.87957954e-07,  2.43060947e-06,  4.48877098e-06,
+        2.33454660e-06,  1.11753802e-06,  9.77205135e-07, -6.95522218e-07,
+        1.15479706e-06, -1.69470906e-06,  1.78318820e-06, -1.94111769e-07,
+       -5.52840315e-07, -7.36288750e-07, -8.92639157e-07,  1.55186650e-06,
+       -1.59999460e-06, -3.26062519e-07,  3.79777447e-07,  3.28915248e-06,
+       -7.19254555e-07, -3.63050574e-06, -1.34650105e-05, -1.33010540e-06,
+        3.07614063e-05,  1.18970084e-05,  1.65802843e-05,  4.66520356e-06,
+       -1.04483424e-06,  5.07504938e-07, -2.62358590e-06,  1.97680049e-07,
+        1.39519635e-06, -5.60004049e-07,  2.91998158e-06, -3.85801945e-07,
+        6.49247930e-07,  1.38578698e-06,  3.24259772e-06, -3.13469064e-06,
+        1.89760659e-06, -3.11670312e-06,  6.85084618e-07, -8.07002305e-06,
+       -2.91758878e-06,  3.64299264e-06, -2.47082774e-07,  1.81615140e-06,
+        6.16494751e-07, -2.46474178e-07,  3.60654040e-06, -9.61968004e-08,
+        3.94092601e-06,  3.81585532e-07, -8.09581201e-07,  1.17461144e-06])
   message: 'CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH'
-     nfev: 443
-      nit: 415
-     njev: 443
+     nfev: 470
+      nit: 439
+     njev: 470
    status: 0
   success: True
-        x: array([-1.30088858, -1.29518135, -1.32524238, -1.01054275, -0.4366162 ,
-        0.58511712,  1.56463314,  1.84619083,  1.86699052,  1.75174934,
-        1.791596  ,  2.39930612,  2.96509095,  3.28646847,  3.13258404,
-        2.63348073,  2.7211086 ,  2.89480531,  2.89144252,  1.78794272,
-        2.6484362 ,  3.05108466,  2.03704299,  2.74073442,  2.74752908,
-        1.03177164,  0.73271371, -0.19399774, -0.36990402, -0.3865971 ,
-       -0.38294823, -4.33006613, -4.29056422, -4.6015064 , -2.65176976,
-       -1.68666419, -1.03996247, -0.49074667,  0.01938419,  0.15562579,
-        0.07481722,  0.03158152, -0.10762361, -0.7555589 , -1.53506291,
-       -1.826355  , -1.87097116, -1.87306864, -1.84990107, -1.86888388,
-       -1.62389751, -0.99020578, -0.5313017 , -0.83929926, -1.2444326 ,
-       -1.24810677, -1.08030276, -1.86090578, -1.66596336, -1.8241159 ,
-       -1.64282425, -1.32535534, -1.95633885, -1.62699741, -1.66368924,
-       -2.75909642, -0.72935731, -0.56376406,  0.23696649,  0.85727903,
-        0.13801791,  1.79905124])
+        x: array([-1.29724792, -1.29012651, -1.32220017, -1.01112565, -0.4372693 ,
+        0.58312065,  1.56485491,  1.84623316,  1.86679529,  1.75244974,
+        1.79167502,  2.39936208,  2.96517374,  3.28641774,  3.13259102,
+        2.63325926,  2.72104495,  2.89475705,  2.89169773,  1.78894259,
+        2.6488234 ,  3.05108255,  2.03688664,  2.74065293,  2.74767283,
+        1.03251669,  0.73350755, -0.19425672, -0.36811195, -0.38745796,
+       -0.38802526, -4.32570901, -4.29026727, -4.60164536, -2.65188131,
+       -1.68654545, -1.0399299 , -0.49073281,  0.01935266,  0.15563387,
+        0.07482995,  0.0315922 , -0.10760813, -0.75555268, -1.5350805 ,
+       -1.82638106, -1.86999619, -1.86537359, -1.83413212, -1.86183605,
+       -1.61951924, -0.98992293, -0.53122539, -0.83928341, -1.24429333,
+       -1.24835943, -1.08013281, -1.86097141, -1.66590174, -1.82412536,
+       -1.64303541, -1.32500325, -1.95722173, -1.62772084, -1.67305163,
+       -2.76395382, -0.72947985, -0.56382768,  0.23704327,  0.85720292,
+        0.13801779,  1.7967009 ])
 </code></pre>
 <p>It looks like that succeeded! Let&rsquo;s look at the optimized parameters:</p>
 <pre><code class="language-python">opt_pars = StreamModel.unpack_pars(res.x)
 opt_pars
 </code></pre>
-<pre><code>{'ln_n0': DeviceArray([-1.30088858, -1.29518135, -1.32524238, -1.01054275,
-              -0.4366162 ,  0.58511712,  1.56463314,  1.84619083,
-               1.86699052,  1.75174934,  1.791596  ,  2.39930612,
-               2.96509095,  3.28646847,  3.13258404,  2.63348073,
-               2.7211086 ,  2.89480531,  2.89144252,  1.78794272,
-               2.6484362 ,  3.05108466,  2.03704299,  2.74073442,
-               2.74752908,  1.03177164,  0.73271371, -0.19399774,
-              -0.36990402, -0.3865971 , -0.38294823], dtype=float64),
- 'ln_n0_bkg': DeviceArray([-2.75909642, -0.72935731, -0.56376406,  0.23696649,
-               0.85727903,  0.13801791,  1.79905124], dtype=float64),
- 'ln_std_phi2': DeviceArray([-1.84990107, -1.86888388, -1.62389751, -0.99020578,
-              -0.5313017 , -0.83929926, -1.2444326 , -1.24810677,
-              -1.08030276, -1.86090578, -1.66596336, -1.8241159 ,
-              -1.64282425, -1.32535534, -1.95633885, -1.62699741,
-              -1.66368924], dtype=float64),
- 'mean_phi2': DeviceArray([-4.33006613, -4.29056422, -4.6015064 , -2.65176976,
-              -1.68666419, -1.03996247, -0.49074667,  0.01938419,
-               0.15562579,  0.07481722,  0.03158152, -0.10762361,
-              -0.7555589 , -1.53506291, -1.826355  , -1.87097116,
-              -1.87306864], dtype=float64)}
+<pre><code>{'ln_n0': DeviceArray([-1.29724792, -1.29012651, -1.32220017, -1.01112565,
+              -0.4372693 ,  0.58312065,  1.56485491,  1.84623316,
+               1.86679529,  1.75244974,  1.79167502,  2.39936208,
+               2.96517374,  3.28641774,  3.13259102,  2.63325926,
+               2.72104495,  2.89475705,  2.89169773,  1.78894259,
+               2.6488234 ,  3.05108255,  2.03688664,  2.74065293,
+               2.74767283,  1.03251669,  0.73350755, -0.19425672,
+              -0.36811195, -0.38745796, -0.38802526], dtype=float64),
+ 'ln_n0_bkg': DeviceArray([-2.76395382, -0.72947985, -0.56382768,  0.23704327,
+               0.85720292,  0.13801779,  1.7967009 ], dtype=float64),
+ 'ln_std_phi2': DeviceArray([-1.83413212, -1.86183605, -1.61951924, -0.98992293,
+              -0.53122539, -0.83928341, -1.24429333, -1.24835943,
+              -1.08013281, -1.86097141, -1.66590174, -1.82412536,
+              -1.64303541, -1.32500325, -1.95722173, -1.62772084,
+              -1.67305163], dtype=float64),
+ 'mean_phi2': DeviceArray([-4.32570901, -4.29026727, -4.60164536, -2.65188131,
+              -1.68654545, -1.0399299 , -0.49073281,  0.01935266,
+               0.15563387,  0.07482995,  0.0315922 , -0.10760813,
+              -0.75555268, -1.5350805 , -1.82638106, -1.86999619,
+              -1.86537359], dtype=float64)}
 </code></pre>
 <p>Again, it looks like there are no NaN or inf values, so that&rsquo;s good. Let&rsquo;s now compare the optimized parameters to our initial guesses:</p>
 <pre><code class="language-python">fig, axes = plt.subplots(2, 2, figsize=(10, 6), sharex=True, constrained_layout=True)
@@ -1137,7 +1137,7 @@ for ax in axes[-1]:
 
 ax.legend(loc=&quot;best&quot;, fontsize=14)
 </code></pre>
-<pre><code>&lt;matplotlib.legend.Legend at 0x7fee40ebaad0&gt;
+<pre><code>&lt;matplotlib.legend.Legend at 0x7f7fc884c520&gt;
 </code></pre>
 <p><img src="output_87_1.png" alt="png"></p>
 <p>We can also look at the 2D density computed from our optimized parameters and visually compare to the data:</p>
