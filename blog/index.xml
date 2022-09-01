@@ -16,5 +16,14 @@
       <description>A problem I have frequently run into in astronomical data analysis is the need to infer parameters of a density model in which some aspects of the model are allowed to be flexible and other components are held more rigid (i.e. with a parametrized model). In these contexts, we are sometimes also interested in learning a flexible representation of the expected number or number density of objects along with a probability density function.</description>
     </item>
     
+    <item>
+      <title>Making a Matplotlib animation with a transparent background</title>
+      <link>https://adrian.pw/blog/matplotlib-transparent-animation/</link>
+      <pubDate>Fri, 03 Jun 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://adrian.pw/blog/matplotlib-transparent-animation/</guid>
+      <description>I recently needed to overlay a Matplotlib animation on an image in a keynote presentation. This requires creating an animation with a transparent background so that only the plot elements are shown. It turns out that this is possible using the Matplotlib animation objects (note: I&amp;rsquo;ve only tried this on Mac). The key elements to doing this are to (1) make the Matplotlib figure background invisible, (2) save the video using a png codec (yes, the image format), and (3) to pass keyword arguments through the animation object to the individual Matplotlib savefig calls.</description>
+    </item>
+    
   </channel>
 </rss>
