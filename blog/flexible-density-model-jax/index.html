@@ -72,19 +72,44 @@
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-            showMathMenu: false, //disables context menu
-            tex2jax: {
-            inlineMath: [ ['$','$'], ['\\(','\\)'] ]
-           }
+
+
+<script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ["$", "$"],
+          ["\\(", "\\)"],
+        ],
+        displayMath: [
+          ["$$", "$$"],
+          ["\\[", "\\]"],
+        ],
+        processEscapes: true,
+        processEnvironments: true,
+      },
+      options: {
+        skipHtmlTags: ["script", "noscript", "style", "textarea", "pre"],
+      },
+    };
+
+    window.addEventListener("load", (event) => {
+      document.querySelectorAll("mjx-container").forEach(function (x) {
+        x.parentElement.classList += "has-jax";
+      });
     });
-</script>
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script
+    type="text/javascript"
+    id="MathJax-script"
+    async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+  ></script>
 
 
 <section id="content-pane" class="">
-  <div class="col-md-12 text-justify content">
+  <div class="col-md-12 content">
     
       <h2 class="title">Flexible (stellar spatial) density models with Jax:</h1>
     
@@ -115,7 +140,7 @@ import jax.numpy as jnp
 %matplotlib inline
 import numpy as np
 </code></pre>
-<h1 id="spline-models">Spline models</h1>
+<h2 id="spline-models">Spline models</h2>
 <p>A spline function is fully determined by the degree of the polynomial used, the location of <code>$M$</code> &ldquo;knots&rdquo; <code>$x_m$</code>, and the function value at the knots <code>$f_m$</code>. A common choice for the polynomial degree is 3, or cubic splines.</p>
 <pre><code class="language-python">import scipy.interpolate as sci
 </code></pre>
@@ -155,7 +180,7 @@ plt.ylabel(&quot;$f$&quot;)
 <p><img src="output_5_1.png" alt="png"></p>
 <p>The task of finding a spline representation of a function given samples or points is sometimes called &ldquo;spline regression.&rdquo; The problem is straightforward if we pick and fix locations for the knots of the spline function we want to fit and then add into our model the values of the function at the locations of the knots. This type of model has the advantage that the (spatial) scale of flexibility or &ldquo;degrees of freedom&rdquo; is controllable by setting the number of knots. However, unlike in GPs where kernel functions can be used to parametrize the amplitude or spatial scales of your problem, these things are not explicitly controlled in a spline model. One other disadvantage of a spline model is that the number of parameters in your model grows as you increase the number of knots (i.e. the degrees of freedom) of the model &ndash; this can make spline models intractable in some simple optimization routines (e.g., using <code>scipy.minimize</code> without gradient information) or in some Markov Chain Monte Carlo (MCMC) methods that do not use gradient information (e.g., Metropolis-Hastings or <a href="https://emcee.readthedocs.io/en/stable/"><code>emcee</code></a>).</p>
 <p>Fortunately, it is possible to use spline models with <a href="https://jax.readthedocs.io/">JAX</a>, which automatically gives us access to functional gradients and therefore opens up the possibility of using optimization and sampling methods that perform well with large numbers of parameters. Below are two examples that demonstrate how to implement spline components in density models using JAX, to optimize the parameters of the models with <a href="https://jaxopt.github.io/"><code>jaxopt</code></a>, and to generate posterior samples using Hamiltonian Monte Carlo with <a href="https://blackjax-devs.github.io/blackjax/"><code>blackjax</code></a>.</p>
-<h1 id="example-fitting-a-1d-density-profile-with-splines">Example: Fitting a 1D density profile with splines</h1>
+<h2 id="example-fitting-a-1d-density-profile-with-splines">Example: Fitting a 1D density profile with splines</h2>
 <p>As a first demonstration of the idea, we are going to use simulated data to mock up a simpler version of the vertical density problem mentioned above. We will generate simulated data from a Gaussian, and then show how to fit the density distribution by modeling the points as an <a href="https://en.wikipedia.org/wiki/Poisson_point_process#Inhomogeneous_Poisson_point_process">inhomogeneous Poisson process</a> with either (1) a Gaussian or (2) a cubic spline density function. In either case, given a density function <code>$n(z)$</code> (Gaussian or spline), our likelihood and log-likelihood are given by the Poisson process likelihood, given all <code>$N$</code> of our <code>$z_n$</code> data points:</p>
 <div>$$
 \begin{align}
@@ -163,7 +188,7 @@ p(\left\{z_n\right\}_N \,|\, n(z)) &=
     \exp{\left[-\int {\rm d}z \, n(z)\right]} \, \prod_n^N n(z_n)
 \end{align}
 $$</div>
-<h2 id="case-1-gaussian-model">Case 1: Gaussian model</h2>
+<h3 id="case-1-gaussian-model">Case 1: Gaussian model</h3>
 <p>For our first demo, we will use a Gaussian to fit the data (which were generated by a Gaussian, so this is truly a toy example). In this case:</p>
 <div>$$
 \begin{align}
@@ -395,7 +420,7 @@ plt.ylabel(&quot;density $n(z)$&quot;);
 </code></pre>
 <p><img src="output_25_0.png" alt="png"></p>
 <p>That looks like a pretty good fit! Let&rsquo;s move on to a more flexible example.</p>
-<h2 id="case-2-spline-model">Case 2: Spline model</h2>
+<h3 id="case-2-spline-model">Case 2: Spline model</h3>
 <p>We will now replace our density model <code>$n(z)$</code> with a cubic spline representation of the function. We will fix the location of the spline knots by using a hard-set, uniform grid of points in <code>$z$</code>, but the parameters of the model will then be the value of the (log-)density at the locations of the knots. Though there is no jax-ified cubic interpolation built-in to JAX itself (as far as I can tell, it currently only supports linear interpolation), we will use another package — <code>jax_cosmo</code> — which provides a jax-aware version of Scipy&rsquo;s <code>InterpolatedUnivariateSpline</code>:</p>
 <pre><code class="language-python">from jax_cosmo.scipy.interpolate import InterpolatedUnivariateSpline
 </code></pre>
@@ -489,7 +514,7 @@ plt.ylabel(&quot;density $n(z)$&quot;)
 
 plt.legend(loc=&quot;best&quot;)
 </code></pre>
-<pre><code>&lt;matplotlib.legend.Legend at 0x7ff53862b1c0&gt;
+<pre><code>&lt;matplotlib.legend.Legend at 0x7fee66613070&gt;
 </code></pre>
 <p><img src="output_33_1.png" alt="png"></p>
 <p>We can now run the optimizer with our new spline model for the density:</p>
@@ -505,20 +530,20 @@ res = sco.minimize(
 )
 res
 </code></pre>
-<pre><code>      fun: -10.260887909516791
+<pre><code>      fun: -10.260887909516681
  hess_inv: &lt;11x11 LbfgsInvHessProduct with dtype=float64&gt;
-      jac: array([-2.86425740e-06,  6.56002702e-06, -4.06564716e-05, -1.03612167e-05,
-       -1.46661050e-06, -3.35053437e-06,  5.02995779e-06,  6.29047702e-06,
-        1.88062757e-05, -6.78824477e-06, -1.25840325e-06])
+      jac: array([-2.86425742e-06,  6.56002716e-06, -4.06564723e-05, -1.03612141e-05,
+       -1.46662505e-06, -3.35052844e-06,  5.02997047e-06,  6.29047903e-06,
+        1.88062751e-05, -6.78824463e-06, -1.25840327e-06])
   message: 'CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH'
      nfev: 37
       nit: 33
      njev: 37
    status: 0
   success: True
-        x: array([-18.01096061, -19.45263838, -11.97307253,   2.68899672,
+        x: array([-18.01096061, -19.45263838, -11.97307254,   2.68899671,
          9.73834031,  11.76439384,  10.06449883,   4.95208879,
-        -4.7820572 , -21.05344694, -18.43766302])
+        -4.78205721, -21.05344694, -18.43766302])
 </code></pre>
 <p>Let&rsquo;s plot our optimized spline density function and the value at the knots over our data:</p>
 <pre><code class="language-python">plt.plot(xc, dens, drawstyle=&quot;steps-mid&quot;, marker=&quot;&quot;)
@@ -550,7 +575,7 @@ plt.ylabel(&quot;density $n(z)$&quot;)
 
 plt.legend(loc=&quot;best&quot;)
 </code></pre>
-<pre><code>&lt;matplotlib.legend.Legend at 0x7ff53ec7fd60&gt;
+<pre><code>&lt;matplotlib.legend.Legend at 0x7fee6651bc70&gt;
 </code></pre>
 <p><img src="output_37_1.png" alt="png"></p>
 <p>Excellent - this also looks like a great fit! Unexpectedly, weird things happen outside of the range where we have data, but here the splines will largely be unconstrained.</p>
@@ -631,7 +656,7 @@ plt.ylabel(&quot;density $n(z)$&quot;);
 <p>As we might expect, the density function is not well constrained beyond <code>$|z|\gtrsim 2$</code> or so where we do not have data.</p>
 <p>Now that we have a better picture of how to implement these types of flexible spline models with JAX, let&rsquo;s turn to a more complicated science example.</p>
 <hr>
-<h1 id="example-fitting-the-density-profile-and-track-of-a-stellar-stream">Example: Fitting the density profile and track of a stellar stream</h1>
+<h2 id="example-fitting-the-density-profile-and-track-of-a-stellar-stream">Example: Fitting the density profile and track of a stellar stream</h2>
 <p>Building off of the 1D spline model we used above, we are now going to move on to a more complicated example motivated by my own research. Here we will try to model the 2D (on sky) density of a <a href="https://en.wikipedia.org/wiki/Stellar_kinematics#Stellar_streams">stellar stream</a> known as the &ldquo;GD-1 stream&rdquo; (named after its discovers <a href="https://ui.adsabs.harvard.edu/abs/2006ApJ...643L..17G/abstract">Grillmair &amp; Dionatos</a>). There is too much context to cover here, but for the purposes of this demo, assume that we are given a list of sky positions of stars from Gaia and we would like to model the on-sky density of the stream and background to (a) characterize the track of the stream, and (b) identify probable member stars. (The stars we will use have actually been pre-filtered to select distant, low-metallicity, main-sequence stars with proper motions that match the <a href="https://ui.adsabs.harvard.edu/abs/2018ApJ...863L..20P/abstract">previously-fit track of the stream</a>)</p>
 <p>Let&rsquo;s start by loading the data, which is included in this repository as a FITS file, so we can load the catalog using <a href="https://docs.astropy.org/en/stable/table/index.html"><code>astropy.table</code></a>:</p>
 <pre><code class="language-python">import astropy.table as at
@@ -714,7 +739,7 @@ ax.set_xlabel(&quot;$\phi_1$ [deg]&quot;)
 ax.set_ylabel(&quot;$\phi_2$ [deg]&quot;);
 </code></pre>
 <p><img src="output_58_0.png" alt="png"></p>
-<h2 id="defining-the-density-model">Defining the density model</h2>
+<h3 id="defining-the-density-model">Defining the density model</h3>
 <p>The curved over-density of stars that arcs from <code>$(\phi_1, \phi_2) \sim (-80, -3)^\circ$</code> to <code>$(\phi_1, \phi_2) \sim (-40, 0)^\circ$</code> to <code>$(\phi_1, \phi_2) \sim (0, -2)^\circ$</code> is the GD-1 stream. This is the density distribution we would like to model using a flexible, spline-based density function. Given the complexity of the stream, we will clearly have to be a bit more baroque in our model specification relative to the previous example. Additionally, there is a non-negligible background density of stars that varies (more smoothly) over the sky region where the stream exists: we will have to simultaneously model this background distribution:</p>
 <ul>
 <li>To represent the background, we will assume that the density is only a function of <code>$\phi_1$</code> and can be represented as a spline with evenly-spaced knots between <code>$\phi_1 \in [-120, 40]^\circ$</code>.</li>
@@ -901,7 +926,7 @@ axes[1].set_xlabel(r&quot;$\phi_1$ [deg]&quot;)
 <pre><code>Text(0.5, 0, '$\\phi_1$ [deg]')
 </code></pre>
 <p><img src="output_63_1.png" alt="png"></p>
-<h2 id="initializing-the-density-model-parameters">Initializing the density model parameters</h2>
+<h3 id="initializing-the-density-model-parameters">Initializing the density model parameters</h3>
 <p>In many real-world optimization problems, especially those with many parameters like we have here, a good initialization is often important for success (or at least speed) of the optimizer. We could try initializing the stream model and background with random settings of the parameter (as we visualized above), but it&rsquo;s usually worth spending a bit of time estimating better initial guesses for your parameters.</p>
 <p>We will therefore spend a few cells below manipulating the data to estimate the rough on-sky track and density of the stream, and the density of the stellar background.</p>
 <pre><code class="language-python">from scipy.ndimage import gaussian_filter1d
@@ -1024,72 +1049,72 @@ init_p = StreamModel.pack_pars(init_pars)
 )
 res
 </code></pre>
-<pre><code>      fun: -0.4172804414762403
+<pre><code>      fun: -0.41728040653316395
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
-      jac: array([-7.71418475e-07,  1.65857911e-07,  1.99453381e-07, -2.05370143e-06,
-       -1.70964779e-06, -4.62670967e-06,  1.68103189e-06,  2.09021076e-06,
-       -1.10096842e-06,  2.27286148e-06, -1.52102203e-06, -1.37678490e-06,
-       -2.28720309e-06, -2.26237554e-06, -1.30669594e-07, -3.37215730e-06,
-       -1.02103330e-06,  8.87957954e-07,  2.43060947e-06,  4.48877098e-06,
-        2.33454660e-06,  1.11753802e-06,  9.77205135e-07, -6.95522218e-07,
-        1.15479706e-06, -1.69470906e-06,  1.78318820e-06, -1.94111769e-07,
-       -5.52840315e-07, -7.36288750e-07, -8.92639157e-07,  1.55186650e-06,
-       -1.59999460e-06, -3.26062519e-07,  3.79777447e-07,  3.28915248e-06,
-       -7.19254555e-07, -3.63050574e-06, -1.34650105e-05, -1.33010540e-06,
-        3.07614063e-05,  1.18970084e-05,  1.65802843e-05,  4.66520356e-06,
-       -1.04483424e-06,  5.07504938e-07, -2.62358590e-06,  1.97680049e-07,
-        1.39519635e-06, -5.60004049e-07,  2.91998158e-06, -3.85801945e-07,
-        6.49247930e-07,  1.38578698e-06,  3.24259772e-06, -3.13469064e-06,
-        1.89760659e-06, -3.11670312e-06,  6.85084618e-07, -8.07002305e-06,
-       -2.91758878e-06,  3.64299264e-06, -2.47082774e-07,  1.81615140e-06,
-        6.16494751e-07, -2.46474178e-07,  3.60654040e-06, -9.61968004e-08,
-        3.94092601e-06,  3.81585532e-07, -8.09581201e-07,  1.17461144e-06])
+      jac: array([-3.01145185e-07, -9.31911438e-07, -7.36803817e-07, -6.00970429e-07,
+       -1.40485774e-06,  1.68548330e-06, -2.49200921e-07,  1.25839738e-06,
+        7.14017177e-07, -2.81689874e-06, -1.94501741e-06, -2.00374404e-06,
+       -4.45025561e-06, -1.88536540e-06, -2.71502783e-08,  1.21654127e-06,
+        8.99981459e-07,  1.67217851e-06, -2.90873445e-06, -4.06637372e-06,
+       -3.93824385e-06,  7.82960360e-07,  2.56044809e-06,  1.13377178e-06,
+        2.80311313e-07, -4.71518718e-06, -7.22281450e-07,  8.42589817e-07,
+       -2.56318536e-06, -1.22071448e-06,  5.26281621e-07,  3.02416859e-07,
+       -1.47324773e-06, -1.31161007e-06,  2.25435901e-06, -8.88808533e-07,
+       -2.22612312e-06, -1.00280662e-06, -2.91239827e-07, -1.61087808e-06,
+        1.19676171e-05,  6.42090796e-06, -9.57022505e-07,  2.72489219e-06,
+        1.56740899e-06,  1.90976803e-06, -2.91274674e-06, -1.88860117e-06,
+       -1.47331929e-06,  7.39347575e-07, -3.38372753e-06, -2.58591394e-06,
+        9.93688003e-07,  7.93221254e-07,  2.35548793e-06,  1.58778939e-05,
+       -2.52749714e-06, -3.70813016e-07,  4.16692868e-06, -2.50423262e-06,
+       -1.79773467e-06, -9.18258113e-07,  4.60287755e-06, -9.45326892e-07,
+        3.54790777e-06,  1.09770081e-07,  6.84275117e-06, -1.47446417e-06,
+        1.12955364e-06,  2.10312765e-06, -1.90942259e-06,  1.60582074e-06])
   message: 'CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH'
-     nfev: 470
-      nit: 439
-     njev: 470
+     nfev: 443
+      nit: 415
+     njev: 443
    status: 0
   success: True
-        x: array([-1.29724792, -1.29012651, -1.32220017, -1.01112565, -0.4372693 ,
-        0.58312065,  1.56485491,  1.84623316,  1.86679529,  1.75244974,
-        1.79167502,  2.39936208,  2.96517374,  3.28641774,  3.13259102,
-        2.63325926,  2.72104495,  2.89475705,  2.89169773,  1.78894259,
-        2.6488234 ,  3.05108255,  2.03688664,  2.74065293,  2.74767283,
-        1.03251669,  0.73350755, -0.19425672, -0.36811195, -0.38745796,
-       -0.38802526, -4.32570901, -4.29026727, -4.60164536, -2.65188131,
-       -1.68654545, -1.0399299 , -0.49073281,  0.01935266,  0.15563387,
-        0.07482995,  0.0315922 , -0.10760813, -0.75555268, -1.5350805 ,
-       -1.82638106, -1.86999619, -1.86537359, -1.83413212, -1.86183605,
-       -1.61951924, -0.98992293, -0.53122539, -0.83928341, -1.24429333,
-       -1.24835943, -1.08013281, -1.86097141, -1.66590174, -1.82412536,
-       -1.64303541, -1.32500325, -1.95722173, -1.62772084, -1.67305163,
-       -2.76395382, -0.72947985, -0.56382768,  0.23704327,  0.85720292,
-        0.13801779,  1.7967009 ])
+        x: array([-1.30088858, -1.29518135, -1.32524238, -1.01054275, -0.4366162 ,
+        0.58511712,  1.56463314,  1.84619083,  1.86699052,  1.75174934,
+        1.791596  ,  2.39930612,  2.96509095,  3.28646847,  3.13258404,
+        2.63348073,  2.7211086 ,  2.89480531,  2.89144252,  1.78794272,
+        2.6484362 ,  3.05108466,  2.03704299,  2.74073442,  2.74752908,
+        1.03177164,  0.73271371, -0.19399774, -0.36990402, -0.3865971 ,
+       -0.38294823, -4.33006613, -4.29056422, -4.6015064 , -2.65176976,
+       -1.68666419, -1.03996247, -0.49074667,  0.01938419,  0.15562579,
+        0.07481722,  0.03158152, -0.10762361, -0.7555589 , -1.53506291,
+       -1.826355  , -1.87097116, -1.87306864, -1.84990107, -1.86888388,
+       -1.62389751, -0.99020578, -0.5313017 , -0.83929926, -1.2444326 ,
+       -1.24810677, -1.08030276, -1.86090578, -1.66596336, -1.8241159 ,
+       -1.64282425, -1.32535534, -1.95633885, -1.62699741, -1.66368924,
+       -2.75909642, -0.72935731, -0.56376406,  0.23696649,  0.85727903,
+        0.13801791,  1.79905124])
 </code></pre>
 <p>It looks like that succeeded! Let&rsquo;s look at the optimized parameters:</p>
 <pre><code class="language-python">opt_pars = StreamModel.unpack_pars(res.x)
 opt_pars
 </code></pre>
-<pre><code>{'ln_n0': DeviceArray([-1.29724792, -1.29012651, -1.32220017, -1.01112565,
-              -0.4372693 ,  0.58312065,  1.56485491,  1.84623316,
-               1.86679529,  1.75244974,  1.79167502,  2.39936208,
-               2.96517374,  3.28641774,  3.13259102,  2.63325926,
-               2.72104495,  2.89475705,  2.89169773,  1.78894259,
-               2.6488234 ,  3.05108255,  2.03688664,  2.74065293,
-               2.74767283,  1.03251669,  0.73350755, -0.19425672,
-              -0.36811195, -0.38745796, -0.38802526], dtype=float64),
- 'ln_n0_bkg': DeviceArray([-2.76395382, -0.72947985, -0.56382768,  0.23704327,
-               0.85720292,  0.13801779,  1.7967009 ], dtype=float64),
- 'ln_std_phi2': DeviceArray([-1.83413212, -1.86183605, -1.61951924, -0.98992293,
-              -0.53122539, -0.83928341, -1.24429333, -1.24835943,
-              -1.08013281, -1.86097141, -1.66590174, -1.82412536,
-              -1.64303541, -1.32500325, -1.95722173, -1.62772084,
-              -1.67305163], dtype=float64),
- 'mean_phi2': DeviceArray([-4.32570901, -4.29026727, -4.60164536, -2.65188131,
-              -1.68654545, -1.0399299 , -0.49073281,  0.01935266,
-               0.15563387,  0.07482995,  0.0315922 , -0.10760813,
-              -0.75555268, -1.5350805 , -1.82638106, -1.86999619,
-              -1.86537359], dtype=float64)}
+<pre><code>{'ln_n0': DeviceArray([-1.30088858, -1.29518135, -1.32524238, -1.01054275,
+              -0.4366162 ,  0.58511712,  1.56463314,  1.84619083,
+               1.86699052,  1.75174934,  1.791596  ,  2.39930612,
+               2.96509095,  3.28646847,  3.13258404,  2.63348073,
+               2.7211086 ,  2.89480531,  2.89144252,  1.78794272,
+               2.6484362 ,  3.05108466,  2.03704299,  2.74073442,
+               2.74752908,  1.03177164,  0.73271371, -0.19399774,
+              -0.36990402, -0.3865971 , -0.38294823], dtype=float64),
+ 'ln_n0_bkg': DeviceArray([-2.75909642, -0.72935731, -0.56376406,  0.23696649,
+               0.85727903,  0.13801791,  1.79905124], dtype=float64),
+ 'ln_std_phi2': DeviceArray([-1.84990107, -1.86888388, -1.62389751, -0.99020578,
+              -0.5313017 , -0.83929926, -1.2444326 , -1.24810677,
+              -1.08030276, -1.86090578, -1.66596336, -1.8241159 ,
+              -1.64282425, -1.32535534, -1.95633885, -1.62699741,
+              -1.66368924], dtype=float64),
+ 'mean_phi2': DeviceArray([-4.33006613, -4.29056422, -4.6015064 , -2.65176976,
+              -1.68666419, -1.03996247, -0.49074667,  0.01938419,
+               0.15562579,  0.07481722,  0.03158152, -0.10762361,
+              -0.7555589 , -1.53506291, -1.826355  , -1.87097116,
+              -1.87306864], dtype=float64)}
 </code></pre>
 <p>Again, it looks like there are no NaN or inf values, so that&rsquo;s good. Let&rsquo;s now compare the optimized parameters to our initial guesses:</p>
 <pre><code class="language-python">fig, axes = plt.subplots(2, 2, figsize=(10, 6), sharex=True, constrained_layout=True)
@@ -1112,7 +1137,7 @@ for ax in axes[-1]:
 
 ax.legend(loc=&quot;best&quot;, fontsize=14)
 </code></pre>
-<pre><code>&lt;matplotlib.legend.Legend at 0x7ff4f5b089d0&gt;
+<pre><code>&lt;matplotlib.legend.Legend at 0x7fee40ebaad0&gt;
 </code></pre>
 <p><img src="output_87_1.png" alt="png"></p>
 <p>We can also look at the 2D density computed from our optimized parameters and visually compare to the data:</p>
@@ -1160,7 +1185,7 @@ for ax in axes:
 </code></pre>
 <p><img src="output_90_0.png" alt="png"></p>
 <p>This looks like a pretty good representation of the stream density and track, so I would call this a success! With the optimized parameters in hand, we could then run a sampler (like the HMC/NUTS sampler we used above) to generate posterior samples over our parameters and assess uncertainty in the model, or compute membership probabilities of belonging to the stream for the stars in this field. In a real application, we may also want to assess our choices by trying a few different settings for the number of spline knots for the different components of the model.</p>
-<h1 id="recap">Recap</h1>
+<h2 id="recap">Recap</h2>
 <p>This tutorial demonstrates how to use flexible, spline-based models in density functions with <a href="https://jax.readthedocs.io/">JAX</a>, which provides automatic calculation of gradients through our models and enables fast optimization and MCMC sampling methods even in cases like the above where the number of parameters is large.</p>
 <p>If you have any comments or questions about this tutorial, please <a href="https://github.com/adrn-blog/post--flexible-density-model-jax/issues">open an issue on the GitHub repository for this post</a>. Thanks for reading!</p>
 

@@ -1,1 +1,63 @@
-/* Add custom CSS here. */
+.MathJax_Display,
+.MathJax_SVG_Display {
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+
+.post__content div {
+  overflow-x: auto;
+}
+
+code.has-jax {
+  -webkit-font-smoothing: antialiased;
+  background: inherit !important;
+  border: none !important;
+  font-size: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+article > div {
+  overflow-x: scroll;
+}
+
+@media (max-width: 768px) {
+    .wide-container {
+        min-width: 500px;
+    }
+    .wide-container img {
+        max-width: 450px;
+        display: block;
+        margin: 0 auto;
+    }
+}
+@media (min-width: 768px) {
+    .wide-container {
+        width: 768px;
+    }
+    .wide-container img {
+        max-width: 690px;
+        display: block;
+        margin: 0 auto;
+    }
+}
+@media (min-width: 992px) {
+    .wide-container {
+        width: 940px;
+    }
+    .wide-container img {
+        max-width: 892px;
+        display: block;
+        margin: 0 auto;
+    }
+}
+@media (min-width: 1200px) {
+    .wide-container {
+        width: 1000px;
+    }
+    .wide-container img {
+        max-width: 900px;
+        display: block;
+        margin: 0 auto;
+    }
+}
