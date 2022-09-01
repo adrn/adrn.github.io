@@ -104,7 +104,7 @@ div.content
     font-size: 1.1rem;
     font-weight: 300;
 
-    color: #777;
+    color: #444;
 }
 .copyright
 {
@@ -235,7 +235,7 @@ h3.intro
     margin-bottom: 0.2rem;
 }
 .content p.meta {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     margin-bottom: 1.5rem;
 }
 
