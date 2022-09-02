@@ -17,12 +17,33 @@
     </item>
     
     <item>
+      <title>Fitting a straight line to data</title>
+      <link>https://adrian.pw/blog/fitting-a-line/</link>
+      <pubDate>Fri, 15 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://adrian.pw/blog/fitting-a-line/</guid>
+      <description>Fitting a straight line to data This notebook is a ~1 hour tutorial on fitting models to data, starting with a linear model and progressing to a linear model with an extra nonlinear parameter (an unknown extra variance to account for unknown error bars or intrinsic scatter).
+This notebook is heavily inspired by Hogg et al. 2010, @jakevdp&amp;rsquo;s notes, and parts of the emcee documentation.
+Python imports we&amp;rsquo;ll need later&amp;hellip;</description>
+    </item>
+    
+    <item>
       <title> Programming language mentions in the astronomical literature</title>
       <link>https://adrian.pw/blog/python-literature/</link>
       <pubDate>Tue, 20 Mar 2018 00:00:00 +0000</pubDate>
       
       <guid>https://adrian.pw/blog/python-literature/</guid>
       <description>import datetime import itertools from os import path import time import ads import matplotlib.pyplot as plt %matplotlib inline import numpy as np import pandas as pd from tqdm import tqdm  I&amp;rsquo;m interested in how the popuarity of various programming languages and packages change with time, as measured by mentions in the astronomical literature. To answer this, I&amp;rsquo;m going to use the ads package to query the &amp;ldquo;astronomy&amp;rdquo; database API at the ADS to search for full-text mentions of the words:</description>
+    </item>
+    
+    <item>
+      <title>When is sunset?</title>
+      <link>https://adrian.pw/blog/sunset-times/</link>
+      <pubDate>Sat, 27 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://adrian.pw/blog/sunset-times/</guid>
+      <description>tl;dr I visualized the local time of sunset today (2018-01-27) at every county in the continental US to see how sunset time depends on latitude and location within timezone.
+ I&amp;rsquo;m currently traveling through the pacific northwest (PNW) and have been surprised that sunset occurs at about the same (local) time as it does out in Princeton, NJ (where I currently live), despite the ~5 degree difference in latitude. It occurred to me that the local time of sunset probably depends a lot on your relative position within a timezone (at least within the continental US), so I wanted to make some visualizations related to this.</description>
     </item>
     
     <item>
