@@ -17,6 +17,26 @@
     </item>
     
     <item>
+      <title>Visualizing the 2017 solar eclipse with Astropy</title>
+      <link>https://adrian.pw/blog/astropy-eclipse/</link>
+      <pubDate>Sun, 20 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://adrian.pw/blog/astropy-eclipse/</guid>
+      <description>from datetime import datetime import astropy.coordinates as coord from astropy.time import Time import astropy.units as u import numpy as np import pytz from IPython.display import HTML import matplotlib.pyplot as plt %matplotlib inline from matplotlib.dates import HourLocator, MinuteLocator, DateFormatter import matplotlib.animation as animation import matplotlib as mpl  # Set timezone here: mpl.rcParams[&amp;quot;timezone&amp;quot;] = &amp;quot;US/Eastern&amp;quot; # Enter address here: address = &amp;quot;4 Ivy Lane, Princeton, NJ&amp;quot;  Set up an array of times to get the sun and moon position during:</description>
+    </item>
+    
+    <item>
+      <title>Yearly sun graphs in Python with Astropy</title>
+      <link>https://adrian.pw/blog/yearly-sun-graph/</link>
+      <pubDate>Fri, 08 Jul 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://adrian.pw/blog/yearly-sun-graph/</guid>
+      <description>Molly Peeples (@astronomolly) recently tweeted some really cool plots from timeanddate.com that visualize local solar properties over a year from a location (e.g., twilights, solar noon, etc.), e.g.:
+My first thought was: can we make those plots with Astropy? This post shows one way to make figures like this in Python using Astropy and Matplotlib.
+from datetime import datetime # Third-party import astropy.coordinates as coord import astropy.units as u import astropy.</description>
+    </item>
+    
+    <item>
       <title>Making a Matplotlib animation with a transparent background</title>
       <link>https://adrian.pw/blog/matplotlib-transparent-animation/</link>
       <pubDate>Fri, 03 Jun 2016 00:00:00 +0000</pubDate>
