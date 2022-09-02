@@ -17,6 +17,15 @@
     </item>
     
     <item>
+      <title> Programming language mentions in the astronomical literature</title>
+      <link>https://adrian.pw/blog/python-literature/</link>
+      <pubDate>Tue, 20 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://adrian.pw/blog/python-literature/</guid>
+      <description>import datetime import itertools from os import path import time import ads import matplotlib.pyplot as plt %matplotlib inline import numpy as np import pandas as pd from tqdm import tqdm  I&amp;rsquo;m interested in how the popuarity of various programming languages and packages change with time, as measured by mentions in the astronomical literature. To answer this, I&amp;rsquo;m going to use the ads package to query the &amp;ldquo;astronomy&amp;rdquo; database API at the ADS to search for full-text mentions of the words:</description>
+    </item>
+    
+    <item>
       <title>Visualizing the 2017 solar eclipse with Astropy</title>
       <link>https://adrian.pw/blog/astropy-eclipse/</link>
       <pubDate>Sun, 20 Aug 2017 00:00:00 +0000</pubDate>
