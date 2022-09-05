@@ -101,7 +101,8 @@ from datetime import datetime # Third-party import astropy.coordinates as coord 
       
       <guid>https://adrian.pw/about/</guid>
       <description>Short Bio I am currently an Associate Research Scientist and leader of the Galactic Dynamics group at the Center for Computational Astrophysics (CCA) at the Flatiron Institute in New York City.
-I received my PhD in 2016 with advisor Kathryn V. Johnston in the Department of Astronomy at Columbia University. I was then a Lyman Spitzer, Jr. Postdoctoral Fellow in the Department of Astrophysical Sciences at Princeton University. I was a Flatiron Research Fellow at the CCA from 2019 to 2021.</description>
+I am also the Assistant Director of Scientific Software at the Simons Foundation.
+I received my PhD in 2016 with advisor Kathryn V. Johnston in the Department of Astronomy at Columbia University. I was then a Lyman Spitzer, Jr. Postdoctoral Fellow in the Department of Astrophysical Sciences at Princeton University.</description>
     </item>
     
     <item>
