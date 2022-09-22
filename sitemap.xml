@@ -3,10 +3,13 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://adrian.pw/</loc>
-    <lastmod>2022-08-31T00:00:00+00:00</lastmod>
+    <lastmod>2022-09-21T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://adrian.pw/blog/</loc>
-    <lastmod>2022-08-31T00:00:00+00:00</lastmod>
+    <lastmod>2022-09-21T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://adrian.pw/blog/probabilistic-graphical-models/</loc>
+    <lastmod>2022-09-21T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://adrian.pw/blog/flexible-density-model-jax/</loc>
     <lastmod>2022-08-31T00:00:00+00:00</lastmod>

@@ -6,7 +6,17 @@
     <description>Recent content on apw</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 31 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://adrian.pw/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 21 Sep 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://adrian.pw/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Probabilistic Graphical Models (an introduction)</title>
+      <link>https://adrian.pw/blog/probabilistic-graphical-models/</link>
+      <pubDate>Wed, 21 Sep 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://adrian.pw/blog/probabilistic-graphical-models/</guid>
+      <description>import matplotlib as mpl import matplotlib.pyplot as plt %matplotlib inline import numpy as np import daft  Probabilistic Graphical Models (PGMs) Note: This notebook has accompanying slides here
+Graphical models are a useful tool for constructing probabilistic models. In one sentence, probabilistic graphical models (PGMs) use concepts from graph theory to help represent and conceptualize the complex relationships between random variables in probabilistic models. When visualized as graph diagrams, PGMs are useful for understanding models, for debugging, and for thinking about extensions or generalizations of models.</description>
+    </item>
+    
     <item>
       <title>Flexible (stellar spatial) density models with Jax</title>
       <link>https://adrian.pw/blog/flexible-density-model-jax/</link>
