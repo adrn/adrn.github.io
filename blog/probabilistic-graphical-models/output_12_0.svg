@@ -9,21 +9,21 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 189.91)">
 <title>%3</title>
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-189.91 206.23,-189.91 206.23,4 -4,4"/>
-<!-- plx -->
-<g id="node1" class="node">
-<title>plx</title>
-<ellipse fill="lightgrey" stroke="black" cx="101.12" cy="-37.48" rx="49.49" ry="37.45"/>
-<text text-anchor="middle" x="101.12" y="-48.78" font-family="Times,serif" font-size="14.00">plx</text>
-<text text-anchor="middle" x="101.12" y="-33.78" font-family="Times,serif" font-size="14.00">~</text>
-<text text-anchor="middle" x="101.12" y="-18.78" font-family="Times,serif" font-size="14.00">Normal</text>
-</g>
 <!-- r -->
-<g id="node2" class="node">
+<g id="node1" class="node">
 <title>r</title>
 <ellipse fill="none" stroke="black" cx="101.12" cy="-148.43" rx="101.23" ry="37.45"/>
 <text text-anchor="middle" x="101.12" y="-159.73" font-family="Times,serif" font-size="14.00">r</text>
 <text text-anchor="middle" x="101.12" y="-144.73" font-family="Times,serif" font-size="14.00">~</text>
 <text text-anchor="middle" x="101.12" y="-129.73" font-family="Times,serif" font-size="14.00">TruncatedNormal</text>
+</g>
+<!-- plx -->
+<g id="node2" class="node">
+<title>plx</title>
+<ellipse fill="lightgrey" stroke="black" cx="101.12" cy="-37.48" rx="49.49" ry="37.45"/>
+<text text-anchor="middle" x="101.12" y="-48.78" font-family="Times,serif" font-size="14.00">plx</text>
+<text text-anchor="middle" x="101.12" y="-33.78" font-family="Times,serif" font-size="14.00">~</text>
+<text text-anchor="middle" x="101.12" y="-18.78" font-family="Times,serif" font-size="14.00">Normal</text>
 </g>
 <!-- r&#45;&gt;plx -->
 <g id="edge1" class="edge">
