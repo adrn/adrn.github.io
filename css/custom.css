@@ -52,3 +52,8 @@ article > div {
         margin: 0 auto;
     }
 }
+
+pre.language-output {
+    background-color: #dddddd;
+    opacity: 0.8;
+}
