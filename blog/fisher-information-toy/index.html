@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Simple minimalist theme">
+<meta name="keywords" content="minimalist,blog,goa,hugo,developer">
+
+<title>
+  apw - Some toy examples and pitfalls of the Fisher information matrix 
+</title>
+
+<meta name="generator" content="Hugo 0.128.0">
+
+
+
+<link rel="stylesheet" href="https://adrian.pw/css/github-syntax.css">
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;1,300&family=Merriweather:wght@100;200;300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous"/>
+<link rel="stylesheet" href="https://adrian.pw/css/main.css">
+<link rel="stylesheet" href="https://adrian.pw/css/custom.css">
+
+
+
+
+
+<link rel="icon" type="image/png" href="../../img/favicon.ico" />
+
+
+<link rel="manifest" href="../../manifest.json">
+
+<meta name="theme-color" content="#ffffff">
+
+</head>
+<body lang="en-us">
+
+
+
+
+<div class="wide-container">
+
+
+
+<header class="text-left content-header">
+  <h1 class="author"><a href="../../">Adrian Price-Whelan</a></h1>
+</header>
+
+
+
+
+<section id="menu-pane" class="menu text-center">
+  
+  <a class="menu-item" href="../../about/">about</a>
+  
+  <a class="menu-item" href="http://adrian.pw/cv/PriceWhelan-cv.pdf">cv</a>
+  
+  <a class="menu-item" href="../../blog/">blog</a>
+  
+  <a class="menu-item" href="../../research/">research</a>
+  
+  <a class="menu-item" href="../../viz/">visualizations</a>
+  
+</section>
+
+
+
+
+
+<script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ["$", "$"],
+          ["\\(", "\\)"],
+        ],
+        displayMath: [
+          ["$$", "$$"],
+          ["\\[", "\\]"],
+        ],
+        processEscapes: true,
+        processEnvironments: true,
+      },
+      options: {
+        skipHtmlTags: ["script", "noscript", "style", "textarea", "pre"],
+      },
+    };
+
+    
+    
+    
+    
+    
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script
+    type="text/javascript"
+    id="MathJax-script"
+    async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+  ></script>
+
+
+<section id="content-pane" class="">
+  <div class="col-md-12 content">
+    
+      <h2 class="title">Some toy examples and pitfalls of the Fisher information matrix:</h1>
+    
+
+    <p class="meta">
+      
+        2024-09-23
+      
+    </p>
+
+    <p><em>I wrote this originally as a set of notes to a student, so it is a bit informal and conversational. I hope it is still useful!</em></p>
+<p>The Fisher information matrix is the expectation value of the variance of the log-likelihood function, which is often just the expectation of the Hessian of the log-likelihood function (i.e. the second derivatives with respect to the model parameters). That&rsquo;s just a boring definition! For a data set <code>$D$</code> and model parameters <code>$\theta$</code>,</p>
+<div>$$
+\mathcal{F}_{jk} = -\mathbb{E}\left[\frac{\partial^2}{\partial\theta_j \, \partial\theta_k}\ln\mathcal{L}(D \,|\, \theta)\right]
+$$</div>
+where `$\mathbb{E}\left[x\right]$` is the expectation value of `$x$` evaluated at the true parameter values.
+Conceptually, it is a matrix that tells us how much information the data `$D$` contain about a given parameter, or how much covariance there is in our knowledge of a combination of parameters. 
+<p>I think of it as a result of a Taylor expansion of the likelihood function around the maximum likelihood parameter values. It is related to the curvature of the likelihood function around its maximum (because second derivatives are involves). It is not a fundamental object that is universally interpretable or meaningful. For example, if a model is a bad representation of data, or if the likelihood surface is extremely structured or multi-modal (i.e. cases where a Taylor expansion to low order is a bad representation of a function), then the Fisher information does not really summarize any useful properties of the data or model.</p>
+<h1 id="example-fitting-a-line-to-data">Example: Fitting a line to data</h1>
+<p>As an example of how to compute this thing, let&rsquo;s use the ever-loved example of <a href="https://adrian.pw/blog/fitting-a-line/">fitting a straight line to data</a> <code>$y$</code> at positions <code>$x$</code> with uncertainties <code>$\sigma_y$</code> only on the data <code>$y$</code>. Let&rsquo;s generate some fake data to work with:</p>
+<pre><code class="language-python">import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+
+%matplotlib inline
+</code></pre>
+<pre><code class="language-python">ndata = 8
+rng = np.random.default_rng(42)
+true_pars = rng.normal(0, 2.0, size=2)
+
+x = np.sort(rng.uniform(0, 10, ndata))
+yerr = 10 ** rng.uniform(-1, 0, ndata)
+y = rng.normal(true_pars[0] * x + true_pars[1], yerr)
+</code></pre>
+<pre><code class="language-python">fig, ax = plt.subplots()
+ax.errorbar(x, y, yerr, marker=&quot;o&quot;, ls=&quot;none&quot;)
+ax.set(xlabel=&quot;x&quot;, ylabel=&quot;y&quot;)
+</code></pre>
+<pre><code>[Text(0.5, 0, 'x'), Text(0, 0.5, 'y')]
+</code></pre>
+<p><img src="output_3_1.png" alt="png"></p>
+<p>In this case, our model for the data is one dimensional and linear:</p>
+<div>$$
+f(x \,;\, \theta) = a \, x + b \\
+\theta = (a, b)
+$$</div>
+and we will assume that the data are generated from some process such that the uncertainties `$\sigma_y$` are Gaussian (and I'll drop the subscript `$y$` because I'm lazy). Our likelihood function for a single data point `$(x_i, y_i, \sigma_i)$` is then:
+<div>$$
+L(y_i \,;\, \theta) = \mathcal{N}(y_i \,|\, f(x \,;\, \theta), \sigma_i)
+$$</div>
+(`$x_i$` and `$\sigma_i$` aren't really data because we assume we know them perfectly, but they are associated with a given data point `$y$` as metadata). 
+`$\mathcal{N}(w \,|\, \mu, \sigma)$` is the Normal distribution over `$w$` with mean `$\mu$` and standard deviation `$\sigma$`.
+<p>In this model, the data points are independent, so the total likelihood <code>$\mathcal{L}$</code> is just the product of the likelihoods for each individual data point:</p>
+<div>$$
+\begin{align}
+\mathcal{L} &= \prod_i L(y_i \,;\, \theta)\\ 
+&= \prod_i \mathcal{N}(y_i \,|\, f_i, \sigma_i)
+\end{align}
+$$</div>
+where, as a reminder, `$f_i$` is the model predicted value of `$y$` at a given location `$x_i$` — you can think of it as the model's prediction for the true value of `$y_i$`.
+In the log, this product is just a sum:
+<div>$$
+\ln\mathcal{L} = \sum_i \ln\mathcal{N}(y_i \,|\, f_i, \sigma_i)
+$$</div>
+<p>So now we need to take second derivatives of this thing. The derivative here can be moved inside of the sum, so</p>
+<div>$$
+\frac{\partial^2\ln\mathcal{L}}{\partial \theta_j \partial \theta_k} = \sum_i \frac{\partial^2}{\partial \theta_j \partial \theta_k}\ln\mathcal{N}(y_i \,|\, f_i, \sigma_i)
+$$</div>
+<p>To see how this works in this one-dimensional case, let&rsquo;s expand the expression for the log-Normal distribution:</p>
+<div>$$
+\ln\mathcal{N}(y_i \,|\, f_i, \sigma_i) = -\frac{1}{2} \left[ \frac{(y_i - f_i)^2}{\sigma_i^2} + \ln(2\pi\,\sigma_i^2) \right]
+$$</div>
+(this may seem like a weird way to write it but trust me). Now, we need to take derivatives of this expression with respect to the model parameters `$\theta$`. One thing to note is that the second term `$\ln(2\pi\,\sigma^2)$` does not depend on the parameters (it is only a function of the data, i.e. the uncertainties), so the derivatives of this term are zero. The first term is a quadratic function of `$y_i$` and `$f_i$`, but `$y_i$` is data and `$f_i$` is a function of the model parameters, so the only terms that survive the derivative are those that depend on `$f_i$` (i.e. the model predictions):
+<div>$$
+\frac{\partial^2}{\partial \theta_j \partial \theta_k} 
+    \ln\mathcal{N}(y_i \,|\, f_i, \sigma_i) = 
+        \frac{1}{\sigma_i^2} \frac{\mathrm{d} f_i}{\mathrm{d}\theta_j} 
+            \frac{\mathrm{d} f_i}{\mathrm{d}\theta_k}
+$$</div>
+<p>Our model <code>$f$</code> only has two parameters, so we can write this matrix out explicitly, for one data point:</p>
+<div>$$
+\begin{align}
+&= \frac{1}{\sigma_i^2} \, \begin{pmatrix}
+\frac{\mathrm{d} f_i}{\mathrm{d}a} \frac{\mathrm{d} f_i}{\mathrm{d}a} & \frac{\mathrm{d} f_i}{\mathrm{d}a} \frac{\mathrm{d} f_i}{\mathrm{d}b} \\
+\frac{\mathrm{d} f_i}{\mathrm{d}b} \frac{\mathrm{d} f_i}{\mathrm{d}a} & \frac{\mathrm{d} f_i}{\mathrm{d}b} \frac{\mathrm{d} f_i}{\mathrm{d}b}
+\end{pmatrix} \\
+&= \frac{1}{\sigma_i^2} \, \begin{pmatrix}
+x_i^2 & x_i \\
+x_i & 1 
+\end{pmatrix}
+\end{align}
+$$</div>
+<p>And so the Fisher information matrix is just the sum of these matrices over all data points:</p>
+<div>$$
+\mathcal{F} = \sum_i \frac{1}{\sigma_i^2} \, \begin{pmatrix}
+x_i^2 & x_i \\
+x_i & 1
+\end{pmatrix}
+$$</div>
+<p>This is an interesting (but simple) result: the Fisher information here does not even contain the model parameter values! That is because our model <code>$f$</code> is <em>linear</em> in the model parameters and our likelihood is Gaussian, so the curvature is a constant. Let&rsquo;s look at how to compute this given our toy data above.</p>
+<pre><code class="language-python"># This is the matrix component of the Fisher information from above
+M = np.array([[x**2, x], [x, np.ones_like(x)]])
+M.shape
+</code></pre>
+<pre><code>(2, 2, 8)
+</code></pre>
+<pre><code class="language-python">F = np.sum(1 / yerr**2 * M, axis=-1)
+F.shape
+</code></pre>
+<pre><code>(2, 2)
+</code></pre>
+<pre><code class="language-python">F
+</code></pre>
+<pre><code>array([[10822.60583843,  1226.64589812],
+       [ 1226.64589812,   157.35632654]])
+</code></pre>
+<p>OK so we&rsquo;ve computed the Fisher information! &hellip;So what? It turns out that the inverse of the Fisher information matrix is a useful matrix itself: it is the covariance matrix of the maximum likelihood parameter estimates. This is a useful property because it tells us the expected precision of our parameter estimates given the data we have. If the Fisher information is large, then the parameter uncertainties (i.e. the inverses) are small, so the parameters are well-constrained by the data. Let&rsquo;s look at the inverse of the Fisher information matrix for our toy data above:</p>
+<pre><code class="language-python">Finv = np.linalg.inv(F)
+Finv
+</code></pre>
+<pre><code>array([[ 0.00079335, -0.00618439],
+       [-0.00618439,  0.05456446]])
+</code></pre>
+<p>If we ignore the covariances (i.e. the off-diagonal terms), this tells us the expected errors we would get on the parameter values if we fit the data with a straight line. The diagonal terms are the variances of the parameter estimates, and the square roots of these are the expected standard deviations of the parameter estimates:</p>
+<pre><code class="language-python">np.sqrt(np.diag(Finv))
+</code></pre>
+<pre><code>array([0.02816638, 0.23359036])
+</code></pre>
+<p>Let&rsquo;s now do a maximum likelihood fit using least-squares algebra and compare the results to the Fisher information matrix. With least-squares:</p>
+<pre><code class="language-python"># Design matrix:
+A = np.stack((x, np.ones_like(x)), axis=-1)
+
+# Data covariance matrix:
+Cinv = np.diag(1 / yerr**2)
+</code></pre>
+<p>Here is the standard matrix algebra for computing the maximum likelihood parameter estimates for a linear model (<code>mle_pars</code> below). In this case, the covariance matrix of the parameter estimates, <code>$P$</code>, is the inverse of the Fisher information matrix! (BTW, as an aside, it&rsquo;s generally bad to construct the data covariance matrix this way and to do the matrix inverse explicitly here — a better way is to use, e.g., <code>numpy.linalg.leastsq</code> or <code>numpy.linalg.solve</code>)</p>
+<pre><code class="language-python">P = np.linalg.inv(A.T @ Cinv @ A)
+mle_pars = P @ A.T @ Cinv @ y
+mle_pars
+</code></pre>
+<pre><code>array([ 0.58499692, -1.87999557])
+</code></pre>
+<pre><code class="language-python"># Note that these are the same values as sqrt(diag(Finv))!
+np.sqrt(np.diag(P))
+</code></pre>
+<pre><code>array([0.02816638, 0.23359036])
+</code></pre>
+<h1 id="example-multi-dimensional-and-nonlinear-but-still-gaussian-models">Example: Multi-dimensional and nonlinear (but still Gaussian) models</h1>
+<p>The example above is a special case where we can solve for the Fisher information analytically and our model is linear. We are often in more complex situations in astronomy. One example is our project (where our likelihood function involves orbit integrations; here the model is nonlinear and the data are multi-dimensional). Another example is solving the Kepler problem by fitting a two-body orbit to, e.g., radial velocity data (model is nonlinear in the parameters but the data are still one dimensional).</p>
+<p>In general, our data may be a vector <code>$\boldsymbol{y}$</code> and our model may be a multi-output or vector function <code>$\boldsymbol{f}(\boldsymbol{x} \,;\, \boldsymbol{\theta})$</code> where <code>$\boldsymbol{x}$</code> is a vector of independent variables and <code>$\boldsymbol{\theta}$</code> is a vector of model parameters. If the likelihood is non-Gaussian, there&rsquo;s not much we can do analytically. But if the likelihood is Gaussian, even with a nonlinear model, we can simplify the Fisher information matrix calculation by using the chain rule for derivatives.</p>
+<p>In this case, our likelihood for one data point <code>$\boldsymbol{y}_i$</code> (note the vector <code>$y$</code>) is:</p>
+<div>$$
+L(\boldsymbol{y}_i \,;\, \boldsymbol{\theta}) = \mathcal{N}(\boldsymbol{y}_i \,|\, \boldsymbol{f}_i, \boldsymbol{\Sigma}_i)
+$$</div>
+where now `$\boldsymbol{\Sigma}_i$` is the covariance matrix of the data point `$\boldsymbol{y}_i$`, and `$\boldsymbol{f}_i$` is a vector of model-predicted "true" values for the data. We can expand the log-Normal expression in the same way as we did for the one-dimensional case above, but now it involves some matrix algebra:
+<div>$$
+\ln L(\boldsymbol{y}_i \,;\, \boldsymbol{\theta}) = 
+    -\frac{1}{2} \left[ (\boldsymbol{y}_i - \boldsymbol{f}_i)^{\mathrm{T}} \boldsymbol{\Sigma}_i^{-1} (\boldsymbol{y}_i - \boldsymbol{f}_i) + \ln\det\boldsymbol{\Sigma}_i + N \ln(2\pi) \right]
+$$</div>
+where `$\det$` is the determinant of a matrix and `$N$` is the number of data points. We again want derivatives of this expression with respect to model parameters `$\boldsymbol{\theta}$`, so once again we can ignore the second and third terms because they are independent of the model parameters. The first term is a quadratic form in the data and model predictions, so the only terms that survive the derivative are those that depend on the model predictions:
+<div>$$
+\frac{\partial^2}{\partial \theta_j \partial \theta_k} 
+    \ln L(\boldsymbol{y}_i \,;\, \boldsymbol{\theta}) = 
+        \frac{\partial \boldsymbol{f}^{\mathrm{T}}_i}{\partial \theta_j} \boldsymbol{\Sigma}_i^{-1} \frac{\partial \boldsymbol{f}_i}{\partial \theta_k} 
+$$</div>
+This is the quantity you might see in, for example, [Bonaca & Hogg 2018](https://ui.adsabs.harvard.edu/abs/2018ApJ...867..101B/abstract) (or an upcoming paper by Sophia Lilleengen on information theory of stellar streams).
+<p>Let&rsquo;s now do an example of this for a two-dimensional model with some nonlinear model parameters. For example, a sinusoidal model of two variables with unknown amplitudes and frequency:</p>
+<div>$$
+\boldsymbol{f}(x \,;\, \boldsymbol{\theta}) = 
+    \begin{pmatrix}
+    a \, \sin(2\pi \, \nu \, x) \\
+    b \, \cos(2\pi \, \nu \, x)
+    \end{pmatrix}
+$$</div>
+<p>We again generate some toy data to play with (and yes I&rsquo;m being naughty by using the same variable names as above):</p>
+<pre><code class="language-python">ndata = 16
+rng = np.random.default_rng(8675309)
+true_pars = np.abs(rng.normal(0, 2.0, size=3))
+
+x = np.sort(rng.uniform(0, 2 / true_pars[2], ndata))
+yerr = 10 ** rng.uniform(-2, -0.5, (ndata, 2)) * true_pars[:2]
+
+y = np.stack(
+    (
+        rng.normal(true_pars[0] * np.sin(2 * np.pi * true_pars[2] * x), yerr[:, 0]),
+        rng.normal(true_pars[1] * np.cos(2 * np.pi * true_pars[2] * x), yerr[:, 1]),
+    ),
+    axis=-1,
+)
+
+# The inverse covariance matrix of the data (which here is diagonal):
+Cinv = np.stack([np.diag(1 / yerr[i] ** 2) for i in range(ndata)], axis=0)
+
+# We'll work with the data in a dictionary for convenience:
+data = {&quot;x&quot;: x, &quot;y&quot;: y, &quot;Cinv&quot;: Cinv, &quot;yerr&quot;: yerr}
+data[&quot;Cinv&quot;].shape, data[&quot;y&quot;].shape
+</code></pre>
+<pre><code>((16, 2, 2), (16, 2))
+</code></pre>
+<pre><code class="language-python">fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+
+for i in range(2):
+    axes[i].errorbar(
+        data[&quot;x&quot;], data[&quot;y&quot;][..., i], data[&quot;yerr&quot;][..., i], marker=&quot;o&quot;, ls=&quot;none&quot;
+    )
+    axes[i].set(xlabel=&quot;x&quot;, ylabel=f&quot;$y_{i+1}$&quot;)
+</code></pre>
+<p><img src="output_21_0.png" alt="png"></p>
+<p>Now let&rsquo;s implement this model in JAX so we can make use of the auto-differentiation capabilities. We&rsquo;ll again compute the Fisher information matrix and compare it to the maximum likelihood parameter estimates.</p>
+<pre><code class="language-python">import jax
+import jax.numpy as jnp
+
+jax.config.update(&quot;jax_enable_x64&quot;, True)
+</code></pre>
+<pre><code class="language-python">@jax.jit
+def model_f(x, pars):
+    return jnp.stack(
+        (
+            pars[0] * jnp.sin(2 * jnp.pi * pars[2] * x),
+            pars[1] * jnp.cos(2 * jnp.pi * pars[2] * x),
+        ),
+        axis=-1,
+    )
+
+
+@jax.jit
+def ln_likelihood_one_star(pars, x, y, Cinv):
+    y_model = model_f(x, pars)
+    dy = y - y_model
+    return -0.5 * dy.T @ Cinv @ dy
+
+
+ln_likelihood_helper = jax.vmap(ln_likelihood_one_star, in_axes=(None, 0, 0, 0))
+
+
+@jax.jit
+def ln_likelihood(pars, x, y, Cinv):
+    return jnp.sum(ln_likelihood_helper(pars, x, y, Cinv))
+</code></pre>
+<p>Let&rsquo;s try evaluating our log-likelihood function at the true parameters:</p>
+<pre><code class="language-python">ln_likelihood(true_pars, x, y, Cinv)
+</code></pre>
+<pre><code>Array(-11.87854157, dtype=float64)
+</code></pre>
+<pre><code class="language-python">F = -jax.hessian(ln_likelihood)(true_pars, x, y, Cinv)
+F
+</code></pre>
+<pre><code>Array([[ 4.25782094e+05, -0.00000000e+00, -7.83052999e+06],
+       [-0.00000000e+00,  6.54218186e+03,  6.83218150e+05],
+       [-7.83052999e+06,  6.83218150e+05,  6.17018283e+08]],      dtype=float64)
+</code></pre>
+<p>And once again, we can turn this into a prediction for the uncertainty on our model parameters:</p>
+<pre><code class="language-python">Finv = np.linalg.inv(F)
+Fisher_param_uncertainties = np.sqrt(np.diag(Finv))
+Fisher_param_uncertainties
+</code></pre>
+<pre><code>array([1.78625210e-03, 1.34166769e-02, 4.98967477e-05])
+</code></pre>
+<p>In this case, because our model is nonlinear, we can&rsquo;t use the least-squares expressions above to analytically compute the maximum likelihood parameter estimates and precisions. Instead, we will specify a prior and use MCMC to generate samples from the posterior distribution. We can then compare the covariance matrix of the samples to the inverse of the Fisher information matrix (or just the diagonal terms, the parameter uncertainties).</p>
+<pre><code class="language-python">@jax.jit
+def ln_prior(pars):
+    lp = 0.0
+
+    # Gaussian priors on the amplitudes with mean=0, stddev=10:
+    lp += jax.scipy.stats.norm.logpdf(pars[0], 0, 10)
+    lp += jax.scipy.stats.norm.logpdf(pars[1], 0, 10)
+
+    # Uniform prior on the frequency:
+    lp += jax.scipy.stats.uniform.logpdf(pars[2], 0, 1)
+    lp = jnp.where((pars[2] &gt; 0) &amp; (pars[2] &lt; 1), lp, -jnp.inf)
+
+    return lp
+
+
+@jax.jit
+def ln_posterior(pars, x, y, Cinv):
+    return ln_likelihood(pars, x, y, Cinv) + ln_prior(pars)
+</code></pre>
+<pre><code class="language-python">import blackjax
+
+rng_key, warmup_key, sample_key = jax.random.split(jax.random.PRNGKey(42), 3)
+init_pars = true_pars
+func = lambda pars: ln_posterior(pars, x, y, Cinv)
+
+warmup = blackjax.window_adaptation(blackjax.nuts, func)
+(state, parameters), _ = warmup.run(warmup_key, init_pars, num_steps=1000)
+</code></pre>
+<pre><code class="language-python">def inference_loop(rng_key, kernel, initial_state, num_samples):
+    @jax.jit
+    def one_step(state, rng_key):
+        state, _ = kernel(rng_key, state)
+        return state, state
+
+    keys = jax.random.split(rng_key, num_samples)
+    _, states = jax.lax.scan(one_step, initial_state, keys)
+
+    return states
+</code></pre>
+<pre><code class="language-python">kernel = blackjax.nuts(func, **parameters).step
+states = inference_loop(sample_key, kernel, state, 10_000)
+
+mcmc_samples = states.position
+</code></pre>
+<p>First, let&rsquo;s look at the parameter uncertainties as estimated by MCMC:</p>
+<pre><code class="language-python">np.std(mcmc_samples, axis=0)
+</code></pre>
+<pre><code>Array([1.81643774e-03, 1.36114911e-02, 4.97951817e-05], dtype=float64)
+</code></pre>
+<p>Let&rsquo;s compare that to our Fisher approach above:</p>
+<pre><code class="language-python">Fisher_param_uncertainties
+</code></pre>
+<pre><code>array([1.78625210e-03, 1.34166769e-02, 4.98967477e-05])
+</code></pre>
+<p>These are very similar, as we expect!</p>
+<p>We can also look at the full covariance matrix:</p>
+<pre><code class="language-python">np.cov(mcmc_samples.T)
+</code></pre>
+<pre><code>array([[ 3.29977603e-06, -4.92102682e-06,  4.80630330e-08],
+       [-4.92102682e-06,  1.85291220e-04, -2.69371139e-07],
+       [ 4.80630330e-08, -2.69371139e-07,  2.47980810e-09]])
+</code></pre>
+<pre><code class="language-python">Finv
+</code></pre>
+<pre><code>array([[ 3.19069658e-06, -4.78172971e-06,  4.57876380e-08],
+       [-4.78172971e-06,  1.80007218e-04, -2.60004737e-07],
+       [ 4.57876380e-08, -2.60004737e-07,  2.48968543e-09]])
+</code></pre>
+<h1 id="example-what-if-the-likelihood-is-very-structured">Example: What if the likelihood is very structured?</h1>
+<p>In the previous examples, the Fisher information matrix was a useful summary of the data and model. But what if the likelihood is very structured or multi-modal? As mentioned above, in these cases, the Fisher information matrix does not give us much useful information. For example, let&rsquo;s consider a one-dimensional case where the data are generated from a sinusoidal model where the only unknown parameter is the frequency of the sinusoid, but we have very few observations. We&rsquo;ll generate some toy data and compute the Fisher information matrix as usual (yes I&rsquo;m using the same variable names again! Fire me&hellip;)</p>
+<pre><code class="language-python">ndata = 3
+rng = np.random.default_rng(101)
+true_pars = jnp.array([0.19234])  # a random value, single parameter
+
+x = np.sort(rng.uniform(0, 2 / true_pars[0], ndata))
+yerr = 10 ** rng.uniform(-2, 0, ndata)
+y = rng.normal(np.sin(2 * np.pi * true_pars[0] * x), yerr)
+
+# The inverse covariance matrix of the data (which here is diagonal):
+Cinv = (1 / yerr**2).reshape(ndata, 1, 1)
+
+# We'll work with the data in a dictionary for convenience:
+data = {&quot;x&quot;: x, &quot;y&quot;: y, &quot;Cinv&quot;: Cinv, &quot;yerr&quot;: yerr}
+data[&quot;Cinv&quot;].shape, data[&quot;y&quot;].shape
+</code></pre>
+<pre><code>((3, 1, 1), (3,))
+</code></pre>
+<pre><code class="language-python">fig, ax = plt.subplots()
+ax.errorbar(
+    data[&quot;x&quot;],
+    data[&quot;y&quot;],
+    data[&quot;yerr&quot;],
+    marker=&quot;o&quot;,
+    ls=&quot;none&quot;,
+)
+ax.set(xlabel=&quot;x&quot;, ylabel=f&quot;$y$&quot;)
+</code></pre>
+<pre><code>[Text(0.5, 0, 'x'), Text(0, 0.5, '$y$')]
+</code></pre>
+<p><img src="output_44_1.png" alt="png"></p>
+<p>These data are clearly not very constraining for our model parameters! In other words, these data are consistent with many different distinct values of the frequency — we therefore expect the likelihood function to be very multi-modal:</p>
+<pre><code class="language-python">@jax.jit
+def model_f(x, pars):
+    return jnp.sin(2 * jnp.pi * pars[0] * x).reshape(-1, 1)
+
+
+@jax.jit
+def ln_likelihood_one_star(pars, x, y, Cinv):
+    y_model = model_f(x, pars)
+    dy = y - y_model
+    return -0.5 * dy.T @ Cinv @ dy
+
+
+ln_likelihood_helper = jax.vmap(ln_likelihood_one_star, in_axes=(None, 0, 0, 0))
+
+
+@jax.jit
+def ln_likelihood(pars, x, y, Cinv):
+    return jnp.sum(ln_likelihood_helper(pars, x, y, Cinv))
+
+
+ln_likelihood_over_samples = jax.vmap(ln_likelihood, in_axes=(0, None, None, None))
+</code></pre>
+<p>We can evaluate the likelihood over a grid of (logarithmically spaced) frequencies to see this:</p>
+<pre><code class="language-python">par_grid = 10 ** jnp.linspace(-3, 1, 65536).reshape(-1, 1)
+ll_grid = ln_likelihood_over_samples(par_grid, x, y, Cinv)
+
+fig, ax = plt.subplots()
+ax.plot(par_grid, np.exp(ll_grid - ll_grid.max()), marker=&quot;&quot;)
+ax.axvline(true_pars[0], color=&quot;tab:green&quot;, ls=&quot;--&quot;)
+ax.set(xscale=&quot;log&quot;, xlabel=&quot;frequency&quot;, ylabel=&quot;normalized likelihood&quot;)
+</code></pre>
+<pre><code>[None, Text(0.5, 0, 'frequency'), Text(0, 0.5, 'normalized likelihood')]
+</code></pre>
+<p><img src="output_48_1.png" alt="png"></p>
+<p>The Fisher information matrix and expected parameter variances is not going to be very informative in this case, but let&rsquo;s compute it at the true parameter values anyways:</p>
+<pre><code class="language-python">F = -jax.hessian(ln_likelihood)(true_pars, x, y, Cinv)
+Finv = np.linalg.inv(F)
+fisher_freq_err = np.squeeze(np.sqrt(Finv))
+fisher_freq_err
+</code></pre>
+<pre><code>array(0.00084499)
+</code></pre>
+<p>At face value, Fisher analysis here tells us that we expect to be able to constrain our model parameter (the frequency) to a very high precision. But this is clearly not the case (based on the structure in the likelihood function)! This is because the Fisher information matrix gives us a <em>local</em> measurement: it is related to the curvature of the one mode of the likelihood function near the true parameter values.</p>
+<p>For this toy problem, optimization or even MCMC will not work well because the likelihood function is very structured. In this case, we would need to use a more sophisticated sampling method like nested sampling or just brute force rejection sampling to explore the corresponding posterior probability distribution containing this likelihood function. An example of this is below, just for fun! (and note this is basically the same problem as is solved by <a href="http://thejoker.readthedocs.io">thejoker</a> and in <a href="https://ui.adsabs.harvard.edu/abs/2017ApJ...837...20P/abstract">this paper</a>).</p>
+<p>The procedure below generates samples from a prior distribution, and rejection samples using the likelihood function, which then represent samples from the posterior distribution. We can then look at the &ldquo;true&rdquo; uncertainty of the model parameter and compare to what our Fisher analysis told us above.</p>
+<pre><code class="language-python">nsamples = 10_000_000
+keys = jax.random.split(jax.random.PRNGKey(12345), 2)
+
+prior_samples = 10 ** jax.random.uniform(
+    keys[0], shape=(nsamples,), minval=-5, maxval=1
+).reshape(-1, 1)
+
+uu = jax.random.uniform(keys[1], shape=(nsamples,))
+</code></pre>
+<pre><code class="language-python">ln_likelihood_values = ln_likelihood_over_samples(
+    prior_samples, data[&quot;x&quot;], data[&quot;y&quot;], data[&quot;Cinv&quot;]
+)
+
+accepted_samples_mask = uu &lt; np.exp(ln_likelihood_values - ln_likelihood_values.max())
+print(accepted_samples_mask.sum())
+
+posterior_samples = prior_samples[accepted_samples_mask]
+</code></pre>
+<pre><code>13417
+</code></pre>
+<p>Let&rsquo;s visualize some of the posterior samples:</p>
+<pre><code class="language-python">fig, ax = plt.subplots(figsize=(10, 5))
+ax.errorbar(
+    data[&quot;x&quot;],
+    data[&quot;y&quot;],
+    data[&quot;yerr&quot;],
+    marker=&quot;o&quot;,
+    ls=&quot;none&quot;,
+)
+ax.set(xlabel=&quot;x&quot;, ylabel=&quot;$y$&quot;)
+
+xgrid = np.linspace(0, 2 / true_pars[0], 1024)
+for i in range(128):
+    ax.plot(
+        xgrid,
+        model_f(xgrid, posterior_samples[i])[:, 0],
+        marker=&quot;&quot;,
+        ls=&quot;-&quot;,
+        color=&quot;tab:blue&quot;,
+        alpha=0.1,
+    )
+</code></pre>
+<p><img src="output_55_0.png" alt="png"></p>
+<p>We can plot the Fisher-predicted uncertainty on the frequency parameter over a zoom-in of the posterior samples in frequency to see that it really only captures the curvature of the likelihood function in the mode near the true parameter value:</p>
+<pre><code class="language-python">plt.hist(posterior_samples[:, 0], bins=np.logspace(-1, 0, 128))
+plt.xscale(&quot;log&quot;)
+plt.xlabel(&quot;frequency&quot;)
+
+plt.axvspan(
+    true_pars[0] - fisher_freq_err, true_pars[0] + fisher_freq_err, color=&quot;tab:purple&quot;
+)
+</code></pre>
+<pre><code>&lt;matplotlib.patches.Rectangle at 0x7fdd2007e630&gt;
+</code></pre>
+<p><img src="output_57_1.png" alt="png"></p>
+
+  </div>
+</section>
+
+
+<footer class="text-center footer">
+  <hr />
+  
+  <h6 class="text-center copyright">© 2015-2022 Adrian Price-Whelan</h6>
+  
+  <h6 class="text-center extra-footer">Reach me at <a href="mailto:adrianmpw@gmail.com">adrianmpw@gmail.com</a></h6>
+  
+  
+</footer>
+
+</div>
+
+
+  
+    
+      
+    
+  
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/main.js"></script>
+<script src="../../js/custom.js"></script>
+
+
+
+  
+  <script src="https://unpkg.com/prismjs@1.20.0/components/prism-core.min.js"></script>
+
+  
+  <script src="https://unpkg.com/prismjs@1.20.0/plugins/autoloader/prism-autoloader.min.js"
+    data-autoloader-path="https://unpkg.com/prismjs@1.20.0/components/"></script>
+
+
+
+
+</body>
+</html>
+
+
