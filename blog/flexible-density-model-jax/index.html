@@ -121,7 +121,7 @@
     </p>
 
     <p>A problem I have frequently run into in astronomical data analysis is the need to infer parameters of a density model in which some aspects of the model are allowed to be flexible and other components are held more rigid (i.e. with a parametrized model). In these contexts, we are sometimes also interested in learning a flexible representation of the expected number or number density of objects along with a probability density function. This post demonstrates how to implement density models with flexibility controlled by spline interpolation of function values in <a href="https://jax.readthedocs.io/en/latest/">JAX</a>.</p>
-<p>One example of the need for flexibility in density modeling is the classic Galactic astronomy problem of measuring the vertical stellar density profile (and midplane density) of the Galactic disk: In this problem, we start with observations of stellar positions <code>$(x, y, z)$</code> (probably observed under some selection function, but we will ignore selection effects in this post) and we want to infer the midplane density value and a model for the density profile away from the midplane. Historically, parametric density profiles have been used (e.g., <a href="https://ui.adsabs.harvard.edu/abs/2017MNRAS.470.1360B/abstract">Bovy et al. 2017</a>), but we now know that there are significant asymmetries in the density of stars (e.g., <a href="https://ui.adsabs.harvard.edu/abs/2019MNRAS.482.1417B/abstract">Bennett et al. 2019</a>), and so we might now want to fit a parametric density profile plus a model component to handle these deviations from symmetry.</p>
+<p>One example of the need for flexibility in density modeling is the classic Galactic astronomy problem of measuring the vertical stellar density profile (and midplane density) of the Galactic disk: In this problem, we start with observations of stellar positions $(x, y, z)$ (probably observed under some selection function, but we will ignore selection effects in this post) and we want to infer the midplane density value and a model for the density profile away from the midplane. Historically, parametric density profiles have been used (e.g., <a href="https://ui.adsabs.harvard.edu/abs/2017MNRAS.470.1360B/abstract">Bovy et al. 2017</a>), but we now know that there are significant asymmetries in the density of stars (e.g., <a href="https://ui.adsabs.harvard.edu/abs/2019MNRAS.482.1417B/abstract">Bennett et al. 2019</a>), and so we might now want to fit a parametric density profile plus a model component to handle these deviations from symmetry.</p>
 <p>Another problem where the need to fit models with parametric and flexible components arises is in modeling the phase-space density of stellar streams (e.g., <a href="https://ui.adsabs.harvard.edu/abs/2019MNRAS.485.4726K/abstract">Koposov et al. 2019</a>, <a href="https://ui.adsabs.harvard.edu/abs/2022ApJ...925..118T/abstract">Tavangar et al. 2022</a>). In the case of stellar streams, we generally want to simultaneously fit the &ldquo;track&rdquo; or ridgeline of the stream in position and velocity components, the width of the stream, the density along the stream, and a flexible model for the background stellar density in these components.</p>
 <p>There are many possible options for adding flexibility to models (see: Machine Learning). One particularly useful tool that is used heavily in time series analysis are <a href="https://en.wikipedia.org/wiki/Gaussian_process">Gaussian processes</a> (GPs). GPs allow adding controlled flexibility in probabilistic models (i.e. weakly parametric, through specification of a kernel function) and have gained popularity in astronomy recently thanks to advances in computational efficiency in computing GP likelihoods (e.g., <a href="https://github.com/exoplanet-dev/celerite2">celerite</a> or <a href="https://github.com/dfm/tinygp">tinygp</a>). I won&rsquo;t go over GPs in this post, but there are many resources available online and on GitHub that give great introductions to GPs (e.g., <a href="https://speakerdeck.com/dfm/an-astronomers-introduction-to-gaussian-processes-v2">Dan Foreman-Mackey&rsquo;s slides</a> or <a href="https://github.com/LSSTC-DSFP/LSSTC-DSFP-Sessions/blob/main/Sessions/Session13/Day2/answers/01-Introduction-to-GPs.ipynb">Rodrigo Luger&rsquo;s tutorial</a>).</p>
 <p>In this post, we will use another frequently-used tool for specifying flexible models: <a href="https://en.wikipedia.org/wiki/Spline_(mathematics)">cubic splines</a>.</p>
@@ -141,7 +141,7 @@ import jax.numpy as jnp
 import numpy as np
 </code></pre>
 <h2 id="spline-models">Spline models</h2>
-<p>A spline function is fully determined by the degree of the polynomial used, the location of <code>$M$</code> &ldquo;knots&rdquo; <code>$x_m$</code>, and the function value at the knots <code>$f_m$</code>. A common choice for the polynomial degree is 3, or cubic splines.</p>
+<p>A spline function is fully determined by the degree of the polynomial used, the location of $M$ &ldquo;knots&rdquo; $x_m$, and the function value at the knots $f_m$. A common choice for the polynomial degree is 3, or cubic splines.</p>
 <pre><code class="language-python">import scipy.interpolate as sci
 </code></pre>
 <pre><code class="language-python">rng = np.random.default_rng(seed=42)
@@ -175,13 +175,13 @@ for m in range(1, 3):
 plt.xlabel(&quot;$x$&quot;)
 plt.ylabel(&quot;$f$&quot;)
 </code></pre>
-<pre><code>Text(0, 0.5, '$f$')
+<pre><code class="language-output">Text(0, 0.5, '$f$')
 </code></pre>
 <p><img src="output_5_1.png" alt="png"></p>
 <p>The task of finding a spline representation of a function given samples or points is sometimes called &ldquo;spline regression.&rdquo; The problem is straightforward if we pick and fix locations for the knots of the spline function we want to fit and then add into our model the values of the function at the locations of the knots. This type of model has the advantage that the (spatial) scale of flexibility or &ldquo;degrees of freedom&rdquo; is controllable by setting the number of knots. However, unlike in GPs where kernel functions can be used to parametrize the amplitude or spatial scales of your problem, these things are not explicitly controlled in a spline model. One other disadvantage of a spline model is that the number of parameters in your model grows as you increase the number of knots (i.e. the degrees of freedom) of the model &ndash; this can make spline models intractable in some simple optimization routines (e.g., using <code>scipy.minimize</code> without gradient information) or in some Markov Chain Monte Carlo (MCMC) methods that do not use gradient information (e.g., Metropolis-Hastings or <a href="https://emcee.readthedocs.io/en/stable/"><code>emcee</code></a>).</p>
 <p>Fortunately, it is possible to use spline models with <a href="https://jax.readthedocs.io/">JAX</a>, which automatically gives us access to functional gradients and therefore opens up the possibility of using optimization and sampling methods that perform well with large numbers of parameters. Below are two examples that demonstrate how to implement spline components in density models using JAX, to optimize the parameters of the models with <a href="https://jaxopt.github.io/"><code>jaxopt</code></a>, and to generate posterior samples using Hamiltonian Monte Carlo with <a href="https://blackjax-devs.github.io/blackjax/"><code>blackjax</code></a>.</p>
 <h2 id="example-fitting-a-1d-density-profile-with-splines">Example: Fitting a 1D density profile with splines</h2>
-<p>As a first demonstration of the idea, we are going to use simulated data to mock up a simpler version of the vertical density problem mentioned above. We will generate simulated data from a Gaussian, and then show how to fit the density distribution by modeling the points as an <a href="https://en.wikipedia.org/wiki/Poisson_point_process#Inhomogeneous_Poisson_point_process">inhomogeneous Poisson process</a> with either (1) a Gaussian or (2) a cubic spline density function. In either case, given a density function <code>$n(z)$</code> (Gaussian or spline), our likelihood and log-likelihood are given by the Poisson process likelihood, given all <code>$N$</code> of our <code>$z_n$</code> data points:</p>
+<p>As a first demonstration of the idea, we are going to use simulated data to mock up a simpler version of the vertical density problem mentioned above. We will generate simulated data from a Gaussian, and then show how to fit the density distribution by modeling the points as an <a href="https://en.wikipedia.org/wiki/Poisson_point_process#Inhomogeneous_Poisson_point_process">inhomogeneous Poisson process</a> with either (1) a Gaussian or (2) a cubic spline density function. In either case, given a density function $n(z)$ (Gaussian or spline), our likelihood and log-likelihood are given by the Poisson process likelihood, given all $N$ of our $z_n$ data points:</p>
 <div>$$
 \begin{align}
 p(\left\{z_n\right\}_N \,|\, n(z)) &=
@@ -196,15 +196,15 @@ n(z \,|\, N_0, \mu, \sigma) &= N_0 \, \mathcal{N}(z \,|\, \mu, \sigma)\\
 \mathcal{N}(x \,|\, \mu, \sigma) &= \frac{1}{\sqrt{2\pi\,\sigma^2}} \, e^{-\,\frac{(x - \mu)^2}{2\,\sigma^2}}\\
 \end{align}
 $$</div>
-where `$\mathcal{N}$` represents the normal distribution, `$N_0$` is the total number of sources, and the mean `$\mu$` and standard deviation `$\sigma$` are the usual Gaussian parameters. 
-<p>The integral that appears in the first term of the Poisson process likelihood above is therefore just the total number <code>$N_0$</code>, as the integral over the normal distribution <code>$\mathcal{N}$</code> is 1:</p>
+where $\mathcal{N}$ represents the normal distribution, $N_0$ is the total number of sources, and the mean $\mu$ and standard deviation $\sigma$ are the usual Gaussian parameters. 
+<p>The integral that appears in the first term of the Poisson process likelihood above is therefore just the total number $N_0$, as the integral over the normal distribution $\mathcal{N}$ is 1:</p>
 <div>$$
 \begin{align}
     p(\left\{z_n\right\}_N \,|\, N_0, \mu, \sigma) &= \exp{\left[-N_0 \, \int {\rm d}z \, \mathcal{N}(z)\right]}  \, \prod_n^N n(z_n)\\
     &= e^{-n_0}  \, N_0^N \, \prod_n^N \mathcal{N}(z_n \,|\, \mu, \sigma)\\
 \end{align}
 $$</div>
-<p>The log-likelihood is therefore (where <code>$N$</code> is the number of data points, and <code>$N_0$</code> is a parameter):</p>
+<p>The log-likelihood is therefore (where $N$ is the number of data points, and $N_0$ is a parameter):</p>
 <div>$$
 \begin{align}
 \ln p(\left\{z_n\right\}_N \,|\, n_0, \mu, \sigma) &=
@@ -372,7 +372,7 @@ plt.yscale(&quot;log&quot;)
 plt.xlabel(&quot;$z$&quot;)
 plt.ylabel(&quot;density $n(z)$&quot;);
 </code></pre>
-<pre><code>WARNING:absl:No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)
+<pre><code class="language-output">WARNING:absl:No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)
 </code></pre>
 <p><img src="output_20_1.png" alt="png"></p>
 <p>Those initial parameter values don&rsquo;t look like a very good match to the observed density, but it&rsquo;s probably close enough that an optimizer will be able to find a better solution from there. For the optimizer, we will use Scipy&rsquo;s <a href="https://docs.scipy.org/doc/scipy/reference/optimize.minimize-lbfgsb.html">L-BFGS-B</a> implementation, which is available through the general-purpose <code>scipy.optimize.minimize()</code> function. Here we use JAX&rsquo;s <code>value_and_grad()</code> to get a function handle based on our objective function that returns both the objective value and the gradient with respect to the input parameters. This is where the utility of JAX comes to light: it uses auto-differentiation to compute the gradients for us. We have to set <code>jac=True</code> in <code>minimize()</code> to tell Scipy to expect the gradient along with the objective function value:</p>
@@ -389,7 +389,7 @@ plt.ylabel(&quot;density $n(z)$&quot;);
 )
 res
 </code></pre>
-<pre><code>      fun: -10.261409577341759
+<pre><code class="language-output">      fun: -10.261409577341759
  hess_inv: &lt;3x3 LbfgsInvHessProduct with dtype=float64&gt;
       jac: array([-1.03488418e-08,  2.31515273e-06, -1.50016197e-07])
   message: 'CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_&lt;=_PGTOL'
@@ -421,15 +421,15 @@ plt.ylabel(&quot;density $n(z)$&quot;);
 <p><img src="output_25_0.png" alt="png"></p>
 <p>That looks like a pretty good fit! Let&rsquo;s move on to a more flexible example.</p>
 <h3 id="case-2-spline-model">Case 2: Spline model</h3>
-<p>We will now replace our density model <code>$n(z)$</code> with a cubic spline representation of the function. We will fix the location of the spline knots by using a hard-set, uniform grid of points in <code>$z$</code>, but the parameters of the model will then be the value of the (log-)density at the locations of the knots. Though there is no jax-ified cubic interpolation built-in to JAX itself (as far as I can tell, it currently only supports linear interpolation), we will use another package — <code>jax_cosmo</code> — which provides a jax-aware version of Scipy&rsquo;s <code>InterpolatedUnivariateSpline</code>:</p>
+<p>We will now replace our density model $n(z)$ with a cubic spline representation of the function. We will fix the location of the spline knots by using a hard-set, uniform grid of points in $z$, but the parameters of the model will then be the value of the (log-)density at the locations of the knots. Though there is no jax-ified cubic interpolation built-in to JAX itself (as far as I can tell, it currently only supports linear interpolation), we will use another package — <code>jax_cosmo</code> — which provides a jax-aware version of Scipy&rsquo;s <code>InterpolatedUnivariateSpline</code>:</p>
 <pre><code class="language-python">from jax_cosmo.scipy.interpolate import InterpolatedUnivariateSpline
 </code></pre>
 <p>Awesome, we now have the main tool we need to enable implementing the spline model, however we have one more mathematical / numerical hurdle to solve: we need to be able to compute the integral of our density model to compute the first term in the Poisson process likelihood</p>
 <div>$$
 \exp{\left[-\int {\rm d}z \, n(z)\right]}
 $$</div>
-<p>For generic cubic splines, this integral over all <code>$z$</code>&rsquo;s is not finite. We therefore have to pick a domain over which to do this integral, and this then slightly changes the meaning of our parameter <code>ln_N0</code> to be the number of sources <em>in the domain we choose</em>. In practice, if we pick a domain that is large enough and the density function falls off quickly (as it does here), there won&rsquo;t be any practical difference. (But note: if you have a rigid selection region, or if you pick a domain that truncates the data, you have to be more careful than me!) Since our data end around <code>$z\sim \pm 1.5$</code>, we will pick a window of <code>$(-3, 3)$</code>.</p>
-<p>We now need a way of computing the integral of our spline model over this domain. If our parameters were the value of the <em>density</em> <code>$N_0$</code> at the locations of the knots, we could use the <code>InterpolatedUnivariateSpline.integral()</code> method directly to compute the integral. However, we use the value of the log-density as parameters, so the integral is not as straightforward. Here, I&rsquo;ve implemented a version of <a href="https://en.wikipedia.org/wiki/Simpson%27s_rule">Simpson&rsquo;s rule</a> that takes in the log-function values and returns the log-integral, which is more stable than using other integration tools that would require first exponentiating the density and then taking the log of the estimated integral value on the outside:</p>
+<p>For generic cubic splines, this integral over all $z$&rsquo;s is not finite. We therefore have to pick a domain over which to do this integral, and this then slightly changes the meaning of our parameter <code>ln_N0</code> to be the number of sources <em>in the domain we choose</em>. In practice, if we pick a domain that is large enough and the density function falls off quickly (as it does here), there won&rsquo;t be any practical difference. (But note: if you have a rigid selection region, or if you pick a domain that truncates the data, you have to be more careful than me!) Since our data end around $z\sim \pm 1.5$, we will pick a window of $(-3, 3)$.</p>
+<p>We now need a way of computing the integral of our spline model over this domain. If our parameters were the value of the <em>density</em> $N_0$ at the locations of the knots, we could use the <code>InterpolatedUnivariateSpline.integral()</code> method directly to compute the integral. However, we use the value of the log-density as parameters, so the integral is not as straightforward. Here, I&rsquo;ve implemented a version of <a href="https://en.wikipedia.org/wiki/Simpson%27s_rule">Simpson&rsquo;s rule</a> that takes in the log-function values and returns the log-integral, which is more stable than using other integration tools that would require first exponentiating the density and then taking the log of the estimated integral value on the outside:</p>
 <pre><code class="language-python">def ln_simpson(ln_y, x):
     &quot;&quot;&quot;
     Evaluate the log of the definite integral of a function evaluated on a
@@ -514,7 +514,7 @@ plt.ylabel(&quot;density $n(z)$&quot;)
 
 plt.legend(loc=&quot;best&quot;)
 </code></pre>
-<pre><code>&lt;matplotlib.legend.Legend at 0x7fecace22da0&gt;
+<pre><code class="language-output">&lt;matplotlib.legend.Legend at 0x7fecace22da0&gt;
 </code></pre>
 <p><img src="output_33_1.png" alt="png"></p>
 <p>We can now run the optimizer with our new spline model for the density:</p>
@@ -530,7 +530,7 @@ res = sco.minimize(
 )
 res
 </code></pre>
-<pre><code>      fun: -10.260887909516791
+<pre><code class="language-output">      fun: -10.260887909516791
  hess_inv: &lt;11x11 LbfgsInvHessProduct with dtype=float64&gt;
       jac: array([-2.86425740e-06,  6.56002702e-06, -4.06564716e-05, -1.03612167e-05,
        -1.46661050e-06, -3.35053437e-06,  5.02995779e-06,  6.29047702e-06,
@@ -575,7 +575,7 @@ plt.ylabel(&quot;density $n(z)$&quot;)
 
 plt.legend(loc=&quot;best&quot;)
 </code></pre>
-<pre><code>&lt;matplotlib.legend.Legend at 0x7fecace36ad0&gt;
+<pre><code class="language-output">&lt;matplotlib.legend.Legend at 0x7fecace36ad0&gt;
 </code></pre>
 <p><img src="output_37_1.png" alt="png"></p>
 <p>Excellent - this also looks like a great fit! Unexpectedly, weird things happen outside of the range where we have data, but here the splines will largely be unconstrained.</p>
@@ -619,7 +619,7 @@ state, kernel, _ = warmup.run(
 plt.xlabel(&quot;NUTS step&quot;)
 plt.ylabel(&quot;parameter value&quot;)
 </code></pre>
-<pre><code>Text(0, 0.5, 'parameter value')
+<pre><code class="language-output">Text(0, 0.5, 'parameter value')
 </code></pre>
 <p><img src="output_46_1.png" alt="png"></p>
 <p>Those look stable! Of course, we should compute some convergence statistics and check on the quality of our samples. But for now, we&rsquo;ll assume that our &ldquo;by-eye&rdquo; test is good enough, and proceed :).</p>
@@ -653,7 +653,7 @@ plt.xlabel(&quot;$z$&quot;)
 plt.ylabel(&quot;density $n(z)$&quot;);
 </code></pre>
 <p><img src="output_50_0.png" alt="png"></p>
-<p>As we might expect, the density function is not well constrained beyond <code>$|z|\gtrsim 2$</code> or so where we do not have data.</p>
+<p>As we might expect, the density function is not well constrained beyond $|z|\gtrsim 2$ or so where we do not have data.</p>
 <p>Now that we have a better picture of how to implement these types of flexible spline models with JAX, let&rsquo;s turn to a more complicated science example.</p>
 <hr>
 <h2 id="example-fitting-the-density-profile-and-track-of-a-stellar-stream">Example: Fitting the density profile and track of a stellar stream</h2>
@@ -667,12 +667,12 @@ plt.ylabel(&quot;density $n(z)$&quot;);
 gd1_tbl = gd1_tbl[gd1_tbl[&quot;gd1_phi2&quot;] &gt; -7]
 len(gd1_tbl)
 </code></pre>
-<pre><code>2960
+<pre><code class="language-output">2960
 </code></pre>
 <p>The table contains many columns from <a href="https://gea.esac.esa.int/archive/">Gaia DR3</a>, along with some photometry from the Pan-STARS PS1 survey (<a href="https://mastweb.stsci.edu/">data release 2</a>):</p>
 <pre><code class="language-python">gd1_tbl.colnames
 </code></pre>
-<pre><code>['source_id',
+<pre><code class="language-output">['source_id',
  'ra',
  'dec',
  'parallax',
@@ -740,17 +740,17 @@ ax.set_ylabel(&quot;$\phi_2$ [deg]&quot;);
 </code></pre>
 <p><img src="output_58_0.png" alt="png"></p>
 <h3 id="defining-the-density-model">Defining the density model</h3>
-<p>The curved over-density of stars that arcs from <code>$(\phi_1, \phi_2) \sim (-80, -3)^\circ$</code> to <code>$(\phi_1, \phi_2) \sim (-40, 0)^\circ$</code> to <code>$(\phi_1, \phi_2) \sim (0, -2)^\circ$</code> is the GD-1 stream. This is the density distribution we would like to model using a flexible, spline-based density function. Given the complexity of the stream, we will clearly have to be a bit more baroque in our model specification relative to the previous example. Additionally, there is a non-negligible background density of stars that varies (more smoothly) over the sky region where the stream exists: we will have to simultaneously model this background distribution:</p>
+<p>The curved over-density of stars that arcs from $(\phi_1, \phi_2) \sim (-80, -3)^\circ$ to $(\phi_1, \phi_2) \sim (-40, 0)^\circ$ to $(\phi_1, \phi_2) \sim (0, -2)^\circ$ is the GD-1 stream. This is the density distribution we would like to model using a flexible, spline-based density function. Given the complexity of the stream, we will clearly have to be a bit more baroque in our model specification relative to the previous example. Additionally, there is a non-negligible background density of stars that varies (more smoothly) over the sky region where the stream exists: we will have to simultaneously model this background distribution:</p>
 <ul>
-<li>To represent the background, we will assume that the density is only a function of <code>$\phi_1$</code> and can be represented as a spline with evenly-spaced knots between <code>$\phi_1 \in [-120, 40]^\circ$</code>.</li>
-<li>To represent the amplitude of the density of the stream, we will again use a spline as a function of <code>$\phi_1$</code> with equally-spaced knot locations, now between <code>$\phi_1 \in [-110, 30]^\circ$</code>. Because the density of the stream varies on scales of just a few degrees, we use many more knots to represent the stream density.</li>
-<li>To represent the 2D density distribution of the stream, we use a Gaussian in <code>$\phi_2$</code> where the mean and standard deviation of the Gaussian are set by spline functions of <code>$\phi_1$</code>. We use the same knot locations for both the mean and standard deviation.</li>
+<li>To represent the background, we will assume that the density is only a function of $\phi_1$ and can be represented as a spline with evenly-spaced knots between $\phi_1 \in [-120, 40]^\circ$.</li>
+<li>To represent the amplitude of the density of the stream, we will again use a spline as a function of $\phi_1$ with equally-spaced knot locations, now between $\phi_1 \in [-110, 30]^\circ$. Because the density of the stream varies on scales of just a few degrees, we use many more knots to represent the stream density.</li>
+<li>To represent the 2D density distribution of the stream, we use a Gaussian in $\phi_2$ where the mean and standard deviation of the Gaussian are set by spline functions of $\phi_1$. We use the same knot locations for both the mean and standard deviation.</li>
 </ul>
-<p>Here we also adopt a &ldquo;smoothness&rdquo; prior on the spline values: We assume that the prior on a given <code>$m$</code> spline value is Gaussian with a mean set by the value of the <code>$m-1$</code> knot and fixed standard deviations (defined below). For example, for the stream track (or mean <code>$\phi_2$</code> location <code>$\mu_{\phi_2}$</code>), the prior on the <code>$m$</code>-th mean value is</p>
+<p>Here we also adopt a &ldquo;smoothness&rdquo; prior on the spline values: We assume that the prior on a given $m$ spline value is Gaussian with a mean set by the value of the $m-1$ knot and fixed standard deviations (defined below). For example, for the stream track (or mean $\phi_2$ location $\mu_{\phi_2}$), the prior on the $m$-th mean value is</p>
 <div>$$
 p(\mu_{\phi_2}^{(m)}) = \mathcal{N}(\mu_{\phi_2}^{(m)} \,|\, \mu_{\phi_2}^{(m-1)}, 0.5^\circ)
 $$</div>
-<p>This density model is a <em>mixture model</em> in that we have two main components of the model: the stream density and the background (bkg) stellar density. What this means in math is that the full density function <code>$n(\phi_1, \phi_2)$</code> can be expressed as the sum of the two components</p>
+<p>This density model is a <em>mixture model</em> in that we have two main components of the model: the stream density and the background (bkg) stellar density. What this means in math is that the full density function $n(\phi_1, \phi_2)$ can be expressed as the sum of the two components</p>
 <div>$$
 n(\phi_1, \phi_2) = n_{\rm stream}(\phi_1, \phi_2) + n_{\rm bkg}(\phi_1, \phi_2)
 $$</div>
@@ -884,9 +884,9 @@ $$</div>
 </code></pre>
 <pre><code class="language-python">StreamModel.integ_grid_phi1.shape, StreamModel.integ_grid_phi2.shape
 </code></pre>
-<pre><code>((121, 1201), (121, 1201))
+<pre><code class="language-output">((121, 1201), (121, 1201))
 </code></pre>
-<p>Now that we have our density model class defined, let&rsquo;s start by computing the density on a 2D grid with some randomly chosen parameter values (i.e. spline knot values). To visualize the density, we will use the 2D integration grid we defined above as <code>StreamModel.integ_grid_phi1</code> and <code>StreamModel.integ_grid_phi2</code> for <code>$\phi_1$</code> and <code>$\phi_2$</code> values, respectively:</p>
+<p>Now that we have our density model class defined, let&rsquo;s start by computing the density on a 2D grid with some randomly chosen parameter values (i.e. spline knot values). To visualize the density, we will use the 2D integration grid we defined above as <code>StreamModel.integ_grid_phi1</code> and <code>StreamModel.integ_grid_phi2</code> for $\phi_1$ and $\phi_2$ values, respectively:</p>
 <pre><code class="language-python">rng = np.random.default_rng(seed=666)
 
 # Random values for the stream splines:
@@ -923,7 +923,7 @@ for ax in axes:
     ax.set_ylabel(r&quot;$\phi_2$ [deg]&quot;)
 axes[1].set_xlabel(r&quot;$\phi_1$ [deg]&quot;)
 </code></pre>
-<pre><code>Text(0.5, 0, '$\\phi_1$ [deg]')
+<pre><code class="language-output">Text(0.5, 0, '$\\phi_1$ [deg]')
 </code></pre>
 <p><img src="output_63_1.png" alt="png"></p>
 <h3 id="initializing-the-density-model-parameters">Initializing the density model parameters</h3>
@@ -931,7 +931,7 @@ axes[1].set_xlabel(r&quot;$\phi_1$ [deg]&quot;)
 <p>We will therefore spend a few cells below manipulating the data to estimate the rough on-sky track and density of the stream, and the density of the stellar background.</p>
 <pre><code class="language-python">from scipy.ndimage import gaussian_filter1d
 </code></pre>
-<p>There are many ways we could do this, but in the cell below I bin the data coarsely in <code>$\phi_1$</code> and fine in <code>$\phi_2$</code>, smooth the data, and find the location of the peak in <code>$\phi_2$</code> in the coarse <code>$\phi_1$</code> bins. I then convert the number counts to density so we can extract the rough track of the stream in <code>$\phi_1, \phi_2$</code> along with a density estimate at each of these locations.</p>
+<p>There are many ways we could do this, but in the cell below I bin the data coarsely in $\phi_1$ and fine in $\phi_2$, smooth the data, and find the location of the peak in $\phi_2$ in the coarse $\phi_1$ bins. I then convert the number counts to density so we can extract the rough track of the stream in $\phi_1, \phi_2$ along with a density estimate at each of these locations.</p>
 <pre><code class="language-python">H, xe, ye = np.histogram2d(
     gd1_tbl[&quot;gd1_phi1&quot;],
     gd1_tbl[&quot;gd1_phi2&quot;],
@@ -959,7 +959,7 @@ axes[1].plot(xc, H_ln_density)
 axes[1].set_ylabel(r&quot;log-density&quot;)
 axes[1].set_xlabel(r&quot;$\phi_1$&quot;)
 </code></pre>
-<pre><code>Text(0.5, 0, '$\\phi_1$')
+<pre><code class="language-output">Text(0.5, 0, '$\\phi_1$')
 </code></pre>
 <p><img src="output_67_1.png" alt="png"></p>
 <p>We now have to interpolate these estimates to the location of our spline knots to set the initial parameters of our stream model:</p>
@@ -969,7 +969,7 @@ init_mean_phi2 = sci.InterpolatedUnivariateSpline(xc, yc[peak_idx])(
     StreamModel.phi2_knots
 )
 </code></pre>
-<p>Next we will handle the stellar background. Here, we select stars above and below the stream (in <code>$\phi_2$</code>), estimate the 1D density of the background using a histogram, and smooth the estimates.</p>
+<p>Next we will handle the stellar background. Here, we select stars above and below the stream (in $\phi_2$), estimate the 1D density of the background using a histogram, and smooth the estimates.</p>
 <pre><code class="language-python">_mask = (gd1_tbl[&quot;gd1_phi2&quot;] &gt; 3) | (gd1_tbl[&quot;gd1_phi2&quot;] &lt; -5)
 H, xe = np.histogram(gd1_tbl[&quot;gd1_phi1&quot;][_mask], bins=np.linspace(-90, 20 + 1e-3, 15))
 xc = 0.5 * (xe[:-1] + xe[1:])
@@ -982,7 +982,7 @@ ax.plot(xc, H)
 ax.set_ylabel(r&quot;log-density&quot;)
 ax.set_xlabel(r&quot;$\phi_1$&quot;)
 </code></pre>
-<pre><code>Text(0.5, 0, '$\\phi_1$')
+<pre><code class="language-output">Text(0.5, 0, '$\\phi_1$')
 </code></pre>
 <p><img src="output_71_1.png" alt="png"></p>
 <p>We again have to interpolate these values to the location of our model spline knots:</p>
@@ -1023,7 +1023,7 @@ ax.set_ylim(-7, 5)
 ax.set_xlabel(r&quot;$\phi_1$&quot;)
 ax.set_ylabel(r&quot;$\phi_2$&quot;)
 </code></pre>
-<pre><code>Text(0, 0.5, '$\\phi_2$')
+<pre><code class="language-output">Text(0, 0.5, '$\\phi_2$')
 </code></pre>
 <p><img src="output_77_1.png" alt="png"></p>
 <p>That already looks pretty good, but clearly there are places where we hope the optimizer will tune the model parameters to align the track and width of the stream to the data we have. Let&rsquo;s get set up to run the optimizer from these initial parameter estimates:</p>
@@ -1036,7 +1036,7 @@ init_p = StreamModel.pack_pars(init_pars)
 <p>This is not necessary, but I always like to evaluate the objective function I want to optimize at the initial parameter values to make sure there are no nan or inf values that will cause the optimizer to immediately fail:</p>
 <pre><code class="language-python">StreamModel.objective(init_p, N=len(data[&quot;phi1&quot;]), data=data)
 </code></pre>
-<pre><code>DeviceArray(-0.05543877, dtype=float64)
+<pre><code class="language-output">DeviceArray(-0.05543877, dtype=float64)
 </code></pre>
 <p>Good, that looks fine! Let&rsquo;s fire up the optimizer. We will again use the L-BFGS-B method:</p>
 <pre><code class="language-python">res = sco.minimize(
@@ -1049,7 +1049,7 @@ init_p = StreamModel.pack_pars(init_pars)
 )
 res
 </code></pre>
-<pre><code>      fun: -0.4172804414762403
+<pre><code class="language-output">      fun: -0.4172804414762403
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
       jac: array([-7.71418475e-07,  1.65857911e-07,  1.99453381e-07, -2.05370143e-06,
        -1.70964779e-06, -4.62670967e-06,  1.68103189e-06,  2.09021076e-06,
@@ -1095,7 +1095,7 @@ res
 <pre><code class="language-python">opt_pars = StreamModel.unpack_pars(res.x)
 opt_pars
 </code></pre>
-<pre><code>{'ln_n0': DeviceArray([-1.29724792, -1.29012651, -1.32220017, -1.01112565,
+<pre><code class="language-output">{'ln_n0': DeviceArray([-1.29724792, -1.29012651, -1.32220017, -1.01112565,
               -0.4372693 ,  0.58312065,  1.56485491,  1.84623316,
                1.86679529,  1.75244974,  1.79167502,  2.39936208,
                2.96517374,  3.28641774,  3.13259102,  2.63325926,
@@ -1137,7 +1137,7 @@ for ax in axes[-1]:
 
 ax.legend(loc=&quot;best&quot;, fontsize=14)
 </code></pre>
-<pre><code>&lt;matplotlib.legend.Legend at 0x7fec7780cc70&gt;
+<pre><code class="language-output">&lt;matplotlib.legend.Legend at 0x7fec7780cc70&gt;
 </code></pre>
 <p><img src="output_87_1.png" alt="png"></p>
 <p>We can also look at the 2D density computed from our optimized parameters and visually compare to the data:</p>

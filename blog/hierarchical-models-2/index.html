@@ -140,7 +140,7 @@ import aesara.tensor as tt
 <p>One way of handling datasets that contain objects from different populations or outliers is to use a <em>mixture model</em>. Because of how many problems have this structure, I personally think that mixture models are one of the most important tools to know as a data-oriented astronomer. Let&rsquo;s first talk about the fundamentals of mixture models and then explore an example of using a mixture model to measure the distance to a star cluster using Gaia data.</p>
 <h2 id="gaussian-mixture-models">Gaussian Mixture Models</h2>
 <p>In the models we have looked at so far, any parameter or variable is either drawn from a single distribution (e.g., a single normal distribution in many cases) or is deterministically related to another variable (e.g., distance and parallax). However, this does not have to be the case: the underlying density distribution of a random variable could instead be a more complex thing, such as a mixture of multiple component distributions that each have their own parameters.</p>
-<p>A common and important example used in many statistics and machine learning applications is the <em>Gaussian Mixture Model</em> (GMM), in which the probability density <code>$p(x | \boldsymbol{\theta})$</code> of some variable <code>$x$</code> given parameters <code>$\boldsymbol{\theta}$</code> is modeled as a sum of Gaussians each with a weight <code>$w$</code>. For example, for <code>$K$</code> Gaussian mixture components, the GMM density is:</p>
+<p>A common and important example used in many statistics and machine learning applications is the <em>Gaussian Mixture Model</em> (GMM), in which the probability density $p(x | \boldsymbol{\theta})$ of some variable $x$ given parameters $\boldsymbol{\theta}$ is modeled as a sum of Gaussians each with a weight $w$. For example, for $K$ Gaussian mixture components, the GMM density is:</p>
 <div>$$
 p(x | \boldsymbol{\mu}, \boldsymbol{\sigma}) = 
     \sum_k^K w_k \, \mathcal{N}(x | \mu_k, \sigma_k^2)
@@ -149,7 +149,7 @@ $$</div>
 <div>$$
 \sum_k^K w_k = 1
 $$</div>
-<p>and <code>$\boldsymbol{\mu} = (\mu_1, \mu_2, ..., \mu_k)$</code>, and again <code>$\mathcal{N}(x \,|\, \mu, \sigma^2)$</code> represents a univariate normal distribution with mean <code>$\mu$</code> and variance <code>$\sigma^2$</code> (i.e. <code>$\sigma$</code> is the standard deviation):</p>
+<p>and $\boldsymbol{\mu} = (\mu_1, \mu_2, &hellip;, \mu_k)$, and again $\mathcal{N}(x ,|, \mu, \sigma^2)$ represents a univariate normal distribution with mean $\mu$ and variance $\sigma^2$ (i.e. $\sigma$ is the standard deviation):</p>
 <div>$$
 \mathcal{N}(x \,|\, \mu, \sigma^2) = \frac{1}{\sqrt{2\pi} \, \sigma} \, 
     \exp\left[-\frac{(x - \mu)^2}{2\,\sigma^2} \right]
@@ -216,7 +216,7 @@ plt.ylabel(&quot;$y$&quot;);
 <p><img src="output_7_0.png" alt="png"></p>
 <p>The outliers have clearly biased our fit and led us to infer parameters for this linear model that are not consistent with the truth. Let&rsquo;s now construct a model to deal with these outlier data points.</p>
 <p>As mentioned above, we will use a <em>Gaussian Mixture Model</em> as a way of modeling the true density of objects, with one mixture component to represent the objects that follow the linear relation as we expect, and a second mixture component to represent the outliers. When constructing an outlier model, it sometimes helps to know about why these objects are outliers and to explicitly write down a generative model for the process that leads to these other data. This adds a little additional complexity to a model, but allows us to be more justified in our choice of outlier model and can lead to more precise inferences of the parameters you actually want to learn. Plus, as we saw, if you use MCMC methods to generate posterior samples over all of the parameters (inlier and outlier model components), you can use these samples to marginalize over the outlier model and obtain robust estimates of the inlier model.</p>
-<p>However, sometimes you don&rsquo;t know about the outliers, or you don&rsquo;t care and just need to get something working as a prototype. In these cases, using a broad Gaussian or other wide distribution to capture the outliers is often a good practical choice. That&rsquo;s the assumption we will work with her for our simulated data: We will assume the inlier data are generated from a straight line with Gaussian uncertainties, and the outlier distribution is a Gaussian centered on zero with an unknown variance. With mixture weights <code>$\boldsymbol{w}=(w_1, w_2)$</code> such that <code>$w_1 + w_2 = 1$</code>, data <code>$y$</code> and uncertainties <code>$\sigma_y$</code>, and outlier component standard deviation <code>$\sigma_{\rm out}$</code>, this model looks like:</p>
+<p>However, sometimes you don&rsquo;t know about the outliers, or you don&rsquo;t care and just need to get something working as a prototype. In these cases, using a broad Gaussian or other wide distribution to capture the outliers is often a good practical choice. That&rsquo;s the assumption we will work with her for our simulated data: We will assume the inlier data are generated from a straight line with Gaussian uncertainties, and the outlier distribution is a Gaussian centered on zero with an unknown variance. With mixture weights $\boldsymbol{w}=(w_1, w_2)$ such that $w_1 + w_2 = 1$, data $y$ and uncertainties $\sigma_y$, and outlier component standard deviation $\sigma_{\rm out}$, this model looks like:</p>
 <div>$$
 \begin{align}
 \hat{y} &= m \, x + b\\
@@ -226,7 +226,7 @@ p(\hat{y} \,|\, m, b) &=
     w_2 \, \mathcal{N}(\hat{y} \,|\, 0, \sigma_{\rm out}^2)
 \end{align}
 $$</div>
-<p>where <code>$\delta\left[\cdot\right]$</code> is the Dirac delta function.</p>
+<p>where $\delta\left[\cdot\right]$ is the Dirac delta function.</p>
 <pre><code class="language-python">pgm = daft.PGM(dpi=120)
 
 pgm.add_node(&quot;y&quot;, r&quot;$y$&quot;, 0, 0, observed=True)
@@ -249,14 +249,14 @@ pgm.add_plate([-1.25, -0.5, 2.5, 2], label=r&quot;$n = 1...N$&quot;, position=&q
 pgm.render();
 </code></pre>
 <p><img src="output_10_0.png" alt="png"></p>
-<p>At face value, this looks like the stellar distance model we explored in the previous notebook: We have some population-level parameters (<code>$m, b, \sigma_{\rm out}, \boldsymbol{w}$</code>), and many object-level parameters (the <code>$\hat{y}$</code>&rsquo;s). Given the PGM above, our joint probability for the parameters can be factorized as:</p>
+<p>At face value, this looks like the stellar distance model we explored in the previous notebook: We have some population-level parameters ($m, b, \sigma_{\rm out}, \boldsymbol{w}$), and many object-level parameters (the $\hat{y}$&rsquo;s). Given the PGM above, our joint probability for the parameters can be factorized as:</p>
 <div>$$
 p(m, b, \sigma_{\rm out}, \boldsymbol{w}, \hat{\boldsymbol{y}}, \boldsymbol{y}) =
     p(\boldsymbol{y} \,| \, \hat{\boldsymbol{y}}) \, 
     p(\hat{\boldsymbol{y}} \,|\, m, b, \sigma_{\rm out}, \boldsymbol{w}) \,
     p(m) \, p(b) \, p(\sigma_{\rm out}) \, p(\boldsymbol{w})
 $$</div>
-<p>However, unlike the parallax/distance example, here because of the forms of the mixture model components above, it turns out that we can analytically marginalize out the per-object &ldquo;true&rdquo; <code>$y$</code> parameters <code>$\hat{y}$</code>. The relevant integrals either contain a convolution of a Gaussian and a delta function, or two Gaussians, both of which have closed-form solutions:</p>
+<p>However, unlike the parallax/distance example, here because of the forms of the mixture model components above, it turns out that we can analytically marginalize out the per-object &ldquo;true&rdquo; $y$ parameters $\hat{y}$. The relevant integrals either contain a convolution of a Gaussian and a delta function, or two Gaussians, both of which have closed-form solutions:</p>
 <div>$$
 \begin{align}
 p(m, b, \sigma_{\rm out}, w, \boldsymbol{y}) &= 
@@ -308,7 +308,7 @@ $$</div>
     # With all model components defined, we can now generate posterior samples:
     samples_line = pm.sample()
 </code></pre>
-<pre><code>Auto-assigning NUTS sampler...
+<pre><code class="language-output">Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Sequential sampling (2 chains in 1 job)
 NUTS: [m, b, ln_s_out, w]
@@ -351,7 +351,7 @@ NUTS: [m, b, ln_s_out, w]
   <progress value='2000' class='' max='2000' style='width:300px; height:20px; vertical-align: middle;'></progress>
   100.00% [2000/2000 00:06&lt;00:00 Sampling chain 1, 0 divergences]
 </div>
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 16 seconds.
+<pre><code class="language-output">Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 16 seconds.
 </code></pre>
 <p>Let&rsquo;s look at statistics of the parameter chains:</p>
 <pre><code class="language-python">az.summary(samples_line)
@@ -475,7 +475,7 @@ NUTS: [m, b, ln_s_out, w]
     ),
 );
 </code></pre>
-<pre><code>/opt/hostedtoolcache/Python/3.10.7/x64/lib/python3.10/site-packages/arviz/plots/backends/matplotlib/pairplot.py:94: UserWarning: Argument reference_values does not include reference value for: w 0, w 1, s_out
+<pre><code class="language-output">/opt/hostedtoolcache/Python/3.10.7/x64/lib/python3.10/site-packages/arviz/plots/backends/matplotlib/pairplot.py:94: UserWarning: Argument reference_values does not include reference value for: w 0, w 1, s_out
   warnings.warn(
 </code></pre>
 <p><img src="output_16_1.png" alt="png"></p>
@@ -519,17 +519,17 @@ plt.ylabel(&quot;$y$&quot;);
 <p><img src="output_19_0.png" alt="png"></p>
 <p>Already our inference looks much more robust, and we recover parameters for the line model that are much more consistent with the truth. Awesome!</p>
 <p>One other thing we can do with a model like this is to compute membership probabilities for each object in our sample — that is, we can compute estimates of the marginal posterior probability that a given object belongs in each of the classes in our model (here either the straight line component or the outlier population).</p>
-<p>If we define <code>$q$</code> to be a discrete class label such that <code>$q=0$</code> means a star belongs to the straight line mixture component, and <code>$q=1$</code> means that a star is an outlier, we would like to get an estimate of <code>$p(q=0 \,|\, \boldsymbol{y})$</code>, i.e. the marginal posterior probability of being a straight line member, for each object. Defining <code>$\boldsymbol{\theta} = (m, b, \sigma_{\rm out}, \boldsymbol{w})$</code> for brevity, the marginal posterior probability is equal to:</p>
+<p>If we define $q$ to be a discrete class label such that $q=0$ means a star belongs to the straight line mixture component, and $q=1$ means that a star is an outlier, we would like to get an estimate of $p(q=0 ,|, \boldsymbol{y})$, i.e. the marginal posterior probability of being a straight line member, for each object. Defining $\boldsymbol{\theta} = (m, b, \sigma_{\rm out}, \boldsymbol{w})$ for brevity, the marginal posterior probability is equal to:</p>
 <div>$$
 p(q=0 \,|\, \boldsymbol{y}) = \int \textrm{d}\boldsymbol{\theta} \, 
     p(q=0 \,|\, \boldsymbol{y}, \boldsymbol{\theta}) \,
     p(\boldsymbol{\theta} \,|\, \boldsymbol{y})
 $$</div>
-<p>On the right hand side, <code>$p(\boldsymbol{\theta} \,|\, \boldsymbol{y})$</code> is the posterior pdf we generated samples from above — using the trick of Monte Carlo integration, we can therefore turn the integral in the expression above into a sum over posterior samples:</p>
+<p>On the right hand side, $p(\boldsymbol{\theta} ,|, \boldsymbol{y})$ is the posterior pdf we generated samples from above — using the trick of Monte Carlo integration, we can therefore turn the integral in the expression above into a sum over posterior samples:</p>
 <div>$$
 p(q=0 \,|\, \boldsymbol{y}) \approx \sum_j p(q=0 \,|\, \boldsymbol{y}, \boldsymbol{\theta}_j)
 $$</div>
-<p>where <code>$\boldsymbol{\theta}_j$</code> is a sample from the posterior pdf (i.e. from the parameter chains generated above). But what is the pdf we need to evaluate inside the sum? Let&rsquo;s start by looking at and factorizing the joint probability <code>$p(q=0, \boldsymbol{y} \,|\, \boldsymbol{\theta})$</code>:</p>
+<p>where $\boldsymbol{\theta}_j$ is a sample from the posterior pdf (i.e. from the parameter chains generated above). But what is the pdf we need to evaluate inside the sum? Let&rsquo;s start by looking at and factorizing the joint probability $p(q=0, \boldsymbol{y} ,|, \boldsymbol{\theta})$:</p>
 <div>$$
 \begin{align}
 p(q=0, \boldsymbol{y} \,|\, \boldsymbol{\theta}) &= 
@@ -592,7 +592,7 @@ $$</div>
     # With all model components defined, we can now generate posterior samples:
     samples_line2 = pm.sample()
 </code></pre>
-<pre><code>Auto-assigning NUTS sampler...
+<pre><code class="language-output">Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Sequential sampling (2 chains in 1 job)
 NUTS: [m, b, ln_s_out, w]
@@ -635,9 +635,9 @@ NUTS: [m, b, ln_s_out, w]
   <progress value='2000' class='' max='2000' style='width:300px; height:20px; vertical-align: middle;'></progress>
   100.00% [2000/2000 00:07&lt;00:00 Sampling chain 1, 0 divergences]
 </div>
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 18 seconds.
+<pre><code class="language-output">Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 18 seconds.
 </code></pre>
-<p>Over the parameters <code>$m, b, \sigma_{\rm out}, \boldsymbol{w}$</code>, this model should be equivalent to the previous implementation. However, this model has two additional variables computed at each location in the chains: <code>logp1</code> and <code>logp2</code>, which contain the log-probability values of the two mixture components at each location in the chains. Let&rsquo;s extract these values:</p>
+<p>Over the parameters $m, b, \sigma_{\rm out}, \boldsymbol{w}$, this model should be equivalent to the previous implementation. However, this model has two additional variables computed at each location in the chains: <code>logp1</code> and <code>logp2</code>, which contain the log-probability values of the two mixture components at each location in the chains. Let&rsquo;s extract these values:</p>
 <pre><code class="language-python">line2_logps = az.extract_dataset(samples_line2, var_names=[&quot;logp1&quot;, &quot;logp2&quot;])
 </code></pre>
 <p>To implement the sum defined above we need the un-logged values of the probabilities, so a more robust way of computing these sums is to use <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.logsumexp.html"><code>logsumexp</code></a>:</p>
@@ -753,7 +753,7 @@ no_cl_sky_mask = c.separation(c_cluster) &gt; 15 * u.arcmin
 
 cl_sky_mask.sum(), no_cl_sky_mask.sum()
 </code></pre>
-<pre><code>(3328, 13664)
+<pre><code class="language-output">(3328, 13664)
 </code></pre>
 
   </div>

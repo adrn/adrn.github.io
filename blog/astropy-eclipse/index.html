@@ -166,7 +166,7 @@ plt.xlabel(&quot;Azimuth [deg]&quot;)
 plt.ylabel(&quot;Altitude [deg]&quot;)
 plt.legend()
 </code></pre>
-<pre><code>&lt;matplotlib.legend.Legend at 0x7fb04934d5d0&gt;
+<pre><code class="language-output">&lt;matplotlib.legend.Legend at 0x7fb04934d5d0&gt;
 </code></pre>
 <p><img src="output_8_1.png" alt="png"></p>
 <p>Compute the separation between the moon and the sun. Plot the separation around the time of minimum:</p>
@@ -192,7 +192,7 @@ ax.set_ylim(0, 30)
 ax.set_xlabel(f&quot;Local time [{dt[0]:%Z}]&quot;)
 ax.set_ylabel(&quot;Sun–Moon separation [arcmin]&quot;)
 </code></pre>
-<pre><code>Text(0, 0.5, 'Sun–Moon separation [arcmin]')
+<pre><code class="language-output">Text(0, 0.5, 'Sun–Moon separation [arcmin]')
 </code></pre>
 <p><img src="output_11_1.png" alt="png"></p>
 <p>Now we&rsquo;ll make an animation of the eclipse, centered on the Sun&rsquo;s position first:</p>
@@ -4380,7 +4380,7 @@ ani2 = animation.FuncAnimation(
 
 ani2
 </code></pre>
-<pre><code>&lt;matplotlib.animation.FuncAnimation at 0x7fb0501fd960&gt;
+<pre><code class="language-output">&lt;matplotlib.animation.FuncAnimation at 0x7fb0501fd960&gt;
 </code></pre>
 <p><img src="output_15_1.png" alt="png"></p>
 <pre><code class="language-python">HTML(ani2.to_html5_video())

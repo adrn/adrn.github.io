@@ -156,7 +156,7 @@ ndates = len(dates)
 print(f&quot;{ndates} queries to ADS in total&quot;)
 print(dates[0], dates[-1])
 </code></pre>
-<pre><code>325 queries to ADS in total
+<pre><code class="language-output">325 queries to ADS in total
 (1991, 2) (2018, 2)
 </code></pre>
 <p>So for each term, we will do 325 queries (!) to get the number of articles that mention the term for each month from Feb. 1991 to Feb. 2018. We won&rsquo;t want to repeat these queries (we&rsquo;ll start to hit rate limit issues for querying ADS), so I&rsquo;ll define a function that caches the results and returns the cached data if available. We&rsquo;ll collect the date-count information into a Pandas <code>DataFrame</code> and cache to disk as a CSV file:</p>
@@ -202,27 +202,35 @@ print(dates[0], dates[-1])
 </code></pre>
 <pre><code class="language-python">py_astro = get_df(&quot;python&quot;, &quot;astronomy&quot;, dates)
 </code></pre>
-<pre><code>325it [01:31,  3.57it/s]
-
+<pre><code class="language-output">325it [01:31,  3.57it/s]
+``````output
 4425 queries remaining
+``````output
+
 </code></pre>
 <pre><code class="language-python">astropy_astro = get_df(&quot;astropy&quot;, &quot;astronomy&quot;, dates)
 </code></pre>
-<pre><code>325it [01:10,  4.62it/s]
-
+<pre><code class="language-output">325it [01:10,  4.62it/s]
+``````output
 4100 queries remaining
+``````output
+
 </code></pre>
 <pre><code class="language-python">idl_astro = get_df(&quot;idl&quot;, &quot;astronomy&quot;, dates)
 </code></pre>
-<pre><code>325it [01:39,  3.28it/s]
-
+<pre><code class="language-output">325it [01:39,  3.28it/s]
+``````output
 3775 queries remaining
+``````output
+
 </code></pre>
 <pre><code class="language-python">matlab_astro = get_df(&quot;matlab&quot;, &quot;astronomy&quot;, dates)
 </code></pre>
-<pre><code>325it [01:19,  4.09it/s]
-
+<pre><code class="language-output">325it [01:19,  4.09it/s]
+``````output
 3450 queries remaining
+``````output
+
 </code></pre>
 <p>Let&rsquo;s first look at the popularity of these terms by year:</p>
 <pre><code class="language-python">dfs = [py_astro, astropy_astro, idl_astro, matlab_astro]

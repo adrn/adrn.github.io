@@ -151,20 +151,20 @@ object given any arbitrary address. For example, a fully-specified street addres
 <pre><code class="language-python">loc = coord.EarthLocation.of_address(&quot;1002 Holy Grail Court, St. Louis, MO&quot;)
 loc.lon, loc.lat
 </code></pre>
-<pre><code>(&lt;Longitude -90.30694082 deg&gt;, &lt;Latitude 38.51432306 deg&gt;)
+<pre><code class="language-output">(&lt;Longitude -90.30694082 deg&gt;, &lt;Latitude 38.51432306 deg&gt;)
 </code></pre>
 <p>A city name:</p>
 <pre><code class="language-python">loc = coord.EarthLocation.of_address(&quot;Parrot, ME&quot;)
 loc.lon, loc.lat
 </code></pre>
-<pre><code>(&lt;Longitude -69.5539404 deg&gt;, &lt;Latitude 45.2550505 deg&gt;)
+<pre><code class="language-output">(&lt;Longitude -69.5539404 deg&gt;, &lt;Latitude 45.2550505 deg&gt;)
 </code></pre>
 <p>Or even a point of interest:</p>
 <pre><code class="language-python">loc = coord.EarthLocation.of_address(&quot;Camelot Castle Hotel, Tintagel, UK&quot;)
 # (it's only a model)
 loc.lon, loc.lat
 </code></pre>
-<pre><code>(&lt;Longitude -4.75555277 deg&gt;, &lt;Latitude 50.6682136 deg&gt;)
+<pre><code class="language-output">(&lt;Longitude -4.75555277 deg&gt;, &lt;Latitude 50.6682136 deg&gt;)
 </code></pre>
 <p>We&rsquo;ll use this feature to get an <code>EarthLocation</code> (e.g., latitude and longitude) for any city we&rsquo;d like to make a sun graph for.</p>
 <p>Next we define some more objects to define the various types of twilight. The first dictionary contains the sun altitude specifications for civil, nautical, and astronomical twilight (the range or minimum to maximum sun altitude for each). The next dictionary maps the names of the various stages of sunlight to integers that are ranked with the brightness. This will be used in plotting later on.</p>

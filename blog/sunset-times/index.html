@@ -154,13 +154,13 @@ from timezonefinder import TimezoneFinder
 <pre><code class="language-python">county = pd.read_csv(&quot;US-counties.txt&quot;, delimiter=&quot;\t&quot;)
 len(county)
 </code></pre>
-<pre><code>3220
+<pre><code class="language-output">3220
 </code></pre>
 <p>For every county location (latitude and longitude), I use the <code>timezonefinder</code> package to convert the (lat, lon) combo to a timezone name. For example, for New York:</p>
 <pre><code class="language-python">tf = TimezoneFinder()
 tf.certain_timezone_at(lat=40.713, lng=-74.006)
 </code></pre>
-<pre><code>'America/New_York'
+<pre><code class="language-output">'America/New_York'
 </code></pre>
 <p>We now do the same, but iterate over the US counties file:</p>
 <pre><code class="language-python">tzs = np.array(
@@ -173,7 +173,7 @@ tf.certain_timezone_at(lat=40.713, lng=-74.006)
 <p>Let&rsquo;s look at a random entry in this array:</p>
 <pre><code class="language-python">tzs[867]
 </code></pre>
-<pre><code>&lt;DstTzInfo 'America/Chicago' LMT-1 day, 18:09:00 STD&gt;
+<pre><code class="language-output">&lt;DstTzInfo 'America/Chicago' LMT-1 day, 18:09:00 STD&gt;
 </code></pre>
 <p>From the (lat, lon) coordinates of each county center, I now create an array-valued <a href="http://docs.astropy.org/en/latest/api/astropy.coordinates.EarthLocation.html"><code>EarthLocation</code></a> object, which I&rsquo;ll later use to get the Sun&rsquo;s local altitude at each position and a grid of times:</p>
 <pre><code class="language-python">county_locs = coord.EarthLocation(
@@ -258,10 +258,9 @@ tf.certain_timezone_at(lat=40.713, lng=-74.006)
 <pre><code class="language-python">%%time
 good_i, sunsets = sunset_time(county_locs, day, n_time=512)
 </code></pre>
-<pre><code>/tmp/ipykernel_2163/3842254823.py:31: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
+<pre><code class="language-output">/tmp/ipykernel_2163/3842254823.py:31: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
   min_idx = np.array(
-
-
+``````output
 CPU times: user 4min 36s, sys: 760 ms, total: 4min 37s
 Wall time: 4min 49s
 </code></pre>
@@ -281,7 +280,7 @@ ax.scatter(
 ax.set_xlim(-125, -65)
 ax.set_ylim(25, 55)
 </code></pre>
-<pre><code>(25.0, 55.0)
+<pre><code class="language-output">(25.0, 55.0)
 </code></pre>
 <p><img src="output_20_1.png" alt="png"></p>
 <p>Now we can make a plot of the counties, drawn as polygons, colored by the time of sunset. We need to specify the edges of the plot (in latitude and longitude) and the central point so <code>basemap</code> can compute the projection for us:</p>
@@ -302,7 +301,7 @@ print(&quot;median sunset (local) time: {0}&quot;.format(med_hour))
 
 norm = mpl.colors.Normalize(vmin=med_hour - 1, vmax=med_hour + 1)
 </code></pre>
-<pre><code>median sunset (local) time: 17.5
+<pre><code class="language-output">median sunset (local) time: 17.5
 </code></pre>
 <pre><code class="language-python">fig, ax = plt.subplots(1, 1, figsize=(12, 8))
 
@@ -433,13 +432,13 @@ fig.subplots_adjust(0.1, 0.05, 0.9, 0.95)  # l, b, r, t
 </code></pre>
 <pre><code class="language-python">fig = plot_sunset_map(Time(&quot;2018-06-21&quot;))
 </code></pre>
-<pre><code>/tmp/ipykernel_2163/3842254823.py:31: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
+<pre><code class="language-output">/tmp/ipykernel_2163/3842254823.py:31: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
   min_idx = np.array(
 </code></pre>
 <p><img src="output_28_1.png" alt="png"></p>
 <pre><code class="language-python">fig = plot_sunset_map(Time(&quot;2018-12-21&quot;))
 </code></pre>
-<pre><code>/tmp/ipykernel_2163/3842254823.py:31: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
+<pre><code class="language-output">/tmp/ipykernel_2163/3842254823.py:31: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
   min_idx = np.array(
 </code></pre>
 <p><img src="output_29_1.png" alt="png"></p>

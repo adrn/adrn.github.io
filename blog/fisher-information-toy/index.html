@@ -121,15 +121,15 @@
     </p>
 
     <p><em>I wrote this originally as a set of notes to a student, so it is a bit informal and conversational. I hope it is still useful!</em></p>
-<p>The Fisher information matrix is the expectation value of the variance of the log-likelihood function, which is often just the expectation of the Hessian of the log-likelihood function (i.e. the second derivatives with respect to the model parameters). That&rsquo;s just a boring definition! For a data set <code>$D$</code> and model parameters <code>$\theta$</code>,</p>
+<p>The Fisher information matrix is the expectation value of the variance of the log-likelihood function, which is often just the expectation of the Hessian of the log-likelihood function (i.e. the second derivatives with respect to the model parameters). That&rsquo;s just a boring definition! For a data set $D$ and model parameters $\theta$,</p>
 <div>$$
 \mathcal{F}_{jk} = -\mathbb{E}\left[\frac{\partial^2}{\partial\theta_j \, \partial\theta_k}\ln\mathcal{L}(D \,|\, \theta)\right]
 $$</div>
-where `$\mathbb{E}\left[x\right]$` is the expectation value of `$x$` evaluated at the true parameter values.
-Conceptually, it is a matrix that tells us how much information the data `$D$` contain about a given parameter, or how much covariance there is in our knowledge of a combination of parameters. 
+where $\mathbb{E}\left[x\right]$ is the expectation value of $x$ evaluated at the true parameter values.
+Conceptually, it is a matrix that tells us how much information the data $D$ contain about a given parameter, or how much covariance there is in our knowledge of a combination of parameters. 
 <p>I think of it as a result of a Taylor expansion of the likelihood function around the maximum likelihood parameter values. It is related to the curvature of the likelihood function around its maximum (because second derivatives are involves). It is not a fundamental object that is universally interpretable or meaningful. For example, if a model is a bad representation of data, or if the likelihood surface is extremely structured or multi-modal (i.e. cases where a Taylor expansion to low order is a bad representation of a function), then the Fisher information does not really summarize any useful properties of the data or model.</p>
 <h1 id="example-fitting-a-line-to-data">Example: Fitting a line to data</h1>
-<p>As an example of how to compute this thing, let&rsquo;s use the ever-loved example of <a href="https://adrian.pw/blog/fitting-a-line/">fitting a straight line to data</a> <code>$y$</code> at positions <code>$x$</code> with uncertainties <code>$\sigma_y$</code> only on the data <code>$y$</code>. Let&rsquo;s generate some fake data to work with:</p>
+<p>As an example of how to compute this thing, let&rsquo;s use the ever-loved example of <a href="https://adrian.pw/blog/fitting-a-line/">fitting a straight line to data</a> $y$ at positions $x$ with uncertainties $\sigma_y$ only on the data $y$. Let&rsquo;s generate some fake data to work with:</p>
 <pre><code class="language-python">import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -148,7 +148,7 @@ y = rng.normal(true_pars[0] * x + true_pars[1], yerr)
 ax.errorbar(x, y, yerr, marker=&quot;o&quot;, ls=&quot;none&quot;)
 ax.set(xlabel=&quot;x&quot;, ylabel=&quot;y&quot;)
 </code></pre>
-<pre><code>[Text(0.5, 0, 'x'), Text(0, 0.5, 'y')]
+<pre><code class="language-output">[Text(0.5, 0, 'x'), Text(0, 0.5, 'y')]
 </code></pre>
 <p><img src="output_3_1.png" alt="png"></p>
 <p>In this case, our model for the data is one dimensional and linear:</p>
@@ -156,20 +156,20 @@ ax.set(xlabel=&quot;x&quot;, ylabel=&quot;y&quot;)
 f(x \,;\, \theta) = a \, x + b \\
 \theta = (a, b)
 $$</div>
-and we will assume that the data are generated from some process such that the uncertainties `$\sigma_y$` are Gaussian (and I'll drop the subscript `$y$` because I'm lazy). Our likelihood function for a single data point `$(x_i, y_i, \sigma_i)$` is then:
+and we will assume that the data are generated from some process such that the uncertainties $\sigma_y$ are Gaussian (and I'll drop the subscript $y$ because I'm lazy). Our likelihood function for a single data point $(x_i, y_i, \sigma_i)$ is then:
 <div>$$
 L(y_i \,;\, \theta) = \mathcal{N}(y_i \,|\, f(x \,;\, \theta), \sigma_i)
 $$</div>
-(`$x_i$` and `$\sigma_i$` aren't really data because we assume we know them perfectly, but they are associated with a given data point `$y$` as metadata). 
-`$\mathcal{N}(w \,|\, \mu, \sigma)$` is the Normal distribution over `$w$` with mean `$\mu$` and standard deviation `$\sigma$`.
-<p>In this model, the data points are independent, so the total likelihood <code>$\mathcal{L}$</code> is just the product of the likelihoods for each individual data point:</p>
+($x_i$ and $\sigma_i$ aren't really data because we assume we know them perfectly, but they are associated with a given data point $y$ as metadata). 
+$\mathcal{N}(w \,|\, \mu, \sigma)$ is the Normal distribution over $w$ with mean $\mu$ and standard deviation $\sigma$.
+<p>In this model, the data points are independent, so the total likelihood $\mathcal{L}$ is just the product of the likelihoods for each individual data point:</p>
 <div>$$
 \begin{align}
 \mathcal{L} &= \prod_i L(y_i \,;\, \theta)\\ 
 &= \prod_i \mathcal{N}(y_i \,|\, f_i, \sigma_i)
 \end{align}
 $$</div>
-where, as a reminder, `$f_i$` is the model predicted value of `$y$` at a given location `$x_i$` — you can think of it as the model's prediction for the true value of `$y_i$`.
+where, as a reminder, $f_i$ is the model predicted value of $y$ at a given location $x_i$ — you can think of it as the model's prediction for the true value of $y_i$.
 In the log, this product is just a sum:
 <div>$$
 \ln\mathcal{L} = \sum_i \ln\mathcal{N}(y_i \,|\, f_i, \sigma_i)
@@ -182,14 +182,14 @@ $$</div>
 <div>$$
 \ln\mathcal{N}(y_i \,|\, f_i, \sigma_i) = -\frac{1}{2} \left[ \frac{(y_i - f_i)^2}{\sigma_i^2} + \ln(2\pi\,\sigma_i^2) \right]
 $$</div>
-(this may seem like a weird way to write it but trust me). Now, we need to take derivatives of this expression with respect to the model parameters `$\theta$`. One thing to note is that the second term `$\ln(2\pi\,\sigma^2)$` does not depend on the parameters (it is only a function of the data, i.e. the uncertainties), so the derivatives of this term are zero. The first term is a quadratic function of `$y_i$` and `$f_i$`, but `$y_i$` is data and `$f_i$` is a function of the model parameters, so the only terms that survive the derivative are those that depend on `$f_i$` (i.e. the model predictions):
+(this may seem like a weird way to write it but trust me). Now, we need to take derivatives of this expression with respect to the model parameters $\theta$. One thing to note is that the second term $\ln(2\pi\,\sigma^2)$ does not depend on the parameters (it is only a function of the data, i.e. the uncertainties), so the derivatives of this term are zero. The first term is a quadratic function of $y_i$ and $f_i$, but $y_i$ is data and $f_i$ is a function of the model parameters, so the only terms that survive the derivative are those that depend on $f_i$ (i.e. the model predictions):
 <div>$$
 \frac{\partial^2}{\partial \theta_j \partial \theta_k} 
     \ln\mathcal{N}(y_i \,|\, f_i, \sigma_i) = 
         \frac{1}{\sigma_i^2} \frac{\mathrm{d} f_i}{\mathrm{d}\theta_j} 
             \frac{\mathrm{d} f_i}{\mathrm{d}\theta_k}
 $$</div>
-<p>Our model <code>$f$</code> only has two parameters, so we can write this matrix out explicitly, for one data point:</p>
+<p>Our model $f$ only has two parameters, so we can write this matrix out explicitly, for one data point:</p>
 <div>$$
 \begin{align}
 &= \frac{1}{\sigma_i^2} \, \begin{pmatrix}
@@ -209,34 +209,34 @@ x_i^2 & x_i \\
 x_i & 1
 \end{pmatrix}
 $$</div>
-<p>This is an interesting (but simple) result: the Fisher information here does not even contain the model parameter values! That is because our model <code>$f$</code> is <em>linear</em> in the model parameters and our likelihood is Gaussian, so the curvature is a constant. Let&rsquo;s look at how to compute this given our toy data above.</p>
+<p>This is an interesting (but simple) result: the Fisher information here does not even contain the model parameter values! That is because our model $f$ is <em>linear</em> in the model parameters and our likelihood is Gaussian, so the curvature is a constant. Let&rsquo;s look at how to compute this given our toy data above.</p>
 <pre><code class="language-python"># This is the matrix component of the Fisher information from above
 M = np.array([[x**2, x], [x, np.ones_like(x)]])
 M.shape
 </code></pre>
-<pre><code>(2, 2, 8)
+<pre><code class="language-output">(2, 2, 8)
 </code></pre>
 <pre><code class="language-python">F = np.sum(1 / yerr**2 * M, axis=-1)
 F.shape
 </code></pre>
-<pre><code>(2, 2)
+<pre><code class="language-output">(2, 2)
 </code></pre>
 <pre><code class="language-python">F
 </code></pre>
-<pre><code>array([[10822.60583843,  1226.64589812],
+<pre><code class="language-output">array([[10822.60583843,  1226.64589812],
        [ 1226.64589812,   157.35632654]])
 </code></pre>
 <p>OK so we&rsquo;ve computed the Fisher information! &hellip;So what? It turns out that the inverse of the Fisher information matrix is a useful matrix itself: it is the covariance matrix of the maximum likelihood parameter estimates. This is a useful property because it tells us the expected precision of our parameter estimates given the data we have. If the Fisher information is large, then the parameter uncertainties (i.e. the inverses) are small, so the parameters are well-constrained by the data. Let&rsquo;s look at the inverse of the Fisher information matrix for our toy data above:</p>
 <pre><code class="language-python">Finv = np.linalg.inv(F)
 Finv
 </code></pre>
-<pre><code>array([[ 0.00079335, -0.00618439],
+<pre><code class="language-output">array([[ 0.00079335, -0.00618439],
        [-0.00618439,  0.05456446]])
 </code></pre>
 <p>If we ignore the covariances (i.e. the off-diagonal terms), this tells us the expected errors we would get on the parameter values if we fit the data with a straight line. The diagonal terms are the variances of the parameter estimates, and the square roots of these are the expected standard deviations of the parameter estimates:</p>
 <pre><code class="language-python">np.sqrt(np.diag(Finv))
 </code></pre>
-<pre><code>array([0.02816638, 0.23359036])
+<pre><code class="language-output">array([0.02816638, 0.23359036])
 </code></pre>
 <p>Let&rsquo;s now do a maximum likelihood fit using least-squares algebra and compare the results to the Fisher information matrix. With least-squares:</p>
 <pre><code class="language-python"># Design matrix:
@@ -245,31 +245,31 @@ A = np.stack((x, np.ones_like(x)), axis=-1)
 # Data covariance matrix:
 Cinv = np.diag(1 / yerr**2)
 </code></pre>
-<p>Here is the standard matrix algebra for computing the maximum likelihood parameter estimates for a linear model (<code>mle_pars</code> below). In this case, the covariance matrix of the parameter estimates, <code>$P$</code>, is the inverse of the Fisher information matrix! (BTW, as an aside, it&rsquo;s generally bad to construct the data covariance matrix this way and to do the matrix inverse explicitly here — a better way is to use, e.g., <code>numpy.linalg.leastsq</code> or <code>numpy.linalg.solve</code>)</p>
+<p>Here is the standard matrix algebra for computing the maximum likelihood parameter estimates for a linear model (<code>mle_pars</code> below). In this case, the covariance matrix of the parameter estimates, $P$, is the inverse of the Fisher information matrix! (BTW, as an aside, it&rsquo;s generally bad to construct the data covariance matrix this way and to do the matrix inverse explicitly here — a better way is to use, e.g., <code>numpy.linalg.leastsq</code> or <code>numpy.linalg.solve</code>)</p>
 <pre><code class="language-python">P = np.linalg.inv(A.T @ Cinv @ A)
 mle_pars = P @ A.T @ Cinv @ y
 mle_pars
 </code></pre>
-<pre><code>array([ 0.58499692, -1.87999557])
+<pre><code class="language-output">array([ 0.58499692, -1.87999557])
 </code></pre>
 <pre><code class="language-python"># Note that these are the same values as sqrt(diag(Finv))!
 np.sqrt(np.diag(P))
 </code></pre>
-<pre><code>array([0.02816638, 0.23359036])
+<pre><code class="language-output">array([0.02816638, 0.23359036])
 </code></pre>
 <h1 id="example-multi-dimensional-and-nonlinear-but-still-gaussian-models">Example: Multi-dimensional and nonlinear (but still Gaussian) models</h1>
 <p>The example above is a special case where we can solve for the Fisher information analytically and our model is linear. We are often in more complex situations in astronomy. One example is our project (where our likelihood function involves orbit integrations; here the model is nonlinear and the data are multi-dimensional). Another example is solving the Kepler problem by fitting a two-body orbit to, e.g., radial velocity data (model is nonlinear in the parameters but the data are still one dimensional).</p>
-<p>In general, our data may be a vector <code>$\boldsymbol{y}$</code> and our model may be a multi-output or vector function <code>$\boldsymbol{f}(\boldsymbol{x} \,;\, \boldsymbol{\theta})$</code> where <code>$\boldsymbol{x}$</code> is a vector of independent variables and <code>$\boldsymbol{\theta}$</code> is a vector of model parameters. If the likelihood is non-Gaussian, there&rsquo;s not much we can do analytically. But if the likelihood is Gaussian, even with a nonlinear model, we can simplify the Fisher information matrix calculation by using the chain rule for derivatives.</p>
-<p>In this case, our likelihood for one data point <code>$\boldsymbol{y}_i$</code> (note the vector <code>$y$</code>) is:</p>
+<p>In general, our data may be a vector $\boldsymbol{y}$ and our model may be a multi-output or vector function $\boldsymbol{f}(\boldsymbol{x} ,;, \boldsymbol{\theta})$ where $\boldsymbol{x}$ is a vector of independent variables and $\boldsymbol{\theta}$ is a vector of model parameters. If the likelihood is non-Gaussian, there&rsquo;s not much we can do analytically. But if the likelihood is Gaussian, even with a nonlinear model, we can simplify the Fisher information matrix calculation by using the chain rule for derivatives.</p>
+<p>In this case, our likelihood for one data point $\boldsymbol{y}_i$ (note the vector $y$) is:</p>
 <div>$$
 L(\boldsymbol{y}_i \,;\, \boldsymbol{\theta}) = \mathcal{N}(\boldsymbol{y}_i \,|\, \boldsymbol{f}_i, \boldsymbol{\Sigma}_i)
 $$</div>
-where now `$\boldsymbol{\Sigma}_i$` is the covariance matrix of the data point `$\boldsymbol{y}_i$`, and `$\boldsymbol{f}_i$` is a vector of model-predicted "true" values for the data. We can expand the log-Normal expression in the same way as we did for the one-dimensional case above, but now it involves some matrix algebra:
+where now $\boldsymbol{\Sigma}_i$ is the covariance matrix of the data point $\boldsymbol{y}_i$, and $\boldsymbol{f}_i$ is a vector of model-predicted "true" values for the data. We can expand the log-Normal expression in the same way as we did for the one-dimensional case above, but now it involves some matrix algebra:
 <div>$$
 \ln L(\boldsymbol{y}_i \,;\, \boldsymbol{\theta}) = 
     -\frac{1}{2} \left[ (\boldsymbol{y}_i - \boldsymbol{f}_i)^{\mathrm{T}} \boldsymbol{\Sigma}_i^{-1} (\boldsymbol{y}_i - \boldsymbol{f}_i) + \ln\det\boldsymbol{\Sigma}_i + N \ln(2\pi) \right]
 $$</div>
-where `$\det$` is the determinant of a matrix and `$N$` is the number of data points. We again want derivatives of this expression with respect to model parameters `$\boldsymbol{\theta}$`, so once again we can ignore the second and third terms because they are independent of the model parameters. The first term is a quadratic form in the data and model predictions, so the only terms that survive the derivative are those that depend on the model predictions:
+where $\det$ is the determinant of a matrix and $N$ is the number of data points. We again want derivatives of this expression with respect to model parameters $\boldsymbol{\theta}$, so once again we can ignore the second and third terms because they are independent of the model parameters. The first term is a quadratic form in the data and model predictions, so the only terms that survive the derivative are those that depend on the model predictions:
 <div>$$
 \frac{\partial^2}{\partial \theta_j \partial \theta_k} 
     \ln L(\boldsymbol{y}_i \,;\, \boldsymbol{\theta}) = 
@@ -307,7 +307,7 @@ Cinv = np.stack([np.diag(1 / yerr[i] ** 2) for i in range(ndata)], axis=0)
 data = {&quot;x&quot;: x, &quot;y&quot;: y, &quot;Cinv&quot;: Cinv, &quot;yerr&quot;: yerr}
 data[&quot;Cinv&quot;].shape, data[&quot;y&quot;].shape
 </code></pre>
-<pre><code>((16, 2, 2), (16, 2))
+<pre><code class="language-output">((16, 2, 2), (16, 2))
 </code></pre>
 <pre><code class="language-python">fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 
@@ -352,12 +352,12 @@ def ln_likelihood(pars, x, y, Cinv):
 <p>Let&rsquo;s try evaluating our log-likelihood function at the true parameters:</p>
 <pre><code class="language-python">ln_likelihood(true_pars, x, y, Cinv)
 </code></pre>
-<pre><code>Array(-11.87854157, dtype=float64)
+<pre><code class="language-output">Array(-11.87854157, dtype=float64)
 </code></pre>
 <pre><code class="language-python">F = -jax.hessian(ln_likelihood)(true_pars, x, y, Cinv)
 F
 </code></pre>
-<pre><code>Array([[ 4.25782094e+05, -0.00000000e+00, -7.83052999e+06],
+<pre><code class="language-output">Array([[ 4.25782094e+05, -0.00000000e+00, -7.83052999e+06],
        [-0.00000000e+00,  6.54218186e+03,  6.83218150e+05],
        [-7.83052999e+06,  6.83218150e+05,  6.17018283e+08]],      dtype=float64)
 </code></pre>
@@ -366,7 +366,7 @@ F
 Fisher_param_uncertainties = np.sqrt(np.diag(Finv))
 Fisher_param_uncertainties
 </code></pre>
-<pre><code>array([1.78625210e-03, 1.34166769e-02, 4.98967477e-05])
+<pre><code class="language-output">array([1.78625210e-03, 1.34166769e-02, 4.98967477e-05])
 </code></pre>
 <p>In this case, because our model is nonlinear, we can&rsquo;t use the least-squares expressions above to analytically compute the maximum likelihood parameter estimates and precisions. Instead, we will specify a prior and use MCMC to generate samples from the posterior distribution. We can then compare the covariance matrix of the samples to the inverse of the Fisher information matrix (or just the diagonal terms, the parameter uncertainties).</p>
 <pre><code class="language-python">@jax.jit
@@ -416,24 +416,24 @@ mcmc_samples = states.position
 <p>First, let&rsquo;s look at the parameter uncertainties as estimated by MCMC:</p>
 <pre><code class="language-python">np.std(mcmc_samples, axis=0)
 </code></pre>
-<pre><code>Array([1.81643774e-03, 1.36114911e-02, 4.97951817e-05], dtype=float64)
+<pre><code class="language-output">Array([1.81643774e-03, 1.36114911e-02, 4.97951817e-05], dtype=float64)
 </code></pre>
 <p>Let&rsquo;s compare that to our Fisher approach above:</p>
 <pre><code class="language-python">Fisher_param_uncertainties
 </code></pre>
-<pre><code>array([1.78625210e-03, 1.34166769e-02, 4.98967477e-05])
+<pre><code class="language-output">array([1.78625210e-03, 1.34166769e-02, 4.98967477e-05])
 </code></pre>
 <p>These are very similar, as we expect!</p>
 <p>We can also look at the full covariance matrix:</p>
 <pre><code class="language-python">np.cov(mcmc_samples.T)
 </code></pre>
-<pre><code>array([[ 3.29977603e-06, -4.92102682e-06,  4.80630330e-08],
+<pre><code class="language-output">array([[ 3.29977603e-06, -4.92102682e-06,  4.80630330e-08],
        [-4.92102682e-06,  1.85291220e-04, -2.69371139e-07],
        [ 4.80630330e-08, -2.69371139e-07,  2.47980810e-09]])
 </code></pre>
 <pre><code class="language-python">Finv
 </code></pre>
-<pre><code>array([[ 3.19069658e-06, -4.78172971e-06,  4.57876380e-08],
+<pre><code class="language-output">array([[ 3.19069658e-06, -4.78172971e-06,  4.57876380e-08],
        [-4.78172971e-06,  1.80007218e-04, -2.60004737e-07],
        [ 4.57876380e-08, -2.60004737e-07,  2.48968543e-09]])
 </code></pre>
@@ -454,7 +454,7 @@ Cinv = (1 / yerr**2).reshape(ndata, 1, 1)
 data = {&quot;x&quot;: x, &quot;y&quot;: y, &quot;Cinv&quot;: Cinv, &quot;yerr&quot;: yerr}
 data[&quot;Cinv&quot;].shape, data[&quot;y&quot;].shape
 </code></pre>
-<pre><code>((3, 1, 1), (3,))
+<pre><code class="language-output">((3, 1, 1), (3,))
 </code></pre>
 <pre><code class="language-python">fig, ax = plt.subplots()
 ax.errorbar(
@@ -466,7 +466,7 @@ ax.errorbar(
 )
 ax.set(xlabel=&quot;x&quot;, ylabel=f&quot;$y$&quot;)
 </code></pre>
-<pre><code>[Text(0.5, 0, 'x'), Text(0, 0.5, '$y$')]
+<pre><code class="language-output">[Text(0.5, 0, 'x'), Text(0, 0.5, '$y$')]
 </code></pre>
 <p><img src="output_44_1.png" alt="png"></p>
 <p>These data are clearly not very constraining for our model parameters! In other words, these data are consistent with many different distinct values of the frequency — we therefore expect the likelihood function to be very multi-modal:</p>
@@ -501,7 +501,7 @@ ax.plot(par_grid, np.exp(ll_grid - ll_grid.max()), marker=&quot;&quot;)
 ax.axvline(true_pars[0], color=&quot;tab:green&quot;, ls=&quot;--&quot;)
 ax.set(xscale=&quot;log&quot;, xlabel=&quot;frequency&quot;, ylabel=&quot;normalized likelihood&quot;)
 </code></pre>
-<pre><code>[None, Text(0.5, 0, 'frequency'), Text(0, 0.5, 'normalized likelihood')]
+<pre><code class="language-output">[None, Text(0.5, 0, 'frequency'), Text(0, 0.5, 'normalized likelihood')]
 </code></pre>
 <p><img src="output_48_1.png" alt="png"></p>
 <p>The Fisher information matrix and expected parameter variances is not going to be very informative in this case, but let&rsquo;s compute it at the true parameter values anyways:</p>
@@ -510,7 +510,7 @@ Finv = np.linalg.inv(F)
 fisher_freq_err = np.squeeze(np.sqrt(Finv))
 fisher_freq_err
 </code></pre>
-<pre><code>array(0.00084499)
+<pre><code class="language-output">array(0.00084499)
 </code></pre>
 <p>At face value, Fisher analysis here tells us that we expect to be able to constrain our model parameter (the frequency) to a very high precision. But this is clearly not the case (based on the structure in the likelihood function)! This is because the Fisher information matrix gives us a <em>local</em> measurement: it is related to the curvature of the one mode of the likelihood function near the true parameter values.</p>
 <p>For this toy problem, optimization or even MCMC will not work well because the likelihood function is very structured. In this case, we would need to use a more sophisticated sampling method like nested sampling or just brute force rejection sampling to explore the corresponding posterior probability distribution containing this likelihood function. An example of this is below, just for fun! (and note this is basically the same problem as is solved by <a href="http://thejoker.readthedocs.io">thejoker</a> and in <a href="https://ui.adsabs.harvard.edu/abs/2017ApJ...837...20P/abstract">this paper</a>).</p>
@@ -533,7 +533,7 @@ print(accepted_samples_mask.sum())
 
 posterior_samples = prior_samples[accepted_samples_mask]
 </code></pre>
-<pre><code>13417
+<pre><code class="language-output">13417
 </code></pre>
 <p>Let&rsquo;s visualize some of the posterior samples:</p>
 <pre><code class="language-python">fig, ax = plt.subplots(figsize=(10, 5))
@@ -567,7 +567,7 @@ plt.axvspan(
     true_pars[0] - fisher_freq_err, true_pars[0] + fisher_freq_err, color=&quot;tab:purple&quot;
 )
 </code></pre>
-<pre><code>&lt;matplotlib.patches.Rectangle at 0x7f90c8b43140&gt;
+<pre><code class="language-output">&lt;matplotlib.patches.Rectangle at 0x7f90c8b43140&gt;
 </code></pre>
 <p><img src="output_57_1.png" alt="png"></p>
 

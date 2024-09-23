@@ -209,11 +209,11 @@ pgm.render();
 <h2 id="representing-probabilistic-models-with-directed-acyclic-graphs-dags">Representing probabilistic models with directed acyclic graphs (DAGs)</h2>
 <p>In the context of PGMs, the vertices of a DAG represent either random variables or input data, and the edges represent the relationships between these things. The key concept to come to (and it took me a while to get this!) is that a graph representation of a model gives you a map of ways you can factorize the joint probability distribution over all of your random variables and data. Let&rsquo;s look at this with an example model in mind to help us unpack those statements.</p>
 <h3 id="example-the-distance-to-a-star-given-its-parallax">Example: The distance to a star given its parallax</h3>
-<p>Let&rsquo;s start with a problem that is always on my mind in this era of Gaia: We are given the parallax of a star and we want to infer its distance. To do this, we will construct a probabilistic model that generates the observed data given some parameters (i.e. a &ldquo;generative model&rdquo;). In this case, the generative model is simple: the uncertainties that Gaia reports are Gaussian, so we assume that the observed parallax <code>$\varpi$</code> of a star is generated with distance <code>$r$</code> as:</p>
+<p>Let&rsquo;s start with a problem that is always on my mind in this era of Gaia: We are given the parallax of a star and we want to infer its distance. To do this, we will construct a probabilistic model that generates the observed data given some parameters (i.e. a &ldquo;generative model&rdquo;). In this case, the generative model is simple: the uncertainties that Gaia reports are Gaussian, so we assume that the observed parallax $\varpi$ of a star is generated with distance $r$ as:</p>
 <div>$$
 \varpi = 1 / r + \textrm{noise}
 $$</div>
-<p>In this model, we have just one unobserved random variable: the distance <code>$r$</code> that we would like to infer. A PGM for this model would look like:</p>
+<p>In this model, we have just one unobserved random variable: the distance $r$ that we would like to infer. A PGM for this model would look like:</p>
 <pre><code class="language-python">pgm = daft.PGM(dpi=120)
 
 pgm.add_node(&quot;plx&quot;, r&quot;$\varpi$&quot;, 0, 0, observed=True)
@@ -225,7 +225,7 @@ pgm.render();
 </code></pre>
 <p><img src="output_9_0.png" alt="png"></p>
 <p>The gray vertex in this graph comes from a common convention in drawing PGMs in which observed quantities (i.e. data) are shaded, whereas unobserved quantities are drawn as empty circles. Now, up above I stated that &ldquo;a graph representation of a model gives you a map of ways you can factorize the joint probability distribution over all of your random variables and data.&rdquo; What does that mean for this example?</p>
-<p>The joint probability distribution function for this model is <code>$p(\textrm{everything})$</code>, or:</p>
+<p>The joint probability distribution function for this model is $p(\textrm{everything})$, or:</p>
 <div>$$
 p(r, \varpi)
 $$</div>
@@ -233,12 +233,12 @@ $$</div>
 <div>$$
 p(r, \varpi) = p(\varpi | r) \, p(r)
 $$</div>
-<p>I got there by starting from the observed vertex (i.e. <code>$\varpi$</code> at the bottom), writing <code>$p(\varpi|$</code> and putting any variable that points directly to <code>$\varpi$</code> after the conditional bar. In this case, that is just the distance <code>$r$</code>. That gives us the first term in our factorization: <code>$p(\varpi | r)$</code>. Then, we go to each variable that points at <code>$\varpi$</code> and do the same thing. In this case, we write <code>$p(r | $</code>, but nothing points to <code>$r$</code>, so there is nothing to put after the conditional. We are done already having just two terms: <code>$p(\varpi | r)$</code> and <code>$p(r)$</code>. (We will see more complicated models later!)</p>
-<p>This is a valid PGM, but I want to introduce one other convention that you may sometimes encounter (and is useful to build up to hierarchical models later). What is <code>$p(r)$</code> in the factorization above? This is a prior probability distribution over the distance <code>$r$</code>! In the model above, we haven&rsquo;t actually specified what this prior distribution is. In this particular example (distance inference from a parallax), a common choice might be to assume an <a href="https://arxiv.org/abs/1507.02105"><em>exponentially decreasing volume density prior</em></a> that looks like</p>
+<p>I got there by starting from the observed vertex (i.e. $\varpi$ at the bottom), writing $p(\varpi|$ and putting any variable that points directly to $\varpi$ after the conditional bar. In this case, that is just the distance $r$. That gives us the first term in our factorization: $p(\varpi | r)$. Then, we go to each variable that points at $\varpi$ and do the same thing. In this case, we write $p(r | $, but nothing points to $r$, so there is nothing to put after the conditional. We are done already having just two terms: $p(\varpi | r)$ and $p(r)$. (We will see more complicated models later!)</p>
+<p>This is a valid PGM, but I want to introduce one other convention that you may sometimes encounter (and is useful to build up to hierarchical models later). What is $p(r)$ in the factorization above? This is a prior probability distribution over the distance $r$! In the model above, we haven&rsquo;t actually specified what this prior distribution is. In this particular example (distance inference from a parallax), a common choice might be to assume an <a href="https://arxiv.org/abs/1507.02105"><em>exponentially decreasing volume density prior</em></a> that looks like</p>
 <div>$$
 p(r) = \frac{1}{2\,L^3} \, \frac{r^2}{e^{r/L}}
 $$</div>
-<p>This prior pdf has its own parameter <code>$L$</code> that we have to fix before we go about our inference here. As a way of indicating this in a PGM, you may sometimes see fixed prior parameters appear as their own vertices in a PGM:</p>
+<p>This prior pdf has its own parameter $L$ that we have to fix before we go about our inference here. As a way of indicating this in a PGM, you may sometimes see fixed prior parameters appear as their own vertices in a PGM:</p>
 <pre><code class="language-python">pgm = daft.PGM(dpi=120)
 
 pgm.add_node(&quot;plx&quot;, r&quot;$\varpi$&quot;, 0, 0, observed=True)
@@ -266,9 +266,9 @@ with pm.Model() as model:
 pm.model_to_graphviz(model)
 </code></pre>
 <p><img src="output_12_0.svg" alt="svg"></p>
-<p>However, to indicate that this parameter <code>$L$</code> is not a random variable but rather is a hard-set value, these are drawn as a filled black dot like in the above graph. The fact that <code>$L$</code> is a fixed value is also why it doesn&rsquo;t appear in the specification of the probability of <code>$r$</code>: only random variables appear in pdfs (on either side of the conditional bar).</p>
+<p>However, to indicate that this parameter $L$ is not a random variable but rather is a hard-set value, these are drawn as a filled black dot like in the above graph. The fact that $L$ is a fixed value is also why it doesn&rsquo;t appear in the specification of the probability of $r$: only random variables appear in pdfs (on either side of the conditional bar).</p>
 <h3 id="problem-1-inferring-the-tangential-velocity-and-distance-of-a-star">Problem 1: Inferring the tangential velocity and distance of a star</h3>
-<p>We are given the observed parallax <code>$\varpi$</code> and total proper motion <code>$\mu$</code> (i.e. the scalar <code>$\mu = \sqrt{\mu_\alpha^2 + \mu_\delta^2} = v_{\textrm{tan}} / r$</code>). Use the <code>daft</code> package as above, or a sheet of paper, or a whiteboard to draw a graphical model for a model in which we would like to infer the tangential velocity <code>$v_\textrm{tan}$</code> <em>and</em> the distance <code>$r$</code> given the observed total proper motion <code>$\mu$</code> and parallax <code>$\varpi$</code>.</p>
+<p>We are given the observed parallax $\varpi$ and total proper motion $\mu$ (i.e. the scalar $\mu = \sqrt{\mu_\alpha^2 + \mu_\delta^2} = v_{\textrm{tan}} / r$). Use the <code>daft</code> package as above, or a sheet of paper, or a whiteboard to draw a graphical model for a model in which we would like to infer the tangential velocity $v_\textrm{tan}$ <em>and</em> the distance $r$ given the observed total proper motion $\mu$ and parallax $\varpi$.</p>
 <pre><code class="language-python"># SOLUTION:
 pgm = daft.PGM(dpi=120)
 
@@ -290,11 +290,11 @@ pgm.render();
 </code></pre>
 <p><img src="output_14_0.png" alt="png"></p>
 <h3 id="problem-2-inferring-the-distance-to-a-cepheid-using-a-periodluminosity-relation">Problem 2: Inferring the distance to a cepheid using a period–luminosity relation</h3>
-<p>We are given the observed period <code>$P$</code> and mean flux <code>$\langle f \rangle$</code> of a pulsating variable star, e.g., a Cepheid. We know that Cepheids obey a period–luminosity relation, so that the mean luminosity <code>$\mathcal{L}$</code> of a Cepheid can be predicted once its period is known following the relation:</p>
+<p>We are given the observed period $P$ and mean flux $\langle f \rangle$ of a pulsating variable star, e.g., a Cepheid. We know that Cepheids obey a period–luminosity relation, so that the mean luminosity $\mathcal{L}$ of a Cepheid can be predicted once its period is known following the relation:</p>
 <div>$$
 \mathcal{L} = a\,P + b
 $$</div>
-<p>where <code>$a$</code> and <code>$b$</code> are known values that have been previously calibrated and, here, fixed. We want to infer the distance and luminosity of a Cepheid given its period <code>$P$</code> and (bolometric) mean flux <code>$\langle f \rangle$</code>.</p>
+<p>where $a$ and $b$ are known values that have been previously calibrated and, here, fixed. We want to infer the distance and luminosity of a Cepheid given its period $P$ and (bolometric) mean flux $\langle f \rangle$.</p>
 <p>Note also that</p>
 <div>$$
 \mathcal{\langle f \rangle} = \frac{\mathcal{L}}{4\pi \, r^2}
@@ -318,12 +318,12 @@ pgm.render();
 <p><img src="output_16_0.png" alt="png"></p>
 <h3 id="example-fitting-a-sinusoid-to-data">Example: Fitting a sinusoid to data</h3>
 <p>As another example, we&rsquo;ll move on to another problem motivated by variable star observations: Our goal is to infer the period, amplitude, and mean flux for a star that is observed to display periodic, sinusoidal variability.</p>
-<p>We will assume that the times of observation (i.e. the times at which we have flux measurements) are known precisely enough such that we can ignore measurement uncertainty on the times, but the fluxes have Gaussian uncertainties due to the faintness of the star. Our observed data are then the times <code>$t_n$</code> (where the subscript <code>$n$</code> refers to the index of the observation number), the set of fluxes <code>$f_n$</code>, and the flux uncertainties <code>$\sigma_n$</code>, and we will assume we have <code>$N=64$</code> observations.</p>
-<p>Under the assumption that the flux variability is sinusoidal with a mean flux <code>$f_0$</code>, our physical model for the flux <code>$f$</code> as a function of time <code>$t$</code> given amplitudes <code>$a,b$</code> and period <code>$P$</code> might look like:</p>
+<p>We will assume that the times of observation (i.e. the times at which we have flux measurements) are known precisely enough such that we can ignore measurement uncertainty on the times, but the fluxes have Gaussian uncertainties due to the faintness of the star. Our observed data are then the times $t_n$ (where the subscript $n$ refers to the index of the observation number), the set of fluxes $f_n$, and the flux uncertainties $\sigma_n$, and we will assume we have $N=64$ observations.</p>
+<p>Under the assumption that the flux variability is sinusoidal with a mean flux $f_0$, our physical model for the flux $f$ as a function of time $t$ given amplitudes $a,b$ and period $P$ might look like:</p>
 <div>$$
 f(t) = f_0 + a\,\cos\left(\frac{2\pi \, t}{P}\right) + b\,\sin\left(\frac{2\pi \, t}{P}\right)
 $$</div>
-<p>In this case, we have 4 random variables <code>$f_0, a, b, P$</code> — i.e. the parameters of our physical model — the data are measured fluxes <code>$f_n$</code>, and we are given perfectly-known metadata for each flux observation in the times <code>$t_n$</code> and flux uncertainties <code>$\sigma_n$</code>. A PGM for this model (without specifying fixed parameters of the prior pdfs) is shown below:</p>
+<p>In this case, we have 4 random variables $f_0, a, b, P$ — i.e. the parameters of our physical model — the data are measured fluxes $f_n$, and we are given perfectly-known metadata for each flux observation in the times $t_n$ and flux uncertainties $\sigma_n$. A PGM for this model (without specifying fixed parameters of the prior pdfs) is shown below:</p>
 <pre><code class="language-python">pgm = daft.PGM(dpi=120)
 
 pgm.add_node(&quot;a&quot;, &quot;$a$&quot;, 0, 1)
@@ -347,16 +347,16 @@ pgm.add_plate([0.25, -0.5, 2.5, 1.125], label=r&quot;$n = 1, \cdots, N$&quot;, s
 pgm.render();
 </code></pre>
 <p><img src="output_18_0.png" alt="png"></p>
-<p>Reading the graph, if we want to generate an observed flux <code>$f_n$</code>, we need values for the four parameters <code>$f_0, a, b, P$</code>, a measurement time <code>$t_n$</code>, and an uncertainty <code>$\sigma_n$</code>. So what is the extra box here? The rectangle is called a <em>plate</em> — plates are used to denote when some part of a graph should be repeated. In our example, this plate indicates that the individual measurements <code>$f_n$</code> are conditionally independent and this part of the graph should be repeated <code>$N$</code> times.</p>
+<p>Reading the graph, if we want to generate an observed flux $f_n$, we need values for the four parameters $f_0, a, b, P$, a measurement time $t_n$, and an uncertainty $\sigma_n$. So what is the extra box here? The rectangle is called a <em>plate</em> — plates are used to denote when some part of a graph should be repeated. In our example, this plate indicates that the individual measurements $f_n$ are conditionally independent and this part of the graph should be repeated $N$ times.</p>
 <p>We can see what this means for factorization of the joint pdf — let&rsquo;s start by writing down the joint pdf for this model:</p>
 <div>$$
 p(a, b, P, f_0, \{f_n\}_N)
 $$</div>
-<p>(where <code>$\{f_n\}_N$</code> represents the set of all <code>$N$</code> flux measurements). Using the same procedure we used above to factorize the parallax model, we can see that the only observed variables here are the fluxes <code>$f_n$</code>, so</p>
+<p>(where ${f_n}_N$ represents the set of all $N$ flux measurements). Using the same procedure we used above to factorize the parallax model, we can see that the only observed variables here are the fluxes $f_n$, so</p>
 <div>$$
 p(a, b, P, f_0, \{f_n\}_N) = p(\{f_n\}_N | a, b, P, f_0) \, p(a) \, p(b) \, p(P) \, p(f_0)
 $$</div>
-<p>We can go one step further to expand the factorization using the fact that the plate in the PGM implies that the flux measurement <code>$f_n$</code> are conditionally independent - this means that we can turn the probability of the set of all flux measurements into a product over the probability for each flux measurement individually, i.e.</p>
+<p>We can go one step further to expand the factorization using the fact that the plate in the PGM implies that the flux measurement $f_n$ are conditionally independent - this means that we can turn the probability of the set of all flux measurements into a product over the probability for each flux measurement individually, i.e.</p>
 <div>$$
 p(\{f_n\}_N | a, b, P, f_0) = \prod_n^N p(f_n | a, b, P, f_0)
 $$</div>
@@ -365,7 +365,7 @@ $$</div>
 p(a, b, P, f_0, \{f_n\}_N) = p(a) \, p(b) \, p(P) \, p(f_0) \, \prod_n^N p(f_n | a, b, P, f_0)
 $$</div>
 <h3 id="problem-3-fitting-a-straight-line-to-data">Problem 3: Fitting a straight line to data</h3>
-<p>We now have all of the tools we need to write down a graphical model for a classic problem: fitting a straight line to data. In this problem, we observe data <code>$y$</code> with uncertainty <code>$\sigma_y$</code> as a function of some other quantity <code>$x$</code> that we assume has negligible uncertainty. We would like to infer the slope <code>$m$</code> and intercept <code>$b$</code> of a linear model given the data such that our parametric, generative model for the true <code>$y$</code> values is:</p>
+<p>We now have all of the tools we need to write down a graphical model for a classic problem: fitting a straight line to data. In this problem, we observe data $y$ with uncertainty $\sigma_y$ as a function of some other quantity $x$ that we assume has negligible uncertainty. We would like to infer the slope $m$ and intercept $b$ of a linear model given the data such that our parametric, generative model for the true $y$ values is:</p>
 <div>$$
 y = m\,x + b
 $$</div>
@@ -373,7 +373,7 @@ $$</div>
 <div>$$
 p(y \,|\, m, b) = \mathcal{N}(y \,|\, m\,x + b, \sigma_y^2)
 $$</div>
-<p>where <code>$\mathcal{N}(x \,|\, \mu, \sigma^2)$</code> represents a univariate normal distribution with mean <code>$\mu$</code> and variance <code>$\sigma^2$</code> (i.e. <code>$\sigma$</code> is the standard deviation), i.e.</p>
+<p>where $\mathcal{N}(x ,|, \mu, \sigma^2)$ represents a univariate normal distribution with mean $\mu$ and variance $\sigma^2$ (i.e. $\sigma$ is the standard deviation), i.e.</p>
 <div>$$
 \mathcal{N}(x \,|\, \mu, \sigma^2) = \frac{1}{\sqrt{2\pi} \, \sigma} \, 
     \exp\left[-\frac{(x - \mu)^2}{2\,\sigma^2} \right]
@@ -405,9 +405,9 @@ pgm.render();
 <p>We are given an <a href="https://en.wikipedia.org/wiki/Echelle_grating">Echelle spectrum</a> for a star and would like to measure the radial velocity of the star. The details aren&rsquo;t critical for this example, but briefly, an Echelle spectrograph splits different sections of a spectrum (in wavelength) into different chunks that land on different parts of the detector, leading to a 2D dispersed spectrum. For example, the below shows a high resolution spectrum of the Sun where each row is a different spectral order:</p>
 <p><img src="echelle_spect.jpg" alt="Image" title="echelle spectrum of the Sun"></p>
 <p>Our goal now is to write down a graphical model for this inference problem.</p>
-<p>The spectrum is split into <code>$K$</code> different spectral orders, indexed by <code>$k$</code>. Assume we have extracted the 2D spectrum into <code>$K$</code> 1D spectra that give us the flux <code>$f_k$</code> as a function of wavelength <code>$\lambda_k$</code> for each spectral order <code>$k$</code>, evaluated on an (oversampled) pixel grid set by the detector. The full arrays of flux and wavelength are <code>$f$</code> and <code>$\lambda$</code>.</p>
+<p>The spectrum is split into $K$ different spectral orders, indexed by $k$. Assume we have extracted the 2D spectrum into $K$ 1D spectra that give us the flux $f_k$ as a function of wavelength $\lambda_k$ for each spectral order $k$, evaluated on an (oversampled) pixel grid set by the detector. The full arrays of flux and wavelength are $f$ and $\lambda$.</p>
 <p>To determine the radial velocity, we will fit for the centroid and widths of all spectral lines assuming they are Gaussian, and the local slope of the spectrum (assuming that the continuum of the spectrum is linear within each order). <em>Note: these are not great assumptions for working with real data!</em> Once we get the observed line locations, we can then compare to laboratory values to obtain the radial velocity (i.e. the RV won&rsquo;t appear in this model explicitly).</p>
-<p>Over the whole spectrum, there are <code>$M$</code> spectral lines, indexed by <code>$m$</code>, and each spectral line has a centroid or mean location in wavelength <code>$\mu_m$</code> and a standard deviation <code>$\sigma_m$</code>. The continuum flux in each spectral order <code>$k$</code> has a slope <code>$a_k$</code> and an offset <code>$b_k$</code>.</p>
+<p>Over the whole spectrum, there are $M$ spectral lines, indexed by $m$, and each spectral line has a centroid or mean location in wavelength $\mu_m$ and a standard deviation $\sigma_m$. The continuum flux in each spectral order $k$ has a slope $a_k$ and an offset $b_k$.</p>
 <p>Use the <code>daft</code> package as above, or a sheet of paper, or a whiteboard to draw a graphical model for this model. For tihs problem, there are multiple ways of constructing this PGM, so keep an open mind if you and your group members have different ideas!</p>
 <pre><code class="language-python"># SOLUTION:
 pgm = daft.PGM(dpi=120)
@@ -437,7 +437,7 @@ pgm.render();
 <h2 id="preview-of-tomorrow-hierarchical-models">Preview of tomorrow: Hierarchical models</h2>
 <p>You have now seen and worked with all of the main building blocks of a probabilistic graphical model — well done! As a final point of discussion, we are going to see an example of a PGM that leads naturally in the direction of tomorrow&rsquo;s topic: Hierarchical models.</p>
 <h3 id="example-the-mean-distance-of-a-star-cluster">Example: The mean distance of a star cluster</h3>
-<p>In the example above, we inferred the distance to a single star given a prior for its distance and a measurement of its parallax. But what if we want to infer the mean distance of an object like a star cluster given a bunch of <code>$N$</code> parallax measurements <code>$\varpi$</code> and uncertainties <code>$\sigma_\varpi$</code> for stars (indexed by <code>$n$</code>) in the cluster? Let&rsquo;s assume that the true line-of-sight distance distribution of this star cluster can be well-approximated as a Gaussian with a mean <code>$\mu_r$</code> and standard deviation <code>$\sigma_r$</code>. This is an example of a simple <em>hierarchical model</em>: We need to replace our fixed prior for the stellar distances with a distribution that has its own unknown parameters that we want to learn. In this model, we will want to infer the individual &ldquo;true&rdquo; distances <code>$r_n$</code> to each star and also the mean distance and width of the distance distribution (i.e. the size of the cluster).</p>
+<p>In the example above, we inferred the distance to a single star given a prior for its distance and a measurement of its parallax. But what if we want to infer the mean distance of an object like a star cluster given a bunch of $N$ parallax measurements $\varpi$ and uncertainties $\sigma_\varpi$ for stars (indexed by $n$) in the cluster? Let&rsquo;s assume that the true line-of-sight distance distribution of this star cluster can be well-approximated as a Gaussian with a mean $\mu_r$ and standard deviation $\sigma_r$. This is an example of a simple <em>hierarchical model</em>: We need to replace our fixed prior for the stellar distances with a distribution that has its own unknown parameters that we want to learn. In this model, we will want to infer the individual &ldquo;true&rdquo; distances $r_n$ to each star and also the mean distance and width of the distance distribution (i.e. the size of the cluster).</p>
 <p>If we fixed the mean distance and width of the cluster, this would look like a normal, &ldquo;one-level&rdquo; model like the ones we explored above:</p>
 <pre><code class="language-python">pgm = daft.PGM(dpi=120)
 
@@ -455,7 +455,7 @@ pgm.add_edge(&quot;err&quot;, &quot;plx&quot;)
 pgm.render();
 </code></pre>
 <p><img src="output_25_0.png" alt="png"></p>
-<p>However, because we have <code>$N$</code> stars that each have their own parallax and true distance values, and we want to <em>infer</em> <code>$\mu_r$</code> instead of fixing it, we need to (1) add a plate to this PGM, and (2) make <code>$\mu_r$</code> and <code>$\sigma_r$</code> random variables:</p>
+<p>However, because we have $N$ stars that each have their own parallax and true distance values, and we want to <em>infer</em> $\mu_r$ instead of fixing it, we need to (1) add a plate to this PGM, and (2) make $\mu_r$ and $\sigma_r$ random variables:</p>
 <pre><code class="language-python">pgm = daft.PGM(dpi=120)
 
 pgm.add_node(&quot;plx&quot;, r&quot;$\varpi$&quot;, 0, 0, observed=True)

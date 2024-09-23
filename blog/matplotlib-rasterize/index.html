@@ -146,7 +146,7 @@ with io.BytesIO() as buffer:
     filesize = (buffer.getbuffer().nbytes * u.byte).to(u.megabyte)
     print(filesize)
 </code></pre>
-<pre><code>2.019754 Mbyte
+<pre><code class="language-output">2.019754 Mbyte
 </code></pre>
 <p><img src="output_5_1.png" alt="png"></p>
 <p>One way I often think to get around this is to use the <code>rasterized=True</code> keyword, but this can sometimes lead to unexpected behavior. For example, here, because each line is given its own layer and rasterized separately, using <code>rasterized=True</code> actually <em>increases</em> the file size:</p>
@@ -160,7 +160,7 @@ with io.BytesIO() as buffer:
     filesize = (buffer.getbuffer().nbytes * u.byte).to(u.megabyte)
     print(filesize)
 </code></pre>
-<pre><code>1.017869 Mbyte
+<pre><code class="language-output">1.017869 Mbyte
 </code></pre>
 <p><img src="output_7_1.png" alt="png"></p>
 <p>The solution I keep having to re-discover is to instead use the <code>matplotlib</code>&rsquo;s layering or <a href="https://matplotlib.org/3.1.1/gallery/misc/zorder_demo.html"><code>zorder</code> functionality</a>. If we plot all of our lines at or below a given <code>zorder</code> value, we can then tell <code>matplotlib</code> to rasterize everything below a given <code>zorder</code> value <em>together</em>. In other words, here, it would rasterize all of the lines into a single image, rather than 256 separate rasterized images. This often leads to the smallest file sizes for cases where you want to rasterize some plot data and not others:</p>
@@ -176,7 +176,7 @@ with io.BytesIO() as buffer:
     filesize = (buffer.getbuffer().nbytes * u.byte).to(u.megabyte)
     print(filesize)
 </code></pre>
-<pre><code>0.986053 Mbyte
+<pre><code class="language-output">0.986053 Mbyte
 </code></pre>
 <p><img src="output_9_1.png" alt="png"></p>
 
