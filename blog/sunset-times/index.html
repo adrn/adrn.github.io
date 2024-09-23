@@ -129,6 +129,7 @@
 <li>I installed basemap, basemap-data, and timezonefinder with pip (see basemap install instructions at <a href="https://github.com/matplotlib/basemap/">https://github.com/matplotlib/basemap/</a>)</li>
 <li><em>Update 2022</em>: I installed county data from the <a href="https://www2.census.gov/geo/tiger/TIGER2021/COUNTY/">US Census</a> and from the <a href="https://github.com/matplotlib/basemap/tree/develop/examples">basemap examples</a>. Some data links below might be broken, but I&rsquo;ve included all of the data files in the source repository for this blog post.</li>
 </ul>
+<p class="prompt-in">Input[1]:</p>
 <pre><code class="language-python"># Standard library
 import datetime
 
@@ -151,18 +152,23 @@ from matplotlib.patches import Polygon
 from timezonefinder import TimezoneFinder
 </code></pre>
 <p>On top of the software installs above, I had to download a bunch of data from the US census bureau that contains the county shape specifications and other metadata <a href="https://www.census.gov/geo/maps-data/data/gazetteer2017.html">https://www.census.gov/geo/maps-data/data/gazetteer2017.html</a>: from this link, click &ldquo;Counties&rdquo;, and download the full text file (only a few hundred kB). I saved this file locally as &ldquo;US-counties.txt&rdquo;. I found that I had to manually go in and delete a weird character on the first line, but afterwards was able to read it with pandas:</p>
+<p class="prompt-in">Input[2]:</p>
 <pre><code class="language-python">county = pd.read_csv(&quot;US-counties.txt&quot;, delimiter=&quot;\t&quot;)
 len(county)
 </code></pre>
+<p class="prompt-out">Output[2]:</p>
 <pre><code class="language-output">3220
 </code></pre>
 <p>For every county location (latitude and longitude), I use the <code>timezonefinder</code> package to convert the (lat, lon) combo to a timezone name. For example, for New York:</p>
+<p class="prompt-in">Input[3]:</p>
 <pre><code class="language-python">tf = TimezoneFinder()
 tf.certain_timezone_at(lat=40.713, lng=-74.006)
 </code></pre>
+<p class="prompt-out">Output[3]:</p>
 <pre><code class="language-output">'America/New_York'
 </code></pre>
 <p>We now do the same, but iterate over the US counties file:</p>
+<p class="prompt-in">Input[4]:</p>
 <pre><code class="language-python">tzs = np.array(
     [
         pytz.timezone(tf.certain_timezone_at(lng=r[&quot;INTPTLONG&quot;], lat=r[&quot;INTPTLAT&quot;]))
@@ -171,18 +177,23 @@ tf.certain_timezone_at(lat=40.713, lng=-74.006)
 )
 </code></pre>
 <p>Let&rsquo;s look at a random entry in this array:</p>
+<p class="prompt-in">Input[5]:</p>
 <pre><code class="language-python">tzs[867]
 </code></pre>
+<p class="prompt-out">Output[5]:</p>
 <pre><code class="language-output">&lt;DstTzInfo 'America/Chicago' LMT-1 day, 18:09:00 STD&gt;
 </code></pre>
 <p>From the (lat, lon) coordinates of each county center, I now create an array-valued <a href="http://docs.astropy.org/en/latest/api/astropy.coordinates.EarthLocation.html"><code>EarthLocation</code></a> object, which I&rsquo;ll later use to get the Sun&rsquo;s local altitude at each position and a grid of times:</p>
+<p class="prompt-in">Input[6]:</p>
 <pre><code class="language-python">county_locs = coord.EarthLocation(
     lon=county[&quot;INTPTLONG&quot;] * u.deg, lat=county[&quot;INTPTLAT&quot;] * u.deg
 )
 </code></pre>
 <p>Now we&rsquo;ll define a function that will do the majority of the computation: compute the local time of sunset at the specified locations and on the specified day:</p>
+<p class="prompt-in">Input[7]:</p>
 <pre><code class="language-python">day = Time(&quot;2018-01-27&quot;)
 </code></pre>
+<p class="prompt-in">Input[8]:</p>
 <pre><code class="language-python">def sunset_time(locs, time, n_time=256):
     &quot;&quot;&quot;Estimate the local time of sunset at the specified locations
     on the specified date.
@@ -255,19 +266,23 @@ tf.certain_timezone_at(lat=40.713, lng=-74.006)
 
     return good_i, sunsets
 </code></pre>
+<p class="prompt-in">Input[9]:</p>
 <pre><code class="language-python">%%time
 good_i, sunsets = sunset_time(county_locs, day, n_time=512)
 </code></pre>
-<pre><code class="language-output">/tmp/ipykernel_2163/3842254823.py:31: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
+<p class="prompt-out">Output[9]:</p>```output
+/tmp/ipykernel_2163/3842254823.py:31: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
   min_idx = np.array(
 ``````output
 CPU times: user 4min 36s, sys: 760 ms, total: 4min 37s
 Wall time: 4min 49s
-</code></pre>
-<p>The times we get back are an array of python datetime objects, but we only care about local (decimal) time. Here we convert the datetime objects to decimal hours:</p>
+```
+The times we get back are an array of python datetime objects, but we only care about local (decimal) time. Here we convert the datetime objects to decimal hours:
+<p class="prompt-in">Input[10]:</p>
 <pre><code class="language-python">sunset_hours = np.array([s.hour + s.minute / 60 + s.second / 3600 for s in sunsets])
 </code></pre>
 <p>Before using <code>basemap</code> to plot the counties as polygons, let&rsquo;s just make sure we&rsquo;re on the right track by plotting the county centroids, colored by sunset time:</p>
+<p class="prompt-in">Input[11]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots(1, 1, figsize=(6, 4))
 ax.scatter(
     county_locs[good_i].lon.degree,
@@ -280,10 +295,12 @@ ax.scatter(
 ax.set_xlim(-125, -65)
 ax.set_ylim(25, 55)
 </code></pre>
+<p class="prompt-out">Output[11]:</p>
 <pre><code class="language-output">(25.0, 55.0)
 </code></pre>
 <p><img src="output_20_1.png" alt="png"></p>
 <p>Now we can make a plot of the counties, drawn as polygons, colored by the time of sunset. We need to specify the edges of the plot (in latitude and longitude) and the central point so <code>basemap</code> can compute the projection for us:</p>
+<p class="prompt-in">Input[12]:</p>
 <pre><code class="language-python"># Set the lower left and upper right limits of the bounding box of
 # the US county map plot:
 lon_lim = (-119, -63)
@@ -294,6 +311,7 @@ center_lon = 0.5 * np.sum(lon_lim)
 center_lat = 0.5 * np.sum(lat_lim)
 </code></pre>
 <p>For our county map, we&rsquo;ll use a diverging colormap to show differences in the time of sunset from the median time of sunset (rounded to the nearest half hour):</p>
+<p class="prompt-in">Input[13]:</p>
 <pre><code class="language-python">cmap = plt.get_cmap(&quot;RdBu&quot;)
 
 med_hour = 0.5 * np.round(np.median(sunset_hours) / 0.5)
@@ -301,8 +319,10 @@ print(&quot;median sunset (local) time: {0}&quot;.format(med_hour))
 
 norm = mpl.colors.Normalize(vmin=med_hour - 1, vmax=med_hour + 1)
 </code></pre>
-<pre><code class="language-output">median sunset (local) time: 17.5
-</code></pre>
+<p class="prompt-out">Output[13]:</p>```output
+median sunset (local) time: 17.5
+```
+<p class="prompt-in">Input[14]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots(1, 1, figsize=(12, 8))
 
 ax.set_title(&quot;Date: {0}&quot;.format(day.datetime.strftime(&quot;%Y-%m-%d&quot;)))
@@ -350,9 +370,11 @@ cb1.set_ticklabels(cb_labels)
 
 fig.subplots_adjust(0.1, 0.05, 0.9, 0.95)  # l, b, r, t
 </code></pre>
+<p class="prompt-out">Output[14]:</p>
 <p><img src="output_25_0.png" alt="png"></p>
 <p>Northwestern Washington and central New Jersey are both light red! From this map, it&rsquo;s clear that location within a timezone is a much stronger indicator of sunset time compared to the latitude dependence of the sunset.</p>
 <p>Let&rsquo;s now turn the above into a single function call that produces the county map given a date:</p>
+<p class="prompt-in">Input[15]:</p>
 <pre><code class="language-python">def plot_sunset_map(day, cmap=&quot;RdBu&quot;):
     &quot;&quot;&quot;Plot a map of the continental US and color each county by the local
     time of sunset on the specified day.
@@ -430,17 +452,21 @@ fig.subplots_adjust(0.1, 0.05, 0.9, 0.95)  # l, b, r, t
 
     return fig
 </code></pre>
+<p class="prompt-in">Input[16]:</p>
 <pre><code class="language-python">fig = plot_sunset_map(Time(&quot;2018-06-21&quot;))
 </code></pre>
-<pre><code class="language-output">/tmp/ipykernel_2163/3842254823.py:31: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
+<p class="prompt-out">Output[16]:</p>```output
+/tmp/ipykernel_2163/3842254823.py:31: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
   min_idx = np.array(
-</code></pre>
+```
 <p><img src="output_28_1.png" alt="png"></p>
+<p class="prompt-in">Input[17]:</p>
 <pre><code class="language-python">fig = plot_sunset_map(Time(&quot;2018-12-21&quot;))
 </code></pre>
-<pre><code class="language-output">/tmp/ipykernel_2163/3842254823.py:31: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
+<p class="prompt-out">Output[17]:</p>```output
+/tmp/ipykernel_2163/3842254823.py:31: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray.
   min_idx = np.array(
-</code></pre>
+```
 <p><img src="output_29_1.png" alt="png"></p>
 
   </div>

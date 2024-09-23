@@ -125,6 +125,7 @@
 <p>Another problem where the need to fit models with parametric and flexible components arises is in modeling the phase-space density of stellar streams (e.g., <a href="https://ui.adsabs.harvard.edu/abs/2019MNRAS.485.4726K/abstract">Koposov et al. 2019</a>, <a href="https://ui.adsabs.harvard.edu/abs/2022ApJ...925..118T/abstract">Tavangar et al. 2022</a>). In the case of stellar streams, we generally want to simultaneously fit the &ldquo;track&rdquo; or ridgeline of the stream in position and velocity components, the width of the stream, the density along the stream, and a flexible model for the background stellar density in these components.</p>
 <p>There are many possible options for adding flexibility to models (see: Machine Learning). One particularly useful tool that is used heavily in time series analysis are <a href="https://en.wikipedia.org/wiki/Gaussian_process">Gaussian processes</a> (GPs). GPs allow adding controlled flexibility in probabilistic models (i.e. weakly parametric, through specification of a kernel function) and have gained popularity in astronomy recently thanks to advances in computational efficiency in computing GP likelihoods (e.g., <a href="https://github.com/exoplanet-dev/celerite2">celerite</a> or <a href="https://github.com/dfm/tinygp">tinygp</a>). I won&rsquo;t go over GPs in this post, but there are many resources available online and on GitHub that give great introductions to GPs (e.g., <a href="https://speakerdeck.com/dfm/an-astronomers-introduction-to-gaussian-processes-v2">Dan Foreman-Mackey&rsquo;s slides</a> or <a href="https://github.com/LSSTC-DSFP/LSSTC-DSFP-Sessions/blob/main/Sessions/Session13/Day2/answers/01-Introduction-to-GPs.ipynb">Rodrigo Luger&rsquo;s tutorial</a>).</p>
 <p>In this post, we will use another frequently-used tool for specifying flexible models: <a href="https://en.wikipedia.org/wiki/Spline_(mathematics)">cubic splines</a>.</p>
+<p class="prompt-in">Input[1]:</p>
 <pre><code class="language-python"># Some global imports we will need throughout this post:
 import astropy.units as u
 import matplotlib as mpl
@@ -142,8 +143,10 @@ import numpy as np
 </code></pre>
 <h2 id="spline-models">Spline models</h2>
 <p>A spline function is fully determined by the degree of the polynomial used, the location of $M$ &ldquo;knots&rdquo; $x_m$, and the function value at the knots $f_m$. A common choice for the polynomial degree is 3, or cubic splines.</p>
+<p class="prompt-in">Input[2]:</p>
 <pre><code class="language-python">import scipy.interpolate as sci
 </code></pre>
+<p class="prompt-in">Input[3]:</p>
 <pre><code class="language-python">rng = np.random.default_rng(seed=42)
 
 M = 8
@@ -151,6 +154,7 @@ x_m = np.linspace(0, 10, M)
 f_m = rng.uniform(-1, 1, M)
 spl = sci.InterpolatedUnivariateSpline(x_m, f_m, k=3)  # k = the polynomial degree
 </code></pre>
+<p class="prompt-in">Input[4]:</p>
 <pre><code class="language-python">plt.scatter(x_m, f_m)
 
 grid = np.linspace(-1, 11, 1024)
@@ -175,6 +179,7 @@ for m in range(1, 3):
 plt.xlabel(&quot;$x$&quot;)
 plt.ylabel(&quot;$f$&quot;)
 </code></pre>
+<p class="prompt-out">Output[4]:</p>
 <pre><code class="language-output">Text(0, 0.5, '$f$')
 </code></pre>
 <p><img src="output_5_1.png" alt="png"></p>
@@ -212,6 +217,7 @@ $$</div>
 \end{align}
 $$</div>
 <p>To start with, we will generate some random, normal distributed points with arbitrarily chosen mean and variance:</p>
+<p class="prompt-in">Input[5]:</p>
 <pre><code class="language-python">rng = np.random.default_rng(seed=42)
 
 N = 100_000
@@ -223,14 +229,17 @@ z = rng.normal(0.03, 0.31, size=N)
 data = {&quot;N&quot;: N, &quot;z&quot;: z}
 </code></pre>
 <p>Let&rsquo;s start by making a histogram of the &ldquo;data&rdquo; to visualize it:</p>
+<p class="prompt-in">Input[6]:</p>
 <pre><code class="language-python">z_bins = np.linspace(-2, 2, 128)
 plt.hist(data[&quot;z&quot;], bins=z_bins)
 plt.yscale(&quot;log&quot;)
 plt.xlabel(&quot;$z$&quot;)
 plt.ylabel(&quot;number of sources&quot;);
 </code></pre>
+<p class="prompt-out">Output[6]:</p>
 <p><img src="output_11_0.png" alt="png"></p>
 <p>To visualize an estimate of the density function, we can use the <code>numpy.histogram</code> function instead to compute the number counts per bin and divide by the size of each bin:</p>
+<p class="prompt-in">Input[7]:</p>
 <pre><code class="language-python">H, xe = np.histogram(data[&quot;z&quot;], bins=z_bins)
 xc = 0.5 * (xe[:-1] + xe[1:])
 dens = H / (xe[1] - xe[0])
@@ -241,9 +250,11 @@ plt.yscale(&quot;log&quot;)
 plt.xlabel(&quot;$z$&quot;)
 plt.ylabel(&quot;density $n(z)$&quot;);
 </code></pre>
+<p class="prompt-out">Output[7]:</p>
 <p><img src="output_13_0.png" alt="png"></p>
 <p>In what follows, we are going to be defining several different density models and objective functions for our different density models. But ultimately, with all of these choices (e.g., Gaussian density model vs. cubic spline), we will need to be able to compute the log-likelihood given a choice of parameters. I like to use object-oriented programming (OOP) to structure my code when I am in situations like this because it helps to reduce duplicated code, enables encapsulation and namespacing, and, frankly, because I think the benefits of Python shine when using OOP. However, JAX is really designed to be used within a <a href="https://en.wikipedia.org/wiki/Functional_programming"><em>functional programming</em></a> context because of the way <a href="https://en.wikipedia.org/wiki/Just-in-time_compilation">Just-in-time</a> (JIT) compilation works. You can read a bit more about this in the <a href="https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html">JAX Gotchas</a> page, but the bottom line is that all JIT-compiled functions must be <em>pure functions</em> (functions that return the same values given the same input arguments).</p>
 <p>There are some advanced ways of implementing more OOP-like code with JAX, but here I&rsquo;m going to (ab)use Python classes as a simple way of creating namespaces for the functions we will need with a light form of inheritance that still obeys the <em>pure function</em> requirement of JAX. These classes don&rsquo;t look like true OOP because we use <code>@classmethod</code>&rsquo;s instead of regular instance methods, but some other OOP ideas still translate. We will start by defining a base <code>Model</code> class that implements some common methods we will need for any of the density models we implement:</p>
+<p class="prompt-in">Input[8]:</p>
 <pre><code class="language-python"># We will need to wrap JAX's jit function with a partial function call to get
 # it to work with our classmethod's below. We will use it to tell JAX to treat
 # the 0'th input (i.e. the class itself in a classmethod) as a compile-time
@@ -304,10 +315,12 @@ class Model:
         return -cls.ln_posterior(pars_arr, data, *args) / N
 </code></pre>
 <p>With our base <code>Model</code> class defined, we can now implement a subclass for the first model we are going to fit to our simulated data: a Gaussian! Using the true density model to fit the simulated data we should recover the input parameters that we used to generate the data:</p>
+<p class="prompt-in">Input[9]:</p>
 <pre><code class="language-python">def ln_normal(x, mu, var):
     &quot;&quot;&quot;Evaluate the log-normal probability&quot;&quot;&quot;
     return -0.5 * (jnp.log(2 * np.pi * var) + (x - mu) ** 2 / var)
 </code></pre>
+<p class="prompt-in">Input[10]:</p>
 <pre><code class="language-python">class GaussianModel(Model):
     param_names = {
         &quot;ln_N0&quot;: 1,  # the log number density
@@ -359,6 +372,7 @@ class Model:
         return lp
 </code></pre>
 <p>Let&rsquo;s pick some initial values for our parameters and plot the density function corresponding to our parameter choices:</p>
+<p class="prompt-in">Input[11]:</p>
 <pre><code class="language-python">plt.plot(xc, dens, drawstyle=&quot;steps-mid&quot;, marker=&quot;&quot;)
 
 init_pars = {&quot;ln_N0&quot;: np.log(N) + 0.5, &quot;mean&quot;: 1e-1, &quot;ln_std&quot;: np.log(0.3)}
@@ -372,12 +386,15 @@ plt.yscale(&quot;log&quot;)
 plt.xlabel(&quot;$z$&quot;)
 plt.ylabel(&quot;density $n(z)$&quot;);
 </code></pre>
-<pre><code class="language-output">WARNING:absl:No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)
-</code></pre>
+<p class="prompt-out">Output[11]:</p>```output
+WARNING:absl:No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)
+```
 <p><img src="output_20_1.png" alt="png"></p>
 <p>Those initial parameter values don&rsquo;t look like a very good match to the observed density, but it&rsquo;s probably close enough that an optimizer will be able to find a better solution from there. For the optimizer, we will use Scipy&rsquo;s <a href="https://docs.scipy.org/doc/scipy/reference/optimize.minimize-lbfgsb.html">L-BFGS-B</a> implementation, which is available through the general-purpose <code>scipy.optimize.minimize()</code> function. Here we use JAX&rsquo;s <code>value_and_grad()</code> to get a function handle based on our objective function that returns both the objective value and the gradient with respect to the input parameters. This is where the utility of JAX comes to light: it uses auto-differentiation to compute the gradients for us. We have to set <code>jac=True</code> in <code>minimize()</code> to tell Scipy to expect the gradient along with the objective function value:</p>
+<p class="prompt-in">Input[12]:</p>
 <pre><code class="language-python">import scipy.optimize as sco
 </code></pre>
+<p class="prompt-in">Input[13]:</p>
 <pre><code class="language-python">res = sco.minimize(
     jax.value_and_grad(GaussianModel.objective),
     GaussianModel.pack_pars(init_pars),
@@ -389,6 +406,7 @@ plt.ylabel(&quot;density $n(z)$&quot;);
 )
 res
 </code></pre>
+<p class="prompt-out">Output[13]:</p>
 <pre><code class="language-output">      fun: -10.261409577341759
  hess_inv: &lt;3x3 LbfgsInvHessProduct with dtype=float64&gt;
       jac: array([-1.03488418e-08,  2.31515273e-06, -1.50016197e-07])
@@ -401,6 +419,7 @@ res
         x: array([11.5129243 ,  0.02868799, -1.16748798])
 </code></pre>
 <p>It looks like that optimization completed successfully, and after only 10 function evaluations! Let&rsquo;s look at the density function implied by the optimized parameters:</p>
+<p class="prompt-in">Input[14]:</p>
 <pre><code class="language-python">opt_pars = GaussianModel.unpack_pars(res.x)
 
 plt.plot(xc, dens, drawstyle=&quot;steps-mid&quot;, marker=&quot;&quot;)
@@ -418,10 +437,12 @@ plt.yscale(&quot;log&quot;)
 plt.xlabel(&quot;$z$&quot;)
 plt.ylabel(&quot;density $n(z)$&quot;);
 </code></pre>
+<p class="prompt-out">Output[14]:</p>
 <p><img src="output_25_0.png" alt="png"></p>
 <p>That looks like a pretty good fit! Let&rsquo;s move on to a more flexible example.</p>
 <h3 id="case-2-spline-model">Case 2: Spline model</h3>
 <p>We will now replace our density model $n(z)$ with a cubic spline representation of the function. We will fix the location of the spline knots by using a hard-set, uniform grid of points in $z$, but the parameters of the model will then be the value of the (log-)density at the locations of the knots. Though there is no jax-ified cubic interpolation built-in to JAX itself (as far as I can tell, it currently only supports linear interpolation), we will use another package — <code>jax_cosmo</code> — which provides a jax-aware version of Scipy&rsquo;s <code>InterpolatedUnivariateSpline</code>:</p>
+<p class="prompt-in">Input[15]:</p>
 <pre><code class="language-python">from jax_cosmo.scipy.interpolate import InterpolatedUnivariateSpline
 </code></pre>
 <p>Awesome, we now have the main tool we need to enable implementing the spline model, however we have one more mathematical / numerical hurdle to solve: we need to be able to compute the integral of our density model to compute the first term in the Poisson process likelihood</p>
@@ -430,6 +451,7 @@ plt.ylabel(&quot;density $n(z)$&quot;);
 $$</div>
 <p>For generic cubic splines, this integral over all $z$&rsquo;s is not finite. We therefore have to pick a domain over which to do this integral, and this then slightly changes the meaning of our parameter <code>ln_N0</code> to be the number of sources <em>in the domain we choose</em>. In practice, if we pick a domain that is large enough and the density function falls off quickly (as it does here), there won&rsquo;t be any practical difference. (But note: if you have a rigid selection region, or if you pick a domain that truncates the data, you have to be more careful than me!) Since our data end around $z\sim \pm 1.5$, we will pick a window of $(-3, 3)$.</p>
 <p>We now need a way of computing the integral of our spline model over this domain. If our parameters were the value of the <em>density</em> $N_0$ at the locations of the knots, we could use the <code>InterpolatedUnivariateSpline.integral()</code> method directly to compute the integral. However, we use the value of the log-density as parameters, so the integral is not as straightforward. Here, I&rsquo;ve implemented a version of <a href="https://en.wikipedia.org/wiki/Simpson%27s_rule">Simpson&rsquo;s rule</a> that takes in the log-function values and returns the log-integral, which is more stable than using other integration tools that would require first exponentiating the density and then taking the log of the estimated integral value on the outside:</p>
+<p class="prompt-in">Input[16]:</p>
 <pre><code class="language-python">def ln_simpson(ln_y, x):
     &quot;&quot;&quot;
     Evaluate the log of the definite integral of a function evaluated on a
@@ -451,6 +473,7 @@ $$</div>
     )
 </code></pre>
 <p>With a decision about our integration window and a jax-ified function to compute the value of the log-integral over our spline density function, we can now set up a spline model to fit our toy data:</p>
+<p class="prompt-in">Input[17]:</p>
 <pre><code class="language-python">class GaussianSplineModel(Model):
     knots = jnp.linspace(-3, 3, 11)  # locations of the spline knots
     param_names = {
@@ -495,6 +518,7 @@ $$</div>
         return lp
 </code></pre>
 <p>With our spline model defined, our integration window set, and our knot locations fixed, we now need to initialize our parameters: the log-density values at the knot locations. We do this by interpolating the estimated density we got from the histogram above at the location of the knots:</p>
+<p class="prompt-in">Input[18]:</p>
 <pre><code class="language-python">knots = np.linspace(xc.min(), xc.max(), 11)
 knots_ln_dens = sci.InterpolatedUnivariateSpline(xc, np.log(dens + 1e-8), k=3)(
     GaussianSplineModel.knots
@@ -514,10 +538,12 @@ plt.ylabel(&quot;density $n(z)$&quot;)
 
 plt.legend(loc=&quot;best&quot;)
 </code></pre>
+<p class="prompt-out">Output[18]:</p>
 <pre><code class="language-output">&lt;matplotlib.legend.Legend at 0x7fecace22da0&gt;
 </code></pre>
 <p><img src="output_33_1.png" alt="png"></p>
 <p>We can now run the optimizer with our new spline model for the density:</p>
+<p class="prompt-in">Input[19]:</p>
 <pre><code class="language-python"># We add a little bit of random scatter just to make things interesting...
 init_pars = {&quot;ln_n0&quot;: knots_ln_dens + rng.uniform(0, 0.1, size=len(knots))}
 res = sco.minimize(
@@ -530,6 +556,7 @@ res = sco.minimize(
 )
 res
 </code></pre>
+<p class="prompt-out">Output[19]:</p>
 <pre><code class="language-output">      fun: -10.260887909516791
  hess_inv: &lt;11x11 LbfgsInvHessProduct with dtype=float64&gt;
       jac: array([-2.86425740e-06,  6.56002702e-06, -4.06564716e-05, -1.03612167e-05,
@@ -546,6 +573,7 @@ res
         -4.7820572 , -21.05344694, -18.43766302])
 </code></pre>
 <p>Let&rsquo;s plot our optimized spline density function and the value at the knots over our data:</p>
+<p class="prompt-in">Input[20]:</p>
 <pre><code class="language-python">plt.plot(xc, dens, drawstyle=&quot;steps-mid&quot;, marker=&quot;&quot;)
 
 opt_pars = GaussianSplineModel.unpack_pars(res.x)
@@ -575,13 +603,16 @@ plt.ylabel(&quot;density $n(z)$&quot;)
 
 plt.legend(loc=&quot;best&quot;)
 </code></pre>
+<p class="prompt-out">Output[20]:</p>
 <pre><code class="language-output">&lt;matplotlib.legend.Legend at 0x7fecace36ad0&gt;
 </code></pre>
 <p><img src="output_37_1.png" alt="png"></p>
 <p>Excellent - this also looks like a great fit! Unexpectedly, weird things happen outside of the range where we have data, but here the splines will largely be unconstrained.</p>
 <p>Now that we have optimized parameters, and we have a model class with a function that computes the log-posterior probability given data, we can use the optimized parameter values to initialize an MCMC sampling of the parameters. To do this, we will use the <a href="https://blackjax-devs.github.io/blackjax/">blackjax</a> package to run a Hamiltonian Monte Carlo (HMC) sampler. In detail, we will use the NUTS sampler, and we will use their implementation of a window adaptation method to find good choices for the sampler parameters (step size and inverse mass matrix). This code follows the example code from the &ldquo;<a href="https://blackjax-devs.github.io/blackjax/examples/Introduction.html#nuts">quick introduction to blackjax</a>&rdquo; in the blackjax documentation.</p>
+<p class="prompt-in">Input[21]:</p>
 <pre><code class="language-python">import blackjax
 </code></pre>
+<p class="prompt-in">Input[22]:</p>
 <pre><code class="language-python"># This is the main loop that does the sampling for us:
 def inference_loop(rng_key, kernel, initial_state, num_samples):
     @jax.jit
@@ -595,6 +626,7 @@ def inference_loop(rng_key, kernel, initial_state, num_samples):
     return states
 </code></pre>
 <p>We start by using the blackjax implementation of STAN&rsquo;s window adaptation method to find good choices for the NUTS sampler parameters:</p>
+<p class="prompt-in">Input[23]:</p>
 <pre><code class="language-python">rng_key = jax.random.PRNGKey(42)
 
 fn = jax.tree_util.Partial(GaussianSplineModel.ln_posterior, data=data)
@@ -610,20 +642,24 @@ state, kernel, _ = warmup.run(
 )
 </code></pre>
 <p>With a tuned kernel, we can now run our main inference loop to generate 1000 posterior samples of our parameters:</p>
+<p class="prompt-in">Input[24]:</p>
 <pre><code class="language-python">states = inference_loop(rng_key, kernel, state, 1_000)
 </code></pre>
 <p>Let&rsquo;s see how these look! As a quick check, let&rsquo;s look at a trace plot of a few of the parameters:</p>
+<p class="prompt-in">Input[25]:</p>
 <pre><code class="language-python">for i in [0, 5, 8]:
     plt.plot(states.position[:, i], marker=&quot;&quot;, drawstyle=&quot;steps-mid&quot;)
 
 plt.xlabel(&quot;NUTS step&quot;)
 plt.ylabel(&quot;parameter value&quot;)
 </code></pre>
+<p class="prompt-out">Output[25]:</p>
 <pre><code class="language-output">Text(0, 0.5, 'parameter value')
 </code></pre>
 <p><img src="output_46_1.png" alt="png"></p>
 <p>Those look stable! Of course, we should compute some convergence statistics and check on the quality of our samples. But for now, we&rsquo;ll assume that our &ldquo;by-eye&rdquo; test is good enough, and proceed :).</p>
 <p>For each posterior sample of our parameters, let&rsquo;s compute the implied density function and store these in a big 2D array:</p>
+<p class="prompt-in">Input[26]:</p>
 <pre><code class="language-python">_grid = np.linspace(*GaussianSplineModel.window, 1024)
 ln_dens_samples = np.zeros((states.position.shape[0], len(_grid)))
 for i, params in enumerate(states.position):
@@ -632,6 +668,7 @@ for i, params in enumerate(states.position):
     )
 </code></pre>
 <p>We can now visualize the 16–84th percentile range of our inferred density function:</p>
+<p class="prompt-in">Input[27]:</p>
 <pre><code class="language-python">plt.figure(figsize=(6, 5))
 plt.fill_between(
     _grid,
@@ -652,6 +689,7 @@ plt.yscale(&quot;log&quot;)
 plt.xlabel(&quot;$z$&quot;)
 plt.ylabel(&quot;density $n(z)$&quot;);
 </code></pre>
+<p class="prompt-out">Output[27]:</p>
 <p><img src="output_50_0.png" alt="png"></p>
 <p>As we might expect, the density function is not well constrained beyond $|z|\gtrsim 2$ or so where we do not have data.</p>
 <p>Now that we have a better picture of how to implement these types of flexible spline models with JAX, let&rsquo;s turn to a more complicated science example.</p>
@@ -659,19 +697,24 @@ plt.ylabel(&quot;density $n(z)$&quot;);
 <h2 id="example-fitting-the-density-profile-and-track-of-a-stellar-stream">Example: Fitting the density profile and track of a stellar stream</h2>
 <p>Building off of the 1D spline model we used above, we are now going to move on to a more complicated example motivated by my own research. Here we will try to model the 2D (on sky) density of a <a href="https://en.wikipedia.org/wiki/Stellar_kinematics#Stellar_streams">stellar stream</a> known as the &ldquo;GD-1 stream&rdquo; (named after its discovers <a href="https://ui.adsabs.harvard.edu/abs/2006ApJ...643L..17G/abstract">Grillmair &amp; Dionatos</a>). There is too much context to cover here, but for the purposes of this demo, assume that we are given a list of sky positions of stars from Gaia and we would like to model the on-sky density of the stream and background to (a) characterize the track of the stream, and (b) identify probable member stars. (The stars we will use have actually been pre-filtered to select distant, low-metallicity, main-sequence stars with proper motions that match the <a href="https://ui.adsabs.harvard.edu/abs/2018ApJ...863L..20P/abstract">previously-fit track of the stream</a>)</p>
 <p>Let&rsquo;s start by loading the data, which is included in this repository as a FITS file, so we can load the catalog using <a href="https://docs.astropy.org/en/stable/table/index.html"><code>astropy.table</code></a>:</p>
+<p class="prompt-in">Input[28]:</p>
 <pre><code class="language-python">import astropy.table as at
 </code></pre>
+<p class="prompt-in">Input[29]:</p>
 <pre><code class="language-python">gd1_tbl = at.Table.read(&quot;data/gd1-gaiadr3-blog.fits&quot;)
 
 # We will apply one additional selection criteria to limit the number of stars we have to handle:
 gd1_tbl = gd1_tbl[gd1_tbl[&quot;gd1_phi2&quot;] &gt; -7]
 len(gd1_tbl)
 </code></pre>
+<p class="prompt-out">Output[29]:</p>
 <pre><code class="language-output">2960
 </code></pre>
 <p>The table contains many columns from <a href="https://gea.esac.esa.int/archive/">Gaia DR3</a>, along with some photometry from the Pan-STARS PS1 survey (<a href="https://mastweb.stsci.edu/">data release 2</a>):</p>
+<p class="prompt-in">Input[30]:</p>
 <pre><code class="language-python">gd1_tbl.colnames
 </code></pre>
+<p class="prompt-out">Output[30]:</p>
 <pre><code class="language-output">['source_id',
  'ra',
  'dec',
@@ -722,6 +765,7 @@ len(gd1_tbl)
 </code></pre>
 <p>However, the only two columns we will use here are <code>gd1_phi1</code> and <code>gd1_phi2</code>, which are the sky positions of stars in a coordinate system in which the GD-1 stream lies approximately along latitude=0 (the coordinate system was defined in Koposov et al. 2010 and is implemented as an <code>astropy.coordinates</code> frame in the <a href="https://gala.adrian.pw">gala</a> package in <a href="http://gala.adrian.pw/en/latest/api/gala.coordinates.GD1Koposov10.html">gala.coordinates</a>).</p>
 <p>Let&rsquo;s start by making a scatter plot of the sky positions:</p>
+<p class="prompt-in">Input[31]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots(figsize=(12, 3), constrained_layout=True)
 ax.plot(
     gd1_tbl[&quot;gd1_phi1&quot;],
@@ -738,6 +782,7 @@ ax.set_ylim(-7, 5)
 ax.set_xlabel(&quot;$\phi_1$ [deg]&quot;)
 ax.set_ylabel(&quot;$\phi_2$ [deg]&quot;);
 </code></pre>
+<p class="prompt-out">Output[31]:</p>
 <p><img src="output_58_0.png" alt="png"></p>
 <h3 id="defining-the-density-model">Defining the density model</h3>
 <p>The curved over-density of stars that arcs from $(\phi_1, \phi_2) \sim (-80, -3)^\circ$ to $(\phi_1, \phi_2) \sim (-40, 0)^\circ$ to $(\phi_1, \phi_2) \sim (0, -2)^\circ$ is the GD-1 stream. This is the density distribution we would like to model using a flexible, spline-based density function. Given the complexity of the stream, we will clearly have to be a bit more baroque in our model specification relative to the previous example. Additionally, there is a non-negligible background density of stars that varies (more smoothly) over the sky region where the stream exists: we will have to simultaneously model this background distribution:</p>
@@ -761,6 +806,7 @@ $$</div>
 <p>But because of the sum, you might think we are stuck adding (potentially) large numbers before taking the log. Luckily, there is a trick for handling cases like this that appears in many different statistics and data science applications known as <a href="https://gregorygundersen.com/blog/2020/02/09/log-sum-exp/">&ldquo;logsumexp&rdquo;</a>, which you will see me use below when combining the individual densities.</p>
 <p>As a final point, as was the case with our 1D spline model from Example 1, the integral over the full 2D density function (including the background model and stream model components) is not easily expressible in closed form, but we can use the same numerical integration trick we used above for this model.</p>
 <p>The model is more complex than the 1D models, but I will describe each element of the model below using comments:</p>
+<p class="prompt-in">Input[32]:</p>
 <pre><code class="language-python">class StreamModel(Model):
     # The phi_1 locations of the knots used for representing the background density:
     bkg_knots = jnp.linspace(-120, 40, 7)
@@ -882,11 +928,14 @@ $$</div>
 
         return lp
 </code></pre>
+<p class="prompt-in">Input[33]:</p>
 <pre><code class="language-python">StreamModel.integ_grid_phi1.shape, StreamModel.integ_grid_phi2.shape
 </code></pre>
+<p class="prompt-out">Output[33]:</p>
 <pre><code class="language-output">((121, 1201), (121, 1201))
 </code></pre>
 <p>Now that we have our density model class defined, let&rsquo;s start by computing the density on a 2D grid with some randomly chosen parameter values (i.e. spline knot values). To visualize the density, we will use the 2D integration grid we defined above as <code>StreamModel.integ_grid_phi1</code> and <code>StreamModel.integ_grid_phi2</code> for $\phi_1$ and $\phi_2$ values, respectively:</p>
+<p class="prompt-in">Input[34]:</p>
 <pre><code class="language-python">rng = np.random.default_rng(seed=666)
 
 # Random values for the stream splines:
@@ -923,15 +972,18 @@ for ax in axes:
     ax.set_ylabel(r&quot;$\phi_2$ [deg]&quot;)
 axes[1].set_xlabel(r&quot;$\phi_1$ [deg]&quot;)
 </code></pre>
+<p class="prompt-out">Output[34]:</p>
 <pre><code class="language-output">Text(0.5, 0, '$\\phi_1$ [deg]')
 </code></pre>
 <p><img src="output_63_1.png" alt="png"></p>
 <h3 id="initializing-the-density-model-parameters">Initializing the density model parameters</h3>
 <p>In many real-world optimization problems, especially those with many parameters like we have here, a good initialization is often important for success (or at least speed) of the optimizer. We could try initializing the stream model and background with random settings of the parameter (as we visualized above), but it&rsquo;s usually worth spending a bit of time estimating better initial guesses for your parameters.</p>
 <p>We will therefore spend a few cells below manipulating the data to estimate the rough on-sky track and density of the stream, and the density of the stellar background.</p>
+<p class="prompt-in">Input[35]:</p>
 <pre><code class="language-python">from scipy.ndimage import gaussian_filter1d
 </code></pre>
 <p>There are many ways we could do this, but in the cell below I bin the data coarsely in $\phi_1$ and fine in $\phi_2$, smooth the data, and find the location of the peak in $\phi_2$ in the coarse $\phi_1$ bins. I then convert the number counts to density so we can extract the rough track of the stream in $\phi_1, \phi_2$ along with a density estimate at each of these locations.</p>
+<p class="prompt-in">Input[36]:</p>
 <pre><code class="language-python">H, xe, ye = np.histogram2d(
     gd1_tbl[&quot;gd1_phi1&quot;],
     gd1_tbl[&quot;gd1_phi2&quot;],
@@ -959,10 +1011,12 @@ axes[1].plot(xc, H_ln_density)
 axes[1].set_ylabel(r&quot;log-density&quot;)
 axes[1].set_xlabel(r&quot;$\phi_1$&quot;)
 </code></pre>
+<p class="prompt-out">Output[36]:</p>
 <pre><code class="language-output">Text(0.5, 0, '$\\phi_1$')
 </code></pre>
 <p><img src="output_67_1.png" alt="png"></p>
 <p>We now have to interpolate these estimates to the location of our spline knots to set the initial parameters of our stream model:</p>
+<p class="prompt-in">Input[37]:</p>
 <pre><code class="language-python">init_ln_n0 = sci.InterpolatedUnivariateSpline(xc, H_ln_density)(StreamModel.ln_n0_knots)
 
 init_mean_phi2 = sci.InterpolatedUnivariateSpline(xc, yc[peak_idx])(
@@ -970,6 +1024,7 @@ init_mean_phi2 = sci.InterpolatedUnivariateSpline(xc, yc[peak_idx])(
 )
 </code></pre>
 <p>Next we will handle the stellar background. Here, we select stars above and below the stream (in $\phi_2$), estimate the 1D density of the background using a histogram, and smooth the estimates.</p>
+<p class="prompt-in">Input[38]:</p>
 <pre><code class="language-python">_mask = (gd1_tbl[&quot;gd1_phi2&quot;] &gt; 3) | (gd1_tbl[&quot;gd1_phi2&quot;] &lt; -5)
 H, xe = np.histogram(gd1_tbl[&quot;gd1_phi1&quot;][_mask], bins=np.linspace(-90, 20 + 1e-3, 15))
 xc = 0.5 * (xe[:-1] + xe[1:])
@@ -982,13 +1037,16 @@ ax.plot(xc, H)
 ax.set_ylabel(r&quot;log-density&quot;)
 ax.set_xlabel(r&quot;$\phi_1$&quot;)
 </code></pre>
+<p class="prompt-out">Output[38]:</p>
 <pre><code class="language-output">Text(0.5, 0, '$\\phi_1$')
 </code></pre>
 <p><img src="output_71_1.png" alt="png"></p>
 <p>We again have to interpolate these values to the location of our model spline knots:</p>
+<p class="prompt-in">Input[39]:</p>
 <pre><code class="language-python">init_ln_n0_bkg = sci.InterpolatedUnivariateSpline(xc, H)(StreamModel.bkg_knots)
 </code></pre>
 <p>Now we can package up our initial parameter estimates and try evaluating the <code>StreamModel.ln_density()</code> with this initial guess to see how well we did at estimating the properties of the stream.</p>
+<p class="prompt-in">Input[40]:</p>
 <pre><code class="language-python">init_pars = {
     &quot;ln_n0&quot;: init_ln_n0,
     &quot;mean_phi2&quot;: init_mean_phi2,
@@ -1000,6 +1058,7 @@ ln_dens_init = StreamModel.ln_density(
 )
 </code></pre>
 <p>We plot the initial guess of the full density distribution and over-plot the positions of the stars in our sample to see how well we did at setting initial guesses:</p>
+<p class="prompt-in">Input[41]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots(figsize=(12, 3), constrained_layout=True)
 
 ax.plot(
@@ -1023,10 +1082,12 @@ ax.set_ylim(-7, 5)
 ax.set_xlabel(r&quot;$\phi_1$&quot;)
 ax.set_ylabel(r&quot;$\phi_2$&quot;)
 </code></pre>
+<p class="prompt-out">Output[41]:</p>
 <pre><code class="language-output">Text(0, 0.5, '$\\phi_2$')
 </code></pre>
 <p><img src="output_77_1.png" alt="png"></p>
 <p>That already looks pretty good, but clearly there are places where we hope the optimizer will tune the model parameters to align the track and width of the stream to the data we have. Let&rsquo;s get set up to run the optimizer from these initial parameter estimates:</p>
+<p class="prompt-in">Input[42]:</p>
 <pre><code class="language-python">data = {
     &quot;phi1&quot;: gd1_tbl[&quot;gd1_phi1&quot;].astype(np.float64),
     &quot;phi2&quot;: gd1_tbl[&quot;gd1_phi2&quot;].astype(np.float64),
@@ -1034,11 +1095,14 @@ ax.set_ylabel(r&quot;$\phi_2$&quot;)
 init_p = StreamModel.pack_pars(init_pars)
 </code></pre>
 <p>This is not necessary, but I always like to evaluate the objective function I want to optimize at the initial parameter values to make sure there are no nan or inf values that will cause the optimizer to immediately fail:</p>
+<p class="prompt-in">Input[43]:</p>
 <pre><code class="language-python">StreamModel.objective(init_p, N=len(data[&quot;phi1&quot;]), data=data)
 </code></pre>
+<p class="prompt-out">Output[43]:</p>
 <pre><code class="language-output">DeviceArray(-0.05543877, dtype=float64)
 </code></pre>
 <p>Good, that looks fine! Let&rsquo;s fire up the optimizer. We will again use the L-BFGS-B method:</p>
+<p class="prompt-in">Input[44]:</p>
 <pre><code class="language-python">res = sco.minimize(
     jax.value_and_grad(StreamModel.objective),
     StreamModel.pack_pars(init_pars),
@@ -1049,6 +1113,7 @@ init_p = StreamModel.pack_pars(init_pars)
 )
 res
 </code></pre>
+<p class="prompt-out">Output[44]:</p>
 <pre><code class="language-output">      fun: -0.4172804414762403
  hess_inv: &lt;72x72 LbfgsInvHessProduct with dtype=float64&gt;
       jac: array([-7.71418475e-07,  1.65857911e-07,  1.99453381e-07, -2.05370143e-06,
@@ -1092,9 +1157,11 @@ res
         0.13801779,  1.7967009 ])
 </code></pre>
 <p>It looks like that succeeded! Let&rsquo;s look at the optimized parameters:</p>
+<p class="prompt-in">Input[45]:</p>
 <pre><code class="language-python">opt_pars = StreamModel.unpack_pars(res.x)
 opt_pars
 </code></pre>
+<p class="prompt-out">Output[45]:</p>
 <pre><code class="language-output">{'ln_n0': DeviceArray([-1.29724792, -1.29012651, -1.32220017, -1.01112565,
               -0.4372693 ,  0.58312065,  1.56485491,  1.84623316,
                1.86679529,  1.75244974,  1.79167502,  2.39936208,
@@ -1117,6 +1184,7 @@ opt_pars
               -1.86537359], dtype=float64)}
 </code></pre>
 <p>Again, it looks like there are no NaN or inf values, so that&rsquo;s good. Let&rsquo;s now compare the optimized parameters to our initial guesses:</p>
+<p class="prompt-in">Input[46]:</p>
 <pre><code class="language-python">fig, axes = plt.subplots(2, 2, figsize=(10, 6), sharex=True, constrained_layout=True)
 for ax, knots, name in zip(
     axes.flat,
@@ -1137,14 +1205,17 @@ for ax in axes[-1]:
 
 ax.legend(loc=&quot;best&quot;, fontsize=14)
 </code></pre>
+<p class="prompt-out">Output[46]:</p>
 <pre><code class="language-output">&lt;matplotlib.legend.Legend at 0x7fec7780cc70&gt;
 </code></pre>
 <p><img src="output_87_1.png" alt="png"></p>
 <p>We can also look at the 2D density computed from our optimized parameters and visually compare to the data:</p>
+<p class="prompt-in">Input[47]:</p>
 <pre><code class="language-python">ln_dens_opt = StreamModel.ln_density(
     StreamModel.integ_grid_phi1, StreamModel.integ_grid_phi2, **opt_pars
 )
 </code></pre>
+<p class="prompt-in">Input[48]:</p>
 <pre><code class="language-python">fig, axes = plt.subplots(
     3, 1, figsize=(12, 8), sharex=True, sharey=True, constrained_layout=True
 )
@@ -1183,6 +1254,7 @@ axes[-1].set_xlabel(r&quot;$\phi_1$&quot;)
 for ax in axes:
     ax.set_ylabel(r&quot;$\phi_2$&quot;)
 </code></pre>
+<p class="prompt-out">Output[48]:</p>
 <p><img src="output_90_0.png" alt="png"></p>
 <p>This looks like a pretty good representation of the stream density and track, so I would call this a success! With the optimized parameters in hand, we could then run a sampler (like the HMC/NUTS sampler we used above) to generate posterior samples over our parameters and assess uncertainty in the model, or compute membership probabilities of belonging to the stream for the stars in this field. In a real application, we may also want to assess our choices by trying a few different settings for the number of spline knots for the different components of the model.</p>
 <h2 id="recap">Recap</h2>

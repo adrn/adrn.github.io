@@ -122,6 +122,7 @@
 
     <p>I often generate <a href="https://matplotlib.org/">matplotlib</a> plots that contain thousands of lines, or millions of points. Depending on how these are drawn, this can make for huge (&gt;10MB) PDF files. If a given plot is meant to be included as a figure in a paper, this can then make for even huger manuscript PDF sizes. This post is meant to be a short tip or note about how to slim down plot file sizes when you want to preserve vector graphics for some plot elements and just want to rasterize a large set of, e.g., lines or other matplotlib <code>Artist</code> objects.</p>
 <p>First, some imports:</p>
+<p class="prompt-in">Input[1]:</p>
 <pre><code class="language-python">import io
 import astropy.units as u
 import matplotlib as mpl
@@ -131,11 +132,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 </code></pre>
 <p>Imagine we have time series for 256 objects sampled at 1000 times and we want to plot all of these time series on one matplotlib plot. But, maybe we also want to plot another line on top of these, and we want this other line to be a vector object. For demonstration, let&rsquo;s just generate some fake data with the correct shapes:</p>
+<p class="prompt-in">Input[2]:</p>
 <pre><code class="language-python">data = np.random.normal(np.random.uniform(-10, 10, size=256), size=(1000, 256))
 
 other_line = np.random.uniform(size=1000)
 </code></pre>
 <p>To plot this, we could either loop over the objects and plot them one by one, or construct a 2D array and plot them all in one go. Here, we&rsquo;ll use the 2D array we made above to plot them all in one go. If we save this plot as a PDF, it will be large, and any renderer will draw the lines one-by-one as vector objects:</p>
+<p class="prompt-in">Input[3]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots()
 ax.plot(data, marker=&quot;&quot;, linewidth=1.0, alpha=0.5)
 ax.plot(other_line, marker=&quot;&quot;, color=&quot;k&quot;)
@@ -146,10 +149,12 @@ with io.BytesIO() as buffer:
     filesize = (buffer.getbuffer().nbytes * u.byte).to(u.megabyte)
     print(filesize)
 </code></pre>
-<pre><code class="language-output">2.019754 Mbyte
-</code></pre>
+<p class="prompt-out">Output[3]:</p>```output
+2.019754 Mbyte
+```
 <p><img src="output_5_1.png" alt="png"></p>
 <p>One way I often think to get around this is to use the <code>rasterized=True</code> keyword, but this can sometimes lead to unexpected behavior. For example, here, because each line is given its own layer and rasterized separately, using <code>rasterized=True</code> actually <em>increases</em> the file size:</p>
+<p class="prompt-in">Input[4]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots()
 ax.plot(data, marker=&quot;&quot;, linewidth=1.0, alpha=0.5, rasterized=True)
 ax.plot(other_line, marker=&quot;&quot;, color=&quot;k&quot;)
@@ -160,10 +165,12 @@ with io.BytesIO() as buffer:
     filesize = (buffer.getbuffer().nbytes * u.byte).to(u.megabyte)
     print(filesize)
 </code></pre>
-<pre><code class="language-output">1.017869 Mbyte
-</code></pre>
+<p class="prompt-out">Output[4]:</p>```output
+1.017869 Mbyte
+```
 <p><img src="output_7_1.png" alt="png"></p>
 <p>The solution I keep having to re-discover is to instead use the <code>matplotlib</code>&rsquo;s layering or <a href="https://matplotlib.org/3.1.1/gallery/misc/zorder_demo.html"><code>zorder</code> functionality</a>. If we plot all of our lines at or below a given <code>zorder</code> value, we can then tell <code>matplotlib</code> to rasterize everything below a given <code>zorder</code> value <em>together</em>. In other words, here, it would rasterize all of the lines into a single image, rather than 256 separate rasterized images. This often leads to the smallest file sizes for cases where you want to rasterize some plot data and not others:</p>
+<p class="prompt-in">Input[5]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots()
 ax.plot(data, marker=&quot;&quot;, linewidth=1.0, alpha=0.5, zorder=-10)
 ax.set_rasterization_zorder(0)
@@ -176,8 +183,9 @@ with io.BytesIO() as buffer:
     filesize = (buffer.getbuffer().nbytes * u.byte).to(u.megabyte)
     print(filesize)
 </code></pre>
-<pre><code class="language-output">0.986053 Mbyte
-</code></pre>
+<p class="prompt-out">Output[5]:</p>```output
+0.986053 Mbyte
+```
 <p><img src="output_9_1.png" alt="png"></p>
 
   </div>

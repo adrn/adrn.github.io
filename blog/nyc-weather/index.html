@@ -123,6 +123,7 @@
     <p>It&rsquo;s that time of the year in NYC: When the angle of the sunlight suggests that it should be autumn, but the foul, oozing, trash juice on your street curb enshrouding your entire block in oppressive swamp gas says otherwise. It&rsquo;s late September, and it&rsquo;s still effing hot in NYC.</p>
 <p>Every year around this time I get frustrated with the weather because I&rsquo;m ready for pants, boots, and hot beverages, but summer always seems to hold on for a bit too long (this week, during the autumnal equinox, it reached &gt;90º F). Each year this gets me thinking: Am I being impatient? Am I misremembering the past? Or have the last few years really been excessively warm in the early fall? Am I already perceiving climate change / global warming? This year, motivated by the <a href="https://www.nytimes.com/2019/09/20/nyregion/climate-strike-nyc.html">Climate Strike</a>, I decided to do more than bemoan the lingering summer, so I signed up for a developer account with <a href="https://darksky.net/dev">Dark Sky</a> and started downloading historical weather data. This blog post is a naïve astronomer&rsquo;s attempt to make sense of local weather data: You have been warned.</p>
 <p>First, a bunch of Python imports we&rsquo;ll need later&hellip;</p>
+<p class="prompt-in">Input[1]:</p>
 <pre><code class="language-python">import os
 import datetime
 import time
@@ -144,6 +145,7 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 </code></pre>
 <p>I&rsquo;ve already downloaded and cached daily weather data for NYC going back to 1968-01-01, available at the url in the cell below, so feel free to download that and skip down to &ldquo;High temperatures around the fall equinox.&rdquo; But if you&rsquo;re interested in how I downloaded the data, keep reading.</p>
+<p class="prompt-in">Input[2]:</p>
 <pre><code class="language-python">cache_file = (
     &quot;https://gist.githubusercontent.com/adrn/6455c48cb556d2f6f939c1e55b2308f8/raw/&quot;
     &quot;dedf6fd1989ab46baeab51058c788cca8aba4ca3/weather_cache_sm.csv&quot;
@@ -151,6 +153,7 @@ register_matplotlib_converters()
 </code></pre>
 <h2 id="download-and-cache-daily-weather-data">Download and cache daily weather data</h2>
 <p>Below, I&rsquo;ve written a function that takes a longitude and latitude, a date range, and a secret key for the <a href="https://darksky.net/dev">Dark Sky weather API</a> and returns a table of daily weather data.</p>
+<p class="prompt-in">Input[3]:</p>
 <pre><code class="language-python">@u.quantity_input(lon=u.degree, lat=u.degree)
 def download_daily_weather(lon, lat, start_date, end_date, secret_key, cache=None):
     &quot;&quot;&quot;Download daily weather data for the input Earth coordinates between the
@@ -242,12 +245,15 @@ def download_daily_weather(lon, lat, start_date, end_date, secret_key, cache=Non
     return tbl
 </code></pre>
 <p>We&rsquo;ll pass in the longitude and latitude of NYC, and specify that we want to cache the data to a CSV file locally (which I downloaded already from the gist above, but you may want to re-run with your own city or date range):</p>
+<p class="prompt-in">Input[4]:</p>
 <pre><code class="language-python">nyc_lonlat = [-74.0060, 40.7128] * u.deg
 cache_file = &quot;weather_cache_sm.csv&quot;
 </code></pre>
+<p class="prompt-in">Input[5]:</p>
 <pre><code class="language-python">secret_key = os.environ.get(&quot;DARKSKY_KEY&quot;, None)
 </code></pre>
 <p>We&rsquo;ll download daily weather data from the beginning of 1968 through today (as I write):</p>
+<p class="prompt-in">Input[6]:</p>
 <pre><code class="language-python">start = datetime.datetime(1959, 1, 1)
 today = datetime.datetime(2019, 9, 28)
 
@@ -256,6 +262,7 @@ data = download_daily_weather(
 )
 </code></pre>
 <p>The data table returned by my function is an astropy <code>Table</code>, but later it will be useful to have this also as a pandas <code>DataFrame</code>. Here I convert the table to a <code>DataFrame</code> and then set the index to the unique day of each row:</p>
+<p class="prompt-in">Input[7]:</p>
 <pre><code class="language-python">df = data.to_pandas()
 df[&quot;date&quot;] = pd.to_datetime(dict(year=df.year, month=df.month, day=df.day))
 df = df.set_index(&quot;date&quot;)
@@ -263,6 +270,7 @@ df = df.sort_index()
 </code></pre>
 <h2 id="high-temperatures-around-the-fall-equinox">High temperatures around the fall equinox</h2>
 <p>As a first exploration of the data we have, we&rsquo;ll start by looking at historical high temperatures in the 7 days leading up to today. We&rsquo;ll first just plot the high temperatures as a function of year:</p>
+<p class="prompt-in">Input[8]:</p>
 <pre><code class="language-python">g = df[(df.month == 9) &amp; (df.day &gt; (today.day - 7)) &amp; (df.day &lt;= today.day)]
 
 # Plot:
@@ -304,15 +312,18 @@ ax.axhline(g[&quot;temperatureHigh&quot;].mean(), zorder=-100, color=&quot;#aaaa
 
 fig.tight_layout()
 </code></pre>
+<p class="prompt-out">Output[8]:</p>
 <p><img src="output_14_0.png" alt="png"></p>
 <p>In the above plot, black points are the high temperature values for 7 days near the fall equinox for years in my chosen date range. I&rsquo;ve highlighted my &ldquo;formative years,&rdquo; when I would have had noticed the weather as a kid, and I&rsquo;ve also highlighted the last few years as &ldquo;recent memory.&rdquo; The horizontal line shows the mean high temperature over the whole date range. The fall equinox itself stands out as the balmy 90 degree day on the far right of the plot.</p>
 <p>From squinting at this plot, it does seem that high temperatures were more or less scattered around the mean during my youth, possibly even biased a bit &ldquo;cool,&rdquo; whereas the last few years seem to have been quite warm. The mean seems to have shifted to hotter temperatures. The lower envelope of the high temperatures also seems to be warmer in recent years. So I&rsquo;m going to interpret this as justifying my impatience with the late arrival of fall weather: It has been much warmer lately in early fall as compared to my childhood years!</p>
 <p>Now that we have this data cached, we can obviously look at a lot of other things. Just for some other fun, I&rsquo;ll make a few more visualizations of the data below.</p>
 <h2 id="yearly-temperature-trends">Yearly temperature trends:</h2>
 <p>Another thing we can look at is how this year so far compares to historical weather data in terms of high and low temperatures. For example, we can compute daily temperature range percentiles and then see how this year compares to different percentile ranges over the course of the year:</p>
+<p class="prompt-in">Input[9]:</p>
 <pre><code class="language-python"># All weather data for this year so far:
 this_year = df[df[&quot;year&quot;] == 2019]
 </code></pre>
+<p class="prompt-in">Input[10]:</p>
 <pre><code class="language-python"># Some parameters we might want to try playing with
 smooth = 3.0  # days
 plot_year = 2024  # we need to set an arbitrary year for plotting
@@ -435,6 +446,7 @@ for ax, name, color in zip(axes, [&quot;High&quot;, &quot;Low&quot;], [&quot;tab
 fig.tight_layout()
 fig.set_facecolor(&quot;w&quot;)
 </code></pre>
+<p class="prompt-out">Output[10]:</p>
 <p><img src="output_18_0.png" alt="png"></p>
 <p>In the above, the bands roughly correspong to 1- and 2-$\sigma$ yearly temperature trends (if the daily historical distribution of temperatures were Gaussian). The solid line represents the temperature trajectory for this year.</p>
 <p>I was surprised and interested by a few observations in the above plot:</p>
@@ -443,6 +455,7 @@ fig.set_facecolor(&quot;w&quot;)
 <li>The variance in high and low temperatures (which are probably strongly correlated) is much larger in winter months than in summer months</li>
 <li>On average, or smoothed over anomalies, NYC is really not as cold in winter as my perception would believe.</li>
 </ul>
+<p class="prompt-in">Input[11]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots(1, 1, figsize=(10, 4), sharey=True)
 
 # Repeat plots for high and low temperatures:
@@ -496,11 +509,13 @@ ax.legend(loc=&quot;best&quot;)
 fig.tight_layout()
 fig.set_facecolor(&quot;w&quot;)
 </code></pre>
+<p class="prompt-out">Output[11]:</p>
 <p><img src="output_20_0.png" alt="png"></p>
 <p>The standard-deviation temperature range for high or low temperatures in winter is abot 20º F, and only about 10º F in summer.</p>
 <p>The above plots are interesting, but collapse the whole historical records into percentiles or stationary statistics. The above would therefore obfuscate any, say, trends in temperatures (cough).</p>
 <h2 id="historical-temperature-trends-by-month">Historical temperature trends by month</h2>
 <p>We can now look at how monthly mean temperatures have changed year-by-year. Let&rsquo;s bin the temperatured by month and plot the mean temperature in that month as a function of year. In each case, we&rsquo;ll try fitting a linear model to the data to see if there are any detectable long-term trends in the mean monthly high and low temperatures.</p>
+<p class="prompt-in">Input[12]:</p>
 <pre><code class="language-python"># For plotting month names:
 month_names = dict()
 month_names[1] = &quot;Jan&quot;
@@ -516,6 +531,7 @@ month_names[10] = &quot;Oct&quot;
 month_names[11] = &quot;Nov&quot;
 month_names[12] = &quot;Dec&quot;
 </code></pre>
+<p class="prompt-in">Input[13]:</p>
 <pre><code class="language-python">fig, axes = plt.subplots(1, 2, figsize=(10, 8), sharex=True)
 
 slopes = dict()
@@ -565,8 +581,10 @@ for ax, name in zip(axes, [&quot;High&quot;, &quot;Low&quot;]):
 
 fig.tight_layout()
 </code></pre>
+<p class="prompt-out">Output[13]:</p>
 <p><img src="output_24_0.png" alt="png"></p>
 <p>In the above, the dashed line shows the mean of the first decade, projected across the full range of years. Visually, any signals are definitely subtle. However, especially in the winter months like December, there does seem to be a slight warming trend over time (the solid line appears above the extrapolated early mean). We can look at this quantitatively using the measured slopes of these temperature sequences: If there were no significant trends, I would expect the slopes to be distributed around 0 with some scatter.</p>
+<p class="prompt-in">Input[14]:</p>
 <pre><code class="language-python">fig, axes = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=True)
 
 for ax, name in zip(axes, [&quot;High&quot;, &quot;Low&quot;]):
@@ -580,10 +598,12 @@ fig.tight_layout()
 fig.subplots_adjust(bottom=0.2)
 fig.text(0.5, 0.04, r&quot;slope $[{\rm deg}~{\rm decade}^{-1}]$&quot;, ha=&quot;center&quot;, fontsize=24)
 </code></pre>
+<p class="prompt-out">Output[14]:</p>
 <pre><code class="language-output">Text(0.5, 0.04, 'slope $[{\\rm deg}~{\\rm decade}^{-1}]$')
 </code></pre>
 <p><img src="output_26_1.png" alt="png"></p>
 <p>Instead, the slopes for each month are biased towards positive values for both high and low temperatures. We can also plot the slope as a function of month:</p>
+<p class="prompt-in">Input[15]:</p>
 <pre><code class="language-python">fig, axes = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=True)
 
 for ax, name in zip(axes, [&quot;High&quot;, &quot;Low&quot;]):
@@ -601,6 +621,7 @@ axes[0].set_ylabel(r&quot;slope $[{\rm deg}~{\rm decade}^{-1}]$&quot;, fontsize=
 
 fig.tight_layout()
 </code></pre>
+<p class="prompt-out">Output[15]:</p>
 <p><img src="output_28_0.png" alt="png"></p>
 <p>It seems like winter months show a much larger warming signal, but all months show a positive long-term temperature trend.</p>
 <h2 id="conclusion">Conclusion</h2>
@@ -608,6 +629,7 @@ fig.tight_layout()
 <hr>
 <h2 id="bonus-disappointing-plot">Bonus disappointing plot</h2>
 <p>I was hoping this would look more stunning, but here&rsquo;s a 2D visualization of temperature difference relative to the mean yearly remperature trend:</p>
+<p class="prompt-in">Input[16]:</p>
 <pre><code class="language-python">unq_years = sorted(np.unique(df[&quot;year&quot;]))
 low_temp_2d = np.full((365, len(unq_years)), np.nan)
 high_temp_2d = np.full((365, len(unq_years)), np.nan)
@@ -622,6 +644,7 @@ for i, year in enumerate(unq_years):
 xe = np.concatenate((unq_years, [2020]))  # years
 ye = np.arange(0, 365 + 1)  # day of year
 </code></pre>
+<p class="prompt-in">Input[17]:</p>
 <pre><code class="language-python">fig, axes = plt.subplots(
     1, 2, figsize=(14, 6), sharex=True, sharey=True, constrained_layout=True
 )
@@ -649,6 +672,7 @@ axes[0].set_ylabel(&quot;day of year&quot;)
 cb = fig.colorbar(im, ax=axes, aspect=40)
 cb.set_label(&quot;temp. difference from 1959 decade mean\n[deg F]&quot;)
 </code></pre>
+<p class="prompt-out">Output[17]:</p>
 <p><img src="output_32_0.png" alt="png"></p>
 
   </div>

@@ -130,6 +130,7 @@ etc.), e.g.:</p>
 <p>My first thought was: can we make those plots with Astropy? This post shows one
 way to make figures like this in Python using <a href="http://www.astropy.org">Astropy</a>
 and <a href="http://www.matplotlib.org">Matplotlib</a>.</p>
+<p class="prompt-in">Input[1]:</p>
 <pre><code class="language-python">from datetime import datetime
 
 # Third-party
@@ -148,26 +149,33 @@ import pytz
 development version of Astropy that uses the Google maps API to allow you to get an
 <a href="http://docs.astropy.org/en/latest/api/astropy.coordinates.EarthLocation.html">EarthLocation</a>
 object given any arbitrary address. For example, a fully-specified street address:</p>
+<p class="prompt-in">Input[2]:</p>
 <pre><code class="language-python">loc = coord.EarthLocation.of_address(&quot;1002 Holy Grail Court, St. Louis, MO&quot;)
 loc.lon, loc.lat
 </code></pre>
+<p class="prompt-out">Output[2]:</p>
 <pre><code class="language-output">(&lt;Longitude -90.30694082 deg&gt;, &lt;Latitude 38.51432306 deg&gt;)
 </code></pre>
 <p>A city name:</p>
+<p class="prompt-in">Input[3]:</p>
 <pre><code class="language-python">loc = coord.EarthLocation.of_address(&quot;Parrot, ME&quot;)
 loc.lon, loc.lat
 </code></pre>
+<p class="prompt-out">Output[3]:</p>
 <pre><code class="language-output">(&lt;Longitude -69.5539404 deg&gt;, &lt;Latitude 45.2550505 deg&gt;)
 </code></pre>
 <p>Or even a point of interest:</p>
+<p class="prompt-in">Input[4]:</p>
 <pre><code class="language-python">loc = coord.EarthLocation.of_address(&quot;Camelot Castle Hotel, Tintagel, UK&quot;)
 # (it's only a model)
 loc.lon, loc.lat
 </code></pre>
+<p class="prompt-out">Output[4]:</p>
 <pre><code class="language-output">(&lt;Longitude -4.75555277 deg&gt;, &lt;Latitude 50.6682136 deg&gt;)
 </code></pre>
 <p>We&rsquo;ll use this feature to get an <code>EarthLocation</code> (e.g., latitude and longitude) for any city we&rsquo;d like to make a sun graph for.</p>
 <p>Next we define some more objects to define the various types of twilight. The first dictionary contains the sun altitude specifications for civil, nautical, and astronomical twilight (the range or minimum to maximum sun altitude for each). The next dictionary maps the names of the various stages of sunlight to integers that are ranked with the brightness. This will be used in plotting later on.</p>
+<p class="prompt-in">Input[5]:</p>
 <pre><code class="language-python">_twil = {
     &quot;civil&quot;: [-6.0, 0] * u.degree,
     &quot;nautical&quot;: [-12.0, -6] * u.degree,
@@ -184,6 +192,7 @@ _twil_name_map = {&quot;day&quot;: 0, &quot;civil&quot;: 1, &quot;nautical&quot;
 <li><code>start</code> is specified and <code>day_grid</code> is not specified: if the start datetime is specified but the grid of days isn&rsquo;t, it uses a grid of 1 year with a spacing of 1 day.</li>
 <li><code>start</code> is not specified but <code>day_grid</code> is specified: assumes the start is January 1 of the current year.</li>
 </ul>
+<p class="prompt-in">Input[6]:</p>
 <pre><code class="language-python">def sun_info_plot1(
     earth_location, tz, start=None, day_grid=None, n_hour_grid=512, fig=None
 ):
@@ -211,6 +220,7 @@ _twil_name_map = {&quot;day&quot;: 0, &quot;civil&quot;: 1, &quot;nautical&quot;
 </code></pre>
 <p>Now we will loop through the days for which we will compute the solar properties, convert the local times to UTC, get the sun&rsquo;s position throughout the day and use our definitions of twilight to figure out at what times the conditions are met. We start by defining a 2D array: the 0th axis represents the grid of days throughout the year, and the 1st axis represents a grid of hours throughout each day when we will compute the solar properties.</p>
 <p>We now loop over each day in the year. For each day, we generate a grid of hours and convert these local times to UTC times. We then use <a href="http://docs.astropy.org/en/latest/api/astropy.coordinates.get_sun.html#astropy.coordinates.get_sun"><code>astropy.coordinates.get_sun</code></a> to get the position of the sun at each of these times, and transform these positions to the Altitude-Azimuth system using the input location on the Earth. Solar noon and midnight are computed as extrema of the altitude. For each type of twilight, we record the times at which the twilight constraints (defined above) are met by storing an integer in the 2D array <code>twil_grid</code> (0 corresponding to daytime, 1 for civil twilight, 2 for nautical twilight, etc. as defined above). Finally, when the sun is below -18º, we set it to night time.</p>
+<p class="prompt-in">Input[7]:</p>
 <pre><code class="language-python">def sun_info_plot2(
     earth_location, tz, start=None, day_grid=None, n_hour_grid=512, fig=None
 ):
@@ -252,6 +262,7 @@ _twil_name_map = {&quot;day&quot;: 0, &quot;civil&quot;: 1, &quot;nautical&quot;
     solar_midnight = u.Quantity(_solar_midnight)
 </code></pre>
 <p>The final block of code actually generates the plot using <code>matplotlib</code>. This part is actually pretty easy because of how we set up the 2D array <code>twil_grid</code>. In anticipation of making the plot using <a href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.imshow"><code>matplotlib.pyplot.imshow</code></a>, we filled <code>twil_grid</code> so that the values at each position in the array represent the brightness using our map from twilight name to an integer value. <code>imshow</code> then uses a colormap to turn these different numbers into different colors. The rest of the code is just to fancify various aspects of the plot.</p>
+<p class="prompt-in">Input[8]:</p>
 <pre><code class="language-python">def sun_info_plot3(
     earth_location, tz, start=None, day_grid=None, n_hour_grid=512, fig=None
 ):
@@ -309,6 +320,7 @@ _twil_name_map = {&quot;day&quot;: 0, &quot;civil&quot;: 1, &quot;nautical&quot;
 </code></pre>
 <p><a name="full-plot-function"></a></p>
 <p>Finally, the function in its entirety:</p>
+<p class="prompt-in">Input[9]:</p>
 <pre><code class="language-python">def sun_info_plot(
     earth_location, tz, start=None, day_grid=None, n_hour_grid=512, fig=None
 ):
@@ -441,26 +453,32 @@ _twil_name_map = {&quot;day&quot;: 0, &quot;civil&quot;: 1, &quot;nautical&quot;
     return fig
 </code></pre>
 <p>Now let&rsquo;s try this out on a few locations!</p>
+<p class="prompt-in">Input[10]:</p>
 <pre><code class="language-python">address = &quot;Baltimore, MD&quot;
 loc = coord.EarthLocation.of_address(address)
 tz = pytz.timezone(&quot;US/Eastern&quot;)
 fig = sun_info_plot(loc, tz)
 _ = fig.suptitle(address, fontsize=24, y=1.02)
 </code></pre>
+<p class="prompt-out">Output[10]:</p>
 <p><img src="output_21_0.png" alt="png"></p>
+<p class="prompt-in">Input[11]:</p>
 <pre><code class="language-python">address = &quot;Trondheim, Norway&quot;
 loc = coord.EarthLocation.of_address(address)
 tz = pytz.timezone(&quot;Europe/Oslo&quot;)
 fig = sun_info_plot(loc, tz)
 _ = fig.suptitle(address, fontsize=24, y=1.02)
 </code></pre>
+<p class="prompt-out">Output[11]:</p>
 <p><img src="output_22_0.png" alt="png"></p>
+<p class="prompt-in">Input[12]:</p>
 <pre><code class="language-python">address = &quot;Antarctica&quot;
 loc = coord.EarthLocation.of_address(address)
 tz = pytz.timezone(&quot;Antarctica/McMurdo&quot;)
 fig = sun_info_plot(loc, tz)
 _ = fig.suptitle(address, fontsize=24, y=1.02);
 </code></pre>
+<p class="prompt-out">Output[12]:</p>
 <p><img src="output_23_0.png" alt="png"></p>
 
   </div>

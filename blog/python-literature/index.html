@@ -120,7 +120,8 @@
       
     </p>
 
-    <pre><code class="language-python">import datetime
+    <p class="prompt-in">Input[1]:</p>
+<pre><code class="language-python">import datetime
 import itertools
 from os import path
 import time
@@ -141,6 +142,7 @@ from tqdm import tqdm
 <li>Matlab</li>
 </ul>
 <p>We&rsquo;re going to construct a bunch of queries to get the number of articles that reference these terms per month since early 1991 (Python was released in February 1991). Let&rsquo;s first define a grid of year-month combinations to query on:</p>
+<p class="prompt-in">Input[2]:</p>
 <pre><code class="language-python"># Python was created: 20 February 1991
 years = range(1991, 2018 + 1, 1)
 months = range(1, 12 + 1, 1)
@@ -156,10 +158,12 @@ ndates = len(dates)
 print(f&quot;{ndates} queries to ADS in total&quot;)
 print(dates[0], dates[-1])
 </code></pre>
-<pre><code class="language-output">325 queries to ADS in total
+<p class="prompt-out">Output[2]:</p>```output
+325 queries to ADS in total
 (1991, 2) (2018, 2)
-</code></pre>
-<p>So for each term, we will do 325 queries (!) to get the number of articles that mention the term for each month from Feb. 1991 to Feb. 2018. We won&rsquo;t want to repeat these queries (we&rsquo;ll start to hit rate limit issues for querying ADS), so I&rsquo;ll define a function that caches the results and returns the cached data if available. We&rsquo;ll collect the date-count information into a Pandas <code>DataFrame</code> and cache to disk as a CSV file:</p>
+```
+So for each term, we will do 325 queries (!) to get the number of articles that mention the term for each month from Feb. 1991 to Feb. 2018. We won't want to repeat these queries (we'll start to hit rate limit issues for querying ADS), so I'll define a function that caches the results and returns the cached data if available. We'll collect the date-count information into a Pandas `DataFrame` and cache to disk as a CSV file:
+<p class="prompt-in">Input[3]:</p>
 <pre><code class="language-python">def get_df(term, db, dates, overwrite=False, sleep=0.1):
     cache_file = &quot;{0}_{1}.csv&quot;.format(term, db)
     ndates = len(dates)
@@ -200,40 +204,50 @@ print(dates[0], dates[-1])
 
     return df
 </code></pre>
+<p class="prompt-in">Input[4]:</p>
 <pre><code class="language-python">py_astro = get_df(&quot;python&quot;, &quot;astronomy&quot;, dates)
 </code></pre>
-<pre><code class="language-output">325it [01:31,  3.57it/s]
+<p class="prompt-out">Output[4]:</p>```output
+325it [01:31,  3.57it/s]
 ``````output
 4425 queries remaining
 ``````output
+<pre><code>&lt;p class=&quot;prompt-in&quot;&gt;Input[5]:&lt;/p&gt;
 
+```python
+astropy_astro = get_df(&quot;astropy&quot;, &quot;astronomy&quot;, dates)
 </code></pre>
-<pre><code class="language-python">astropy_astro = get_df(&quot;astropy&quot;, &quot;astronomy&quot;, dates)
-</code></pre>
-<pre><code class="language-output">325it [01:10,  4.62it/s]
+<p class="prompt-out">Output[5]:</p>```output
+325it [01:10,  4.62it/s]
 ``````output
 4100 queries remaining
 ``````output
+<pre><code>&lt;p class=&quot;prompt-in&quot;&gt;Input[6]:&lt;/p&gt;
 
+```python
+idl_astro = get_df(&quot;idl&quot;, &quot;astronomy&quot;, dates)
 </code></pre>
-<pre><code class="language-python">idl_astro = get_df(&quot;idl&quot;, &quot;astronomy&quot;, dates)
-</code></pre>
-<pre><code class="language-output">325it [01:39,  3.28it/s]
+<p class="prompt-out">Output[6]:</p>```output
+325it [01:39,  3.28it/s]
 ``````output
 3775 queries remaining
 ``````output
+<pre><code>&lt;p class=&quot;prompt-in&quot;&gt;Input[7]:&lt;/p&gt;
 
+```python
+matlab_astro = get_df(&quot;matlab&quot;, &quot;astronomy&quot;, dates)
 </code></pre>
-<pre><code class="language-python">matlab_astro = get_df(&quot;matlab&quot;, &quot;astronomy&quot;, dates)
-</code></pre>
-<pre><code class="language-output">325it [01:19,  4.09it/s]
+<p class="prompt-out">Output[7]:</p>```output
+325it [01:19,  4.09it/s]
 ``````output
 3450 queries remaining
 ``````output
+<pre><code>Let's first look at the popularity of these terms by year:
 
-</code></pre>
-<p>Let&rsquo;s first look at the popularity of these terms by year:</p>
-<pre><code class="language-python">dfs = [py_astro, astropy_astro, idl_astro, matlab_astro]
+&lt;p class=&quot;prompt-in&quot;&gt;Input[8]:&lt;/p&gt;
+
+```python
+dfs = [py_astro, astropy_astro, idl_astro, matlab_astro]
 labels = ['&quot;python&quot;', '&quot;astropy&quot;', '&quot;IDL&quot;', '&quot;Matlab&quot;']
 styles = [
     dict(lw=2),
@@ -269,8 +283,10 @@ ax.set_title(&quot;mentions in the astronomical literature&quot;)
 
 fig.tight_layout()
 </code></pre>
+<p class="prompt-out">Output[8]:</p>
 <p><img src="output_10_0.png" alt="png"></p>
 <p>We can also look at smaller-scale behavior, since we have the data on a monthly basis. The next plot shows the number of &ldquo;Python&rdquo; mentions per month vs. time, with vertical lines over-plotted for past <a href="http://www.adass.org/">ADASS</a> and SPIE instrumentation meetings:</p>
+<p class="prompt-in">Input[9]:</p>
 <pre><code class="language-python">adass = [
     (1991, 11, 6),
     (1992, 11, 2),
@@ -303,6 +319,7 @@ fig.tight_layout()
 
 spie = [(2012, 8, 1), (2014, 6, 1), (2016, 6, 1)]
 </code></pre>
+<p class="prompt-in">Input[10]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots(1, 1, figsize=(12, 6))
 
 ax.plot(
@@ -358,6 +375,7 @@ fig.set_facecolor(&quot;w&quot;)
 
 fig.tight_layout()
 </code></pre>
+<p class="prompt-out">Output[10]:</p>
 <p><img src="output_13_0.png" alt="png"></p>
 <p>The conference proceedings for both ADASS and SPIE show up as spikes in the number of articles that mention Python! But in recent times (&gt;2014) those signals are becoming increasingly swamped by normal journal articles.</p>
 

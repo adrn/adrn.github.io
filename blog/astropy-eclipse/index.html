@@ -120,7 +120,8 @@
       
     </p>
 
-    <pre><code class="language-python">from datetime import datetime
+    <p class="prompt-in">Input[1]:</p>
+<pre><code class="language-python">from datetime import datetime
 
 import astropy.coordinates as coord
 from astropy.time import Time
@@ -136,6 +137,7 @@ from matplotlib.dates import HourLocator, MinuteLocator, DateFormatter
 import matplotlib.animation as animation
 import matplotlib as mpl
 </code></pre>
+<p class="prompt-in">Input[2]:</p>
 <pre><code class="language-python"># Set timezone here:
 mpl.rcParams[&quot;timezone&quot;] = &quot;US/Eastern&quot;
 
@@ -143,6 +145,7 @@ mpl.rcParams[&quot;timezone&quot;] = &quot;US/Eastern&quot;
 address = &quot;4 Ivy Lane, Princeton, NJ&quot;
 </code></pre>
 <p>Set up an array of times to get the sun and moon position during:</p>
+<p class="prompt-in">Input[3]:</p>
 <pre><code class="language-python">tz = pytz.timezone(mpl.rcParams[&quot;timezone&quot;])
 times = (
     Time(datetime(2017, 8, 21, 8, 0, 0).astimezone(pytz.UTC))
@@ -151,27 +154,33 @@ times = (
 dt = times.to_datetime(tz)
 </code></pre>
 <p>Get objects representing your location on Earth, the moon&rsquo;s position, the sun&rsquo;s position</p>
+<p class="prompt-in">Input[4]:</p>
 <pre><code class="language-python">loc = coord.EarthLocation.of_address(address)
 moon = coord.get_moon(times)
 sun = coord.get_sun(times)
 </code></pre>
 <p>Transform to Altitude-Azimuth coordinates at the specified location:</p>
+<p class="prompt-in">Input[5]:</p>
 <pre><code class="language-python">alt_az = coord.AltAz(obstime=times, location=loc)
 moon_aa = moon.transform_to(alt_az)
 sun_aa = sun.transform_to(alt_az)
 </code></pre>
+<p class="prompt-in">Input[6]:</p>
 <pre><code class="language-python">plt.plot(moon_aa.az, moon_aa.alt, marker=&quot;None&quot;, linestyle=&quot;-&quot;, label=&quot;moon&quot;)
 plt.plot(sun_aa.az, sun_aa.alt, marker=&quot;None&quot;, linestyle=&quot;-&quot;, label=&quot;sun&quot;)
 plt.xlabel(&quot;Azimuth [deg]&quot;)
 plt.ylabel(&quot;Altitude [deg]&quot;)
 plt.legend()
 </code></pre>
+<p class="prompt-out">Output[6]:</p>
 <pre><code class="language-output">&lt;matplotlib.legend.Legend at 0x7fb04934d5d0&gt;
 </code></pre>
 <p><img src="output_8_1.png" alt="png"></p>
 <p>Compute the separation between the moon and the sun. Plot the separation around the time of minimum:</p>
+<p class="prompt-in">Input[7]:</p>
 <pre><code class="language-python">sun_moon_sep = moon_aa.separation(sun_aa)
 </code></pre>
+<p class="prompt-in">Input[8]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots(1, 1, figsize=(10, 6))
 
 ax.plot(dt, sun_moon_sep.to(u.arcmin), marker=&quot;None&quot;)
@@ -192,10 +201,12 @@ ax.set_ylim(0, 30)
 ax.set_xlabel(f&quot;Local time [{dt[0]:%Z}]&quot;)
 ax.set_ylabel(&quot;Sun–Moon separation [arcmin]&quot;)
 </code></pre>
+<p class="prompt-out">Output[8]:</p>
 <pre><code class="language-output">Text(0, 0.5, 'Sun–Moon separation [arcmin]')
 </code></pre>
 <p><img src="output_11_1.png" alt="png"></p>
 <p>Now we&rsquo;ll make an animation of the eclipse, centered on the Sun&rsquo;s position first:</p>
+<p class="prompt-in">Input[9]:</p>
 <pre><code class="language-python">i0 = max(sun_moon_sep.argmin() - 128, 0)
 i1 = min(sun_moon_sep.argmin() + 128, len(dt) - 1)
 
@@ -241,9 +252,12 @@ ani = animation.FuncAnimation(
     fig, animate, np.arange(i0, i1), init_func=init, interval=25, blit=True
 )
 </code></pre>
+<p class="prompt-out">Output[9]:</p>
 <p><img src="output_13_0.png" alt="png"></p>
+<p class="prompt-in">Input[10]:</p>
 <pre><code class="language-python">HTML(ani.to_html5_video())
 </code></pre>
+<p class="prompt-out">Output[10]:</p>
 <video width="600" height="600" controls autoplay loop>
   <source type="video/mp4" src="data:video/mp4;base64,AAAAIGZ0eXBNNFYgAAACAE00ViBpc29taXNvMmF2YzEAAAAIZnJlZQADguZtZGF0AAACrgYF//+q
 3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NCByMzA5NCBiZmM4N2I3IC0gSC4yNjQvTVBF
@@ -4342,6 +4356,7 @@ TGF2ZjU5LjE2LjEwMA==
 ">
   Your browser does not support the video tag.
 </video>
+<p class="prompt-in">Input[11]:</p>
 <pre><code class="language-python">fig2, ax = plt.subplots(1, 1, figsize=(12, 4.8))
 
 x = np.arange(0, 2 * np.pi, 0.01)
@@ -4380,11 +4395,14 @@ ani2 = animation.FuncAnimation(
 
 ani2
 </code></pre>
+<p class="prompt-out">Output[11]:</p>
 <pre><code class="language-output">&lt;matplotlib.animation.FuncAnimation at 0x7fb0501fd960&gt;
 </code></pre>
 <p><img src="output_15_1.png" alt="png"></p>
+<p class="prompt-in">Input[12]:</p>
 <pre><code class="language-python">HTML(ani2.to_html5_video())
 </code></pre>
+<p class="prompt-out">Output[12]:</p>
 <video width="1200" height="480" controls autoplay loop>
   <source type="video/mp4" src="data:video/mp4;base64,AAAAIGZ0eXBNNFYgAAACAE00ViBpc29taXNvMmF2YzEAAAAIZnJlZQAASfdtZGF0AAACrgYF//+q
 3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NCByMzA5NCBiZmM4N2I3IC0gSC4yNjQvTVBF

@@ -129,6 +129,7 @@ invisible, (2) save the video using a png codec (yes, the image format), and (3)
 to pass keyword arguments through the animation object to the individual
 Matplotlib <code>savefig</code> calls. I&rsquo;ll show a simple example below of a circle
 orbiting in a circle with a trail of points that fade out. First, some imports:</p>
+<p class="prompt-in">Input[1]:</p>
 <pre><code class="language-python"># Third-party
 from matplotlib import animation
 import matplotlib.pyplot as plt
@@ -139,15 +140,18 @@ from IPython.display import HTML
 </code></pre>
 <p>We start by defining how many frames (timesteps) to use in the animation, and
 how many circles to draw in the trail:</p>
+<p class="prompt-in">Input[2]:</p>
 <pre><code class="language-python">n_frames = 128
 n_trails = 8
 </code></pre>
 <p>The circle will orbit in a circle:</p>
+<p class="prompt-in">Input[3]:</p>
 <pre><code class="language-python">t = np.linspace(0, 10, n_frames)
 x = np.sin(t)
 y = np.cos(t)
 </code></pre>
 <p>Finally, the meat of the code containing the calls to Matplotlib:</p>
+<p class="prompt-in">Input[4]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots(1, 1, figsize=(8, 8))
 
 ax.set_xlim(-1.1, 1.1)
@@ -196,6 +200,7 @@ ani = animation.FuncAnimation(
 )
 HTML(ani.to_html5_video())
 </code></pre>
+<p class="prompt-out">Output[4]:</p>
 <video width="800" height="800" controls autoplay loop>
   <source type="video/mp4" src="data:video/mp4;base64,AAAAIGZ0eXBNNFYgAAACAE00ViBpc29taXNvMmF2YzEAAAAIZnJlZQAAWwJtZGF0AAACrgYF//+q
 3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NCByMzA5NCBiZmM4N2I3IC0gSC4yNjQvTVBF
@@ -657,6 +662,7 @@ ax.set_frame_on(False)
 <p>To save the video out with a transparent background, the other critical
 arguments are to the <code>save()</code> call, especially the keyword arguments passed
 through via <code>savefig_kwargs</code>:</p>
+<p class="prompt-in">Input[5]:</p>
 <pre><code class="language-python">ani.save(
     &quot;circle_anim.mov&quot;,
     codec=&quot;png&quot;,

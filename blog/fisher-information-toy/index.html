@@ -130,12 +130,14 @@ Conceptually, it is a matrix that tells us how much information the data $D$ con
 <p>I think of it as a result of a Taylor expansion of the likelihood function around the maximum likelihood parameter values. It is related to the curvature of the likelihood function around its maximum (because second derivatives are involves). It is not a fundamental object that is universally interpretable or meaningful. For example, if a model is a bad representation of data, or if the likelihood surface is extremely structured or multi-modal (i.e. cases where a Taylor expansion to low order is a bad representation of a function), then the Fisher information does not really summarize any useful properties of the data or model.</p>
 <h1 id="example-fitting-a-line-to-data">Example: Fitting a line to data</h1>
 <p>As an example of how to compute this thing, let&rsquo;s use the ever-loved example of <a href="https://adrian.pw/blog/fitting-a-line/">fitting a straight line to data</a> $y$ at positions $x$ with uncertainties $\sigma_y$ only on the data $y$. Let&rsquo;s generate some fake data to work with:</p>
+<p class="prompt-in">Input[1]:</p>
 <pre><code class="language-python">import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
 %matplotlib inline
 </code></pre>
+<p class="prompt-in">Input[2]:</p>
 <pre><code class="language-python">ndata = 8
 rng = np.random.default_rng(42)
 true_pars = rng.normal(0, 2.0, size=2)
@@ -144,10 +146,12 @@ x = np.sort(rng.uniform(0, 10, ndata))
 yerr = 10 ** rng.uniform(-1, 0, ndata)
 y = rng.normal(true_pars[0] * x + true_pars[1], yerr)
 </code></pre>
+<p class="prompt-in">Input[3]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots()
 ax.errorbar(x, y, yerr, marker=&quot;o&quot;, ls=&quot;none&quot;)
 ax.set(xlabel=&quot;x&quot;, ylabel=&quot;y&quot;)
 </code></pre>
+<p class="prompt-out">Output[3]:</p>
 <pre><code class="language-output">[Text(0.5, 0, 'x'), Text(0, 0.5, 'y')]
 </code></pre>
 <p><img src="output_3_1.png" alt="png"></p>
@@ -210,35 +214,46 @@ x_i & 1
 \end{pmatrix}
 $$</div>
 <p>This is an interesting (but simple) result: the Fisher information here does not even contain the model parameter values! That is because our model $f$ is <em>linear</em> in the model parameters and our likelihood is Gaussian, so the curvature is a constant. Let&rsquo;s look at how to compute this given our toy data above.</p>
+<p class="prompt-in">Input[4]:</p>
 <pre><code class="language-python"># This is the matrix component of the Fisher information from above
 M = np.array([[x**2, x], [x, np.ones_like(x)]])
 M.shape
 </code></pre>
+<p class="prompt-out">Output[4]:</p>
 <pre><code class="language-output">(2, 2, 8)
 </code></pre>
+<p class="prompt-in">Input[5]:</p>
 <pre><code class="language-python">F = np.sum(1 / yerr**2 * M, axis=-1)
 F.shape
 </code></pre>
+<p class="prompt-out">Output[5]:</p>
 <pre><code class="language-output">(2, 2)
 </code></pre>
+<p class="prompt-in">Input[6]:</p>
 <pre><code class="language-python">F
 </code></pre>
+<p class="prompt-out">Output[6]:</p>
 <pre><code class="language-output">array([[10822.60583843,  1226.64589812],
        [ 1226.64589812,   157.35632654]])
 </code></pre>
 <p>OK so we&rsquo;ve computed the Fisher information! &hellip;So what? It turns out that the inverse of the Fisher information matrix is a useful matrix itself: it is the covariance matrix of the maximum likelihood parameter estimates. This is a useful property because it tells us the expected precision of our parameter estimates given the data we have. If the Fisher information is large, then the parameter uncertainties (i.e. the inverses) are small, so the parameters are well-constrained by the data. Let&rsquo;s look at the inverse of the Fisher information matrix for our toy data above:</p>
+<p class="prompt-in">Input[7]:</p>
 <pre><code class="language-python">Finv = np.linalg.inv(F)
 Finv
 </code></pre>
+<p class="prompt-out">Output[7]:</p>
 <pre><code class="language-output">array([[ 0.00079335, -0.00618439],
        [-0.00618439,  0.05456446]])
 </code></pre>
 <p>If we ignore the covariances (i.e. the off-diagonal terms), this tells us the expected errors we would get on the parameter values if we fit the data with a straight line. The diagonal terms are the variances of the parameter estimates, and the square roots of these are the expected standard deviations of the parameter estimates:</p>
+<p class="prompt-in">Input[8]:</p>
 <pre><code class="language-python">np.sqrt(np.diag(Finv))
 </code></pre>
+<p class="prompt-out">Output[8]:</p>
 <pre><code class="language-output">array([0.02816638, 0.23359036])
 </code></pre>
 <p>Let&rsquo;s now do a maximum likelihood fit using least-squares algebra and compare the results to the Fisher information matrix. With least-squares:</p>
+<p class="prompt-in">Input[9]:</p>
 <pre><code class="language-python"># Design matrix:
 A = np.stack((x, np.ones_like(x)), axis=-1)
 
@@ -246,15 +261,19 @@ A = np.stack((x, np.ones_like(x)), axis=-1)
 Cinv = np.diag(1 / yerr**2)
 </code></pre>
 <p>Here is the standard matrix algebra for computing the maximum likelihood parameter estimates for a linear model (<code>mle_pars</code> below). In this case, the covariance matrix of the parameter estimates, $P$, is the inverse of the Fisher information matrix! (BTW, as an aside, it&rsquo;s generally bad to construct the data covariance matrix this way and to do the matrix inverse explicitly here — a better way is to use, e.g., <code>numpy.linalg.leastsq</code> or <code>numpy.linalg.solve</code>)</p>
+<p class="prompt-in">Input[10]:</p>
 <pre><code class="language-python">P = np.linalg.inv(A.T @ Cinv @ A)
 mle_pars = P @ A.T @ Cinv @ y
 mle_pars
 </code></pre>
+<p class="prompt-out">Output[10]:</p>
 <pre><code class="language-output">array([ 0.58499692, -1.87999557])
 </code></pre>
+<p class="prompt-in">Input[11]:</p>
 <pre><code class="language-python"># Note that these are the same values as sqrt(diag(Finv))!
 np.sqrt(np.diag(P))
 </code></pre>
+<p class="prompt-out">Output[11]:</p>
 <pre><code class="language-output">array([0.02816638, 0.23359036])
 </code></pre>
 <h1 id="example-multi-dimensional-and-nonlinear-but-still-gaussian-models">Example: Multi-dimensional and nonlinear (but still Gaussian) models</h1>
@@ -285,6 +304,7 @@ This is the quantity you might see in, for example, [Bonaca & Hogg 2018](https:/
     \end{pmatrix}
 $$</div>
 <p>We again generate some toy data to play with (and yes I&rsquo;m being naughty by using the same variable names as above):</p>
+<p class="prompt-in">Input[12]:</p>
 <pre><code class="language-python">ndata = 16
 rng = np.random.default_rng(8675309)
 true_pars = np.abs(rng.normal(0, 2.0, size=3))
@@ -307,8 +327,10 @@ Cinv = np.stack([np.diag(1 / yerr[i] ** 2) for i in range(ndata)], axis=0)
 data = {&quot;x&quot;: x, &quot;y&quot;: y, &quot;Cinv&quot;: Cinv, &quot;yerr&quot;: yerr}
 data[&quot;Cinv&quot;].shape, data[&quot;y&quot;].shape
 </code></pre>
+<p class="prompt-out">Output[12]:</p>
 <pre><code class="language-output">((16, 2, 2), (16, 2))
 </code></pre>
+<p class="prompt-in">Input[13]:</p>
 <pre><code class="language-python">fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 
 for i in range(2):
@@ -317,13 +339,16 @@ for i in range(2):
     )
     axes[i].set(xlabel=&quot;x&quot;, ylabel=f&quot;$y_{i+1}$&quot;)
 </code></pre>
+<p class="prompt-out">Output[13]:</p>
 <p><img src="output_21_0.png" alt="png"></p>
 <p>Now let&rsquo;s implement this model in JAX so we can make use of the auto-differentiation capabilities. We&rsquo;ll again compute the Fisher information matrix and compare it to the maximum likelihood parameter estimates.</p>
+<p class="prompt-in">Input[14]:</p>
 <pre><code class="language-python">import jax
 import jax.numpy as jnp
 
 jax.config.update(&quot;jax_enable_x64&quot;, True)
 </code></pre>
+<p class="prompt-in">Input[15]:</p>
 <pre><code class="language-python">@jax.jit
 def model_f(x, pars):
     return jnp.stack(
@@ -350,25 +375,32 @@ def ln_likelihood(pars, x, y, Cinv):
     return jnp.sum(ln_likelihood_helper(pars, x, y, Cinv))
 </code></pre>
 <p>Let&rsquo;s try evaluating our log-likelihood function at the true parameters:</p>
+<p class="prompt-in">Input[16]:</p>
 <pre><code class="language-python">ln_likelihood(true_pars, x, y, Cinv)
 </code></pre>
+<p class="prompt-out">Output[16]:</p>
 <pre><code class="language-output">Array(-11.87854157, dtype=float64)
 </code></pre>
+<p class="prompt-in">Input[17]:</p>
 <pre><code class="language-python">F = -jax.hessian(ln_likelihood)(true_pars, x, y, Cinv)
 F
 </code></pre>
+<p class="prompt-out">Output[17]:</p>
 <pre><code class="language-output">Array([[ 4.25782094e+05, -0.00000000e+00, -7.83052999e+06],
        [-0.00000000e+00,  6.54218186e+03,  6.83218150e+05],
        [-7.83052999e+06,  6.83218150e+05,  6.17018283e+08]],      dtype=float64)
 </code></pre>
 <p>And once again, we can turn this into a prediction for the uncertainty on our model parameters:</p>
+<p class="prompt-in">Input[18]:</p>
 <pre><code class="language-python">Finv = np.linalg.inv(F)
 Fisher_param_uncertainties = np.sqrt(np.diag(Finv))
 Fisher_param_uncertainties
 </code></pre>
+<p class="prompt-out">Output[18]:</p>
 <pre><code class="language-output">array([1.78625210e-03, 1.34166769e-02, 4.98967477e-05])
 </code></pre>
 <p>In this case, because our model is nonlinear, we can&rsquo;t use the least-squares expressions above to analytically compute the maximum likelihood parameter estimates and precisions. Instead, we will specify a prior and use MCMC to generate samples from the posterior distribution. We can then compare the covariance matrix of the samples to the inverse of the Fisher information matrix (or just the diagonal terms, the parameter uncertainties).</p>
+<p class="prompt-in">Input[19]:</p>
 <pre><code class="language-python">@jax.jit
 def ln_prior(pars):
     lp = 0.0
@@ -388,6 +420,7 @@ def ln_prior(pars):
 def ln_posterior(pars, x, y, Cinv):
     return ln_likelihood(pars, x, y, Cinv) + ln_prior(pars)
 </code></pre>
+<p class="prompt-in">Input[20]:</p>
 <pre><code class="language-python">import blackjax
 
 rng_key, warmup_key, sample_key = jax.random.split(jax.random.PRNGKey(42), 3)
@@ -397,6 +430,7 @@ func = lambda pars: ln_posterior(pars, x, y, Cinv)
 warmup = blackjax.window_adaptation(blackjax.nuts, func)
 (state, parameters), _ = warmup.run(warmup_key, init_pars, num_steps=1000)
 </code></pre>
+<p class="prompt-in">Input[21]:</p>
 <pre><code class="language-python">def inference_loop(rng_key, kernel, initial_state, num_samples):
     @jax.jit
     def one_step(state, rng_key):
@@ -408,37 +442,47 @@ warmup = blackjax.window_adaptation(blackjax.nuts, func)
 
     return states
 </code></pre>
+<p class="prompt-in">Input[22]:</p>
 <pre><code class="language-python">kernel = blackjax.nuts(func, **parameters).step
 states = inference_loop(sample_key, kernel, state, 10_000)
 
 mcmc_samples = states.position
 </code></pre>
 <p>First, let&rsquo;s look at the parameter uncertainties as estimated by MCMC:</p>
+<p class="prompt-in">Input[23]:</p>
 <pre><code class="language-python">np.std(mcmc_samples, axis=0)
 </code></pre>
+<p class="prompt-out">Output[23]:</p>
 <pre><code class="language-output">Array([1.81643774e-03, 1.36114911e-02, 4.97951817e-05], dtype=float64)
 </code></pre>
 <p>Let&rsquo;s compare that to our Fisher approach above:</p>
+<p class="prompt-in">Input[24]:</p>
 <pre><code class="language-python">Fisher_param_uncertainties
 </code></pre>
+<p class="prompt-out">Output[24]:</p>
 <pre><code class="language-output">array([1.78625210e-03, 1.34166769e-02, 4.98967477e-05])
 </code></pre>
 <p>These are very similar, as we expect!</p>
 <p>We can also look at the full covariance matrix:</p>
+<p class="prompt-in">Input[25]:</p>
 <pre><code class="language-python">np.cov(mcmc_samples.T)
 </code></pre>
+<p class="prompt-out">Output[25]:</p>
 <pre><code class="language-output">array([[ 3.29977603e-06, -4.92102682e-06,  4.80630330e-08],
        [-4.92102682e-06,  1.85291220e-04, -2.69371139e-07],
        [ 4.80630330e-08, -2.69371139e-07,  2.47980810e-09]])
 </code></pre>
+<p class="prompt-in">Input[26]:</p>
 <pre><code class="language-python">Finv
 </code></pre>
+<p class="prompt-out">Output[26]:</p>
 <pre><code class="language-output">array([[ 3.19069658e-06, -4.78172971e-06,  4.57876380e-08],
        [-4.78172971e-06,  1.80007218e-04, -2.60004737e-07],
        [ 4.57876380e-08, -2.60004737e-07,  2.48968543e-09]])
 </code></pre>
 <h1 id="example-what-if-the-likelihood-is-very-structured">Example: What if the likelihood is very structured?</h1>
 <p>In the previous examples, the Fisher information matrix was a useful summary of the data and model. But what if the likelihood is very structured or multi-modal? As mentioned above, in these cases, the Fisher information matrix does not give us much useful information. For example, let&rsquo;s consider a one-dimensional case where the data are generated from a sinusoidal model where the only unknown parameter is the frequency of the sinusoid, but we have very few observations. We&rsquo;ll generate some toy data and compute the Fisher information matrix as usual (yes I&rsquo;m using the same variable names again! Fire me&hellip;)</p>
+<p class="prompt-in">Input[27]:</p>
 <pre><code class="language-python">ndata = 3
 rng = np.random.default_rng(101)
 true_pars = jnp.array([0.19234])  # a random value, single parameter
@@ -454,8 +498,10 @@ Cinv = (1 / yerr**2).reshape(ndata, 1, 1)
 data = {&quot;x&quot;: x, &quot;y&quot;: y, &quot;Cinv&quot;: Cinv, &quot;yerr&quot;: yerr}
 data[&quot;Cinv&quot;].shape, data[&quot;y&quot;].shape
 </code></pre>
+<p class="prompt-out">Output[27]:</p>
 <pre><code class="language-output">((3, 1, 1), (3,))
 </code></pre>
+<p class="prompt-in">Input[28]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots()
 ax.errorbar(
     data[&quot;x&quot;],
@@ -466,10 +512,12 @@ ax.errorbar(
 )
 ax.set(xlabel=&quot;x&quot;, ylabel=f&quot;$y$&quot;)
 </code></pre>
+<p class="prompt-out">Output[28]:</p>
 <pre><code class="language-output">[Text(0.5, 0, 'x'), Text(0, 0.5, '$y$')]
 </code></pre>
 <p><img src="output_44_1.png" alt="png"></p>
 <p>These data are clearly not very constraining for our model parameters! In other words, these data are consistent with many different distinct values of the frequency — we therefore expect the likelihood function to be very multi-modal:</p>
+<p class="prompt-in">Input[29]:</p>
 <pre><code class="language-python">@jax.jit
 def model_f(x, pars):
     return jnp.sin(2 * jnp.pi * pars[0] * x).reshape(-1, 1)
@@ -493,6 +541,7 @@ def ln_likelihood(pars, x, y, Cinv):
 ln_likelihood_over_samples = jax.vmap(ln_likelihood, in_axes=(0, None, None, None))
 </code></pre>
 <p>We can evaluate the likelihood over a grid of (logarithmically spaced) frequencies to see this:</p>
+<p class="prompt-in">Input[30]:</p>
 <pre><code class="language-python">par_grid = 10 ** jnp.linspace(-3, 1, 65536).reshape(-1, 1)
 ll_grid = ln_likelihood_over_samples(par_grid, x, y, Cinv)
 
@@ -501,20 +550,24 @@ ax.plot(par_grid, np.exp(ll_grid - ll_grid.max()), marker=&quot;&quot;)
 ax.axvline(true_pars[0], color=&quot;tab:green&quot;, ls=&quot;--&quot;)
 ax.set(xscale=&quot;log&quot;, xlabel=&quot;frequency&quot;, ylabel=&quot;normalized likelihood&quot;)
 </code></pre>
+<p class="prompt-out">Output[30]:</p>
 <pre><code class="language-output">[None, Text(0.5, 0, 'frequency'), Text(0, 0.5, 'normalized likelihood')]
 </code></pre>
 <p><img src="output_48_1.png" alt="png"></p>
 <p>The Fisher information matrix and expected parameter variances is not going to be very informative in this case, but let&rsquo;s compute it at the true parameter values anyways:</p>
+<p class="prompt-in">Input[31]:</p>
 <pre><code class="language-python">F = -jax.hessian(ln_likelihood)(true_pars, x, y, Cinv)
 Finv = np.linalg.inv(F)
 fisher_freq_err = np.squeeze(np.sqrt(Finv))
 fisher_freq_err
 </code></pre>
+<p class="prompt-out">Output[31]:</p>
 <pre><code class="language-output">array(0.00084499)
 </code></pre>
 <p>At face value, Fisher analysis here tells us that we expect to be able to constrain our model parameter (the frequency) to a very high precision. But this is clearly not the case (based on the structure in the likelihood function)! This is because the Fisher information matrix gives us a <em>local</em> measurement: it is related to the curvature of the one mode of the likelihood function near the true parameter values.</p>
 <p>For this toy problem, optimization or even MCMC will not work well because the likelihood function is very structured. In this case, we would need to use a more sophisticated sampling method like nested sampling or just brute force rejection sampling to explore the corresponding posterior probability distribution containing this likelihood function. An example of this is below, just for fun! (and note this is basically the same problem as is solved by <a href="http://thejoker.readthedocs.io">thejoker</a> and in <a href="https://ui.adsabs.harvard.edu/abs/2017ApJ...837...20P/abstract">this paper</a>).</p>
 <p>The procedure below generates samples from a prior distribution, and rejection samples using the likelihood function, which then represent samples from the posterior distribution. We can then look at the &ldquo;true&rdquo; uncertainty of the model parameter and compare to what our Fisher analysis told us above.</p>
+<p class="prompt-in">Input[32]:</p>
 <pre><code class="language-python">nsamples = 10_000_000
 keys = jax.random.split(jax.random.PRNGKey(12345), 2)
 
@@ -524,6 +577,7 @@ prior_samples = 10 ** jax.random.uniform(
 
 uu = jax.random.uniform(keys[1], shape=(nsamples,))
 </code></pre>
+<p class="prompt-in">Input[33]:</p>
 <pre><code class="language-python">ln_likelihood_values = ln_likelihood_over_samples(
     prior_samples, data[&quot;x&quot;], data[&quot;y&quot;], data[&quot;Cinv&quot;]
 )
@@ -533,9 +587,11 @@ print(accepted_samples_mask.sum())
 
 posterior_samples = prior_samples[accepted_samples_mask]
 </code></pre>
-<pre><code class="language-output">13417
-</code></pre>
-<p>Let&rsquo;s visualize some of the posterior samples:</p>
+<p class="prompt-out">Output[33]:</p>```output
+13417
+```
+Let's visualize some of the posterior samples:
+<p class="prompt-in">Input[34]:</p>
 <pre><code class="language-python">fig, ax = plt.subplots(figsize=(10, 5))
 ax.errorbar(
     data[&quot;x&quot;],
@@ -557,8 +613,10 @@ for i in range(128):
         alpha=0.1,
     )
 </code></pre>
+<p class="prompt-out">Output[34]:</p>
 <p><img src="output_55_0.png" alt="png"></p>
 <p>We can plot the Fisher-predicted uncertainty on the frequency parameter over a zoom-in of the posterior samples in frequency to see that it really only captures the curvature of the likelihood function in the mode near the true parameter value:</p>
+<p class="prompt-in">Input[35]:</p>
 <pre><code class="language-python">plt.hist(posterior_samples[:, 0], bins=np.logspace(-1, 0, 128))
 plt.xscale(&quot;log&quot;)
 plt.xlabel(&quot;frequency&quot;)
@@ -567,6 +625,7 @@ plt.axvspan(
     true_pars[0] - fisher_freq_err, true_pars[0] + fisher_freq_err, color=&quot;tab:purple&quot;
 )
 </code></pre>
+<p class="prompt-out">Output[35]:</p>
 <pre><code class="language-output">&lt;matplotlib.patches.Rectangle at 0x7f90c8b43140&gt;
 </code></pre>
 <p><img src="output_57_1.png" alt="png"></p>

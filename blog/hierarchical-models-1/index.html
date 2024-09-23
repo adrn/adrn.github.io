@@ -123,6 +123,7 @@
     <p><em>Note: I found a small bug in pymc (with <code>TruncatedNormal</code>) while writing this notebook, so you will need to install the latest version 4.2.0 or higher in order for the examples to complete successfully. You can install this with <code>pip</code></em>:</p>
 <pre><code>pip install pymc&gt;=4.2.0
 </code></pre>
+<p class="prompt-in">Input[1]:</p>
 <pre><code class="language-python">import pathlib
 
 import astropy.coordinates as coord
@@ -150,6 +151,7 @@ $$</div>
 p(D, \theta, \alpha) = p(D | \theta) \, p(\theta | \alpha) \, p(\alpha)
 $$</div>
 <p>Note that in this case (and as is often the case), the data only depends on $\alpha$ through the relationship between $\theta$ and $\alpha$, but this is not a requirement. A graphical model for this (general) case would look like:</p>
+<p class="prompt-in">Input[2]:</p>
 <pre><code class="language-python">pgm = daft.PGM(dpi=120)
 
 pgm.add_node(&quot;data&quot;, &quot;$D$&quot;, 0, 0, observed=True)
@@ -161,8 +163,10 @@ pgm.add_edge(&quot;alpha&quot;, &quot;theta&quot;)
 
 pgm.render();
 </code></pre>
+<p class="prompt-out">Output[2]:</p>
 <p><img src="output_3_0.png" alt="png"></p>
 <p>In astronomy, you will frequently see &ldquo;population models&rdquo; of this form in which the $\theta$ variables are parameters that exist for each object in the population, and the $\alpha$ parameters are parameters of the population distribution — in these cases, using our very general terminology from above, there would be a plate around $\theta$ and $D$:</p>
+<p class="prompt-in">Input[3]:</p>
 <pre><code class="language-python">pgm = daft.PGM(dpi=120)
 
 pgm.add_node(&quot;data&quot;, &quot;$D$&quot;, 0, 0, observed=True)
@@ -176,6 +180,7 @@ pgm.add_plate([-0.5, -0.75, 1, 2.25], label=&quot;$N$ objects&quot;)
 
 pgm.render();
 </code></pre>
+<p class="prompt-out">Output[3]:</p>
 <p><img src="output_5_0.png" alt="png"></p>
 <p>There are many examples of population models like this in the literature, but to name a few that can be thought of as hierarchical population models:</p>
 <ul>
@@ -188,6 +193,7 @@ pgm.render();
 <h2 id="example-the-mean-distance-of-a-simulated-star-cluster">Example: The mean distance of a (simulated) star cluster</h2>
 <p>Returning to the example we saw at the end of the Probabilistic Graphical Model (PGM) tutorial, to recap: We are given measurements of the parallaxes (and uncertainties) for a collection of stars that we are confident are members of a star cluster, and we want to infer the mean distance to and size of the star cluster as modeled as a Gaussian.</p>
 <p>Let&rsquo;s start by generating a simulated dataset that matches this problem setup:</p>
+<p class="prompt-in">Input[4]:</p>
 <pre><code class="language-python">rng = np.random.default_rng(seed=42)
 N = 256
 
@@ -210,6 +216,7 @@ sim_data[&quot;parallax&quot;] = (
     * sim_data[&quot;parallax&quot;].unit
 )
 </code></pre>
+<p class="prompt-in">Input[5]:</p>
 <pre><code class="language-python">plt.figure(figsize=(7, 5))
 plt.errorbar(
     np.arange(len(sim_data)),
@@ -224,6 +231,7 @@ plt.title(&quot;simulated star cluster parallaxes&quot;)
 plt.xlabel(&quot;star number&quot;)
 plt.ylabel(&quot;parallax&quot;);
 </code></pre>
+<p class="prompt-out">Output[5]:</p>
 <p><img src="output_8_0.png" alt="png"></p>
 <p>We now have measurements of parallaxes $\varpi_n$ for $N=256$ stars and values of the parallax uncertainty $\sigma_{\varpi, n}$ for these stars. We would like to infer the mean distance $\mu_r$ to these stars and the intrinsic size $\sigma_r$ of the star cluster, but to do this we have to also infer the true distances $r_n$ for every star in the cluster. (For notational tidiness below, let&rsquo;s define $\boldsymbol{r} = {r_n}_N$ and $\boldsymbol{\varpi} = {\varpi_n}_N$ to represent the sets of true distances and observed parallaxes, respectively) The thing we are ultimately after in this problem setup is the <em>marginal posterior pdf</em> for $\mu_r, \sigma_r$ given the data, or, in terms of probability distributions:</p>
 <div>$$
@@ -234,6 +242,7 @@ $$</div>
 p(\mu_r, \sigma_r, \boldsymbol{r}, \boldsymbol{\varpi})
 $$</div>
 <p>How can we factorize this joint pdf to get to the marginal posterior pdf that we need? We can figure that out by writing down a PGM!</p>
+<p class="prompt-in">Input[6]:</p>
 <pre><code class="language-python">pgm = daft.PGM(dpi=120)
 
 pgm.add_node(&quot;plx&quot;, r&quot;$\varpi$&quot;, 0, 0, observed=True)
@@ -252,6 +261,7 @@ pgm.add_plate([-1.25, -0.5, 2.5, 2], label=r&quot;$n = 1...N$&quot;, position=&q
 
 pgm.render();
 </code></pre>
+<p class="prompt-out">Output[6]:</p>
 <p><img src="output_10_0.png" alt="png"></p>
 <p>The relationships between the random variables in the PGM above tell us that we can write:</p>
 <div>$$
@@ -281,6 +291,7 @@ $$</div>
 <li>$\mu_r$: We will use a broad, truncated normal distribution with a mean of 1 kpc, a standard deviation of 2 kpc, and a minimum value of 0 (distances have to be positive!). This is a totally arbitrary choice for this example, but the idea is to be broad prior with a slight preference toward 1 kpc.</li>
 <li>$\sigma_r$: Here we will sample in $\ln{\sigma_r}$ and use a uniform prior on this transformed parameter, which is equivalent to putting a prior on $\sigma_r$ such that $p(\sigma_r) \propto \sigma_r^{-1}$ (this is known as a <a href="https://en.wikipedia.org/wiki/Jeffreys_prior">Jeffreys prior</a> for the standard deviation of a Gaussian).</li>
 </ul>
+<p class="prompt-in">Input[7]:</p>
 <pre><code class="language-python">with pm.Model() as plx_model:
     # This is the (hyper)prior on the mean distance to the star cluster. Let's assume
     # that we have some prior knowledge about the distance to this cluster, and so we
@@ -324,14 +335,17 @@ $$</div>
 # Let's visualize the graphical model for this model and compare to the one above:
 pm.model_to_graphviz(plx_model)
 </code></pre>
+<p class="prompt-out">Output[7]:</p>
 <p><img src="output_12_0.svg" alt="svg"></p>
 <p>Overall, this has the same structure as the PGM we drew above! This model explicitly notes the distributions at each vertex (parameter) or when a relationship is deterministic, but otherwise this is equivalent to our PGM.</p>
 <p>We will now fire up the <code>pymc</code> sampler to generate posterior samples of all of our parameters. When the number of parameters is large, it can be useful to start the sampler with a good initial guess for the parameter values. Of course, when working with real data, you don&rsquo;t know the true values used to simulate the data :), so we won&rsquo;t start from the true values. Here, let&rsquo;s initialize the distances to each star set to the inverse-variance weighted parallax of the stars:</p>
+<p class="prompt-in">Input[8]:</p>
 <pre><code class="language-python">inv_var = 1 / sim_data[&quot;parallax_error&quot;] ** 2
 est_mean_plx = np.sum(sim_data[&quot;parallax&quot;] * inv_var) / np.sum(inv_var)
 est_mean_r = est_mean_plx.to_value(u.kpc, u.parallax())
 </code></pre>
 <p>With these initial values in hand, we can run the sampler:</p>
+<p class="prompt-in">Input[9]:</p>
 <pre><code class="language-python">with plx_model:
     samples = pm.sample(
         tune=2000,
@@ -343,11 +357,12 @@ est_mean_r = est_mean_plx.to_value(u.kpc, u.parallax())
         },
     )
 </code></pre>
-<pre><code class="language-output">Auto-assigning NUTS sampler...
+<p class="prompt-out">Output[9]:</p>```output
+Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Sequential sampling (2 chains in 1 job)
 NUTS: [mu_r, ln_std_r, r]
-</code></pre>
+```
 <style>
     /* Turns off some styling */
     progress {
@@ -390,9 +405,11 @@ NUTS: [mu_r, ln_std_r, r]
 </code></pre>
 <p><em>pymc may output some warnings above — you can ignore these!</em></p>
 <p>The first thing I like to check after running a pymc sampling is to use <a href="https://python.arviz.org/en/latest/">arviz</a> to output a summary of sampling statistics for the run. Here we have a lot of parameters (the full vector of $r$ values is &gt;3000 parameters!), so I will restrict the summary output to only include the hierarchical parameters:</p>
+<p class="prompt-in">Input[10]:</p>
 <pre><code class="language-python"># the &quot;~r&quot; below means &quot;not r&quot;
 az.summary(samples, var_names=[&quot;~r&quot;])
 </code></pre>
+<p class="prompt-out">Output[10]:</p>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -464,8 +481,10 @@ az.summary(samples, var_names=[&quot;~r&quot;])
 </div>
 <p>There is a lot to unpack here, but these are all useful statistics computed from the samples that allow us to assess whether the sampling was successful. The first two columns show the mean and standard deviation (sd) of the parameter value, and the following two show the &ldquo;highest density interval&rdquo; values (this is one version of a <em>credible region</em> estimated from the posterior samples). We won&rsquo;t talk about the next few columns, but MCSE is short for &ldquo;Monte Carlo Standard Error&rdquo; and ESS is short for &ldquo;Effective Sample Size.&rdquo; These are both important diagnostics for assessing the quality of the samples returned. The final column <code>r_hat</code> (in math, $\hat{R}$) is the Gelman–Rubin convergence statistic (which you generally want to be fairly close to 1). Some more information about convergence diagnostics is available <a href="https://bookdown.org/rdpeng/advstatcomp/monitoring-convergence.html">in this book chapter</a> or <a href="https://www.coursera.org/lecture/introduction-to-pymc3/autocorrelation-and-effective-sample-size-YSW3x">this coursera course</a>.</p>
 <p>By the way, we could show just a few of the $r$ values by making a selection with the <code>coords</code> argument, for example, to show the first 5 values of $r$:</p>
+<p class="prompt-in">Input[11]:</p>
 <pre><code class="language-python">az.summary(samples, coords={&quot;r_dim_0&quot;: np.arange(5)})
 </code></pre>
+<p class="prompt-out">Output[11]:</p>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -597,6 +616,7 @@ az.summary(samples, var_names=[&quot;~r&quot;])
 </div>
 <p>These all look great: <code>r_hat</code> is essentially 1.0 for all parameters, and the effective sample size is over 1000.</p>
 <p>After doing a quick check of the sampling summary statistics, I next like to make a &ldquo;corner&rdquo; plot to visualize 2D projections of the posterior pdf estimated from the samples. With <code>arviz</code>, we can make a corner plot using the <code>plot_pair()</code> function. Here, I&rsquo;ve changed some default values and added in the true values of the parameters as a red marker for comparison:</p>
+<p class="prompt-in">Input[12]:</p>
 <pre><code class="language-python">axes = az.plot_pair(
     samples,
     var_names=[&quot;mu_r&quot;, &quot;std_r&quot;, &quot;r&quot;],
@@ -618,6 +638,7 @@ az.summary(samples, var_names=[&quot;~r&quot;])
 )
 axes[1, 0].legend(fontsize=12);
 </code></pre>
+<p class="prompt-out">Output[12]:</p>
 <p><img src="output_23_0.png" alt="png"></p>
 <p>It looks like our model and sampling produces a posterior pdf that is consistent with the true values, so let&rsquo;s call that a success!</p>
 <h2 id="problem-inferring-the-period-distribution-of-low-eccentricity-binary-stars">Problem: Inferring the period distribution of low eccentricity binary stars</h2>
@@ -626,9 +647,11 @@ axes[1, 0].legend(fontsize=12);
 <h3 id="the-data">The data</h3>
 <p>The data are radial velocities $v_r$ measured at times $t$ (represented as JD&rsquo;s) and velocity uncertainties $\sigma_v$ from an updated catalog of binary-star systems produced as a follow-up to <a href="https://ui.adsabs.harvard.edu/abs/2020ApJ...895....2P/abstract">Price-Whelan et al. (2020)</a>. The dataset contains 14 unique sources, but 321 total velocity measurements (there are &gt;12 velocity measurements per system). The times are given as Julian Date values (JD), and the velocities and uncertainties are given in km/s.</p>
 <p>Let&rsquo;s load the data and make some initial visualizations:</p>
+<p class="prompt-in">Input[13]:</p>
 <pre><code class="language-python">apogee_data = at.Table.read(&quot;apogee-binaries.fits&quot;)
 apogee_data[:3]
 </code></pre>
+<p class="prompt-out">Output[13]:</p>
 <div><i>Table length=3</i>
 <table id="table140100757900256" class="table-striped table-bordered table-condensed">
 <thead><tr><th>APOGEE_ID</th><th>JD</th><th>VHELIO</th><th>VHELIO_ERR</th></tr></thead>
@@ -638,12 +661,15 @@ apogee_data[:3]
 <tr><td>2M01282954+8522331</td><td>2455841.7649</td><td>-65.14283768577124</td><td>0.09059230018733438</td></tr>
 </table></div>
 <p>As mentioned above, in the table, we have 14 unique systems, each with &gt;12 radial velocity measurements:</p>
+<p class="prompt-in">Input[14]:</p>
 <pre><code class="language-python">uniq_ap_ids = np.unique(apogee_data[&quot;APOGEE_ID&quot;])
 len(uniq_ap_ids)
 </code></pre>
+<p class="prompt-out">Output[14]:</p>
 <pre><code class="language-output">14
 </code></pre>
 <p>Let&rsquo;s visualize the velocity data:</p>
+<p class="prompt-in">Input[15]:</p>
 <pre><code class="language-python">fig, axes = plt.subplots(5, 3, figsize=(15, 12), constrained_layout=True)
 
 for ap_id, ax in zip(uniq_ap_ids, axes.flat):
@@ -662,14 +688,17 @@ for ax in axes[-1]:
 for ax in axes[:, 0]:
     ax.set_ylabel(f&quot;RV [{u.km/u.s:latex_inline}]&quot;);
 </code></pre>
+<p class="prompt-out">Output[15]:</p>
 <p><img src="output_30_0.png" alt="png"></p>
 <p>Those all look like radial velocity-variable sources, but we will clearly need to do some modeling to determine the periods of these systems!</p>
 <h3 id="part-1-infer-the-period-of-a-single-system">Part 1: Infer the period of a single system</h3>
 <p>As a warm-up, let&rsquo;s start with a single system and construct a model to infer the orbital period.</p>
 <p>Let&rsquo;s get the data for one of the objects from above, such as the first source:</p>
+<p class="prompt-in">Input[16]:</p>
 <pre><code class="language-python">one_star_data = apogee_data[apogee_data[&quot;APOGEE_ID&quot;] == uniq_ap_ids[0]]
 len(one_star_data)
 </code></pre>
+<p class="prompt-out">Output[16]:</p>
 <pre><code class="language-output">36
 </code></pre>
 <p>This source has 36 velocity measurements, and the velocity data is already plotted in the upper left panel of the figure above. What model should we use to measure the period of the orbit? In general, when modeling radial velocity curves from two-body systems (e.g., star–star or star–planet systems), we should use Keplerian dynamics to construct a proper model for the radial velocity given period, eccentricity, and etc. (for example, using the <a href="https://docs.exoplanet.codes/en/latest/">exoplanet</a> package or <a href="https://thejoker.rtfd.io/">thejoker</a>). However, in this case, we have prior knowledge that these systems all have negligible eccentricities (i.e. very close to 0): Under this assumption, a good model for the velocities is a sinusoid with an overall offset (the mean velocity). With this setup, we have two choices:</p>
@@ -685,6 +714,7 @@ p(a, b, P, v_0 | \{v_r\}_J) \propto
     \left[ \prod_j^J p(v_r^{(j)} \,|\, a, b, P, v_0) \right] p(a) \,p(b) \,p(P) \, p(v_0)
 $$</div>
 <p>and the graphical model for this looks like:</p>
+<p class="prompt-in">Input[17]:</p>
 <pre><code class="language-python">pgm = daft.PGM(dpi=120)
 
 pgm.add_node(&quot;RV&quot;, r&quot;$v_r$&quot;, 0, 0, observed=True)
@@ -705,13 +735,16 @@ pgm.add_plate([-0.5, -0.4, 1.8, 0.8], label=r&quot;$j = 1...J$&quot;, position=&
 
 pgm.render();
 </code></pre>
+<p class="prompt-out">Output[17]:</p>
 <p><img src="output_35_0.png" alt="png"></p>
 <p>With our data table in hand for one star (from the intro to Part 1 above), let&rsquo;s pull out the columns of data that we need:</p>
+<p class="prompt-in">Input[18]:</p>
 <pre><code class="language-python">t = one_star_data[&quot;JD&quot;] - one_star_data[&quot;JD&quot;].min()
 rv = one_star_data[&quot;VHELIO&quot;]
 rv_err = one_star_data[&quot;VHELIO_ERR&quot;]
 </code></pre>
 <p>We now want to find a good initialization (i.e. initial parameter value guesses) for the pymc sampler. For irregularly-spaced time series data, we can estimate the period using a <a href="https://iopscience.iop.org/article/10.3847/1538-4365/aab766">Lomb–Scargle Periodogram</a>. We can compute the frequency (period) of maximum power using <a href="https://docs.astropy.org/en/stable/timeseries/lombscargle.html">astropy&rsquo;s implementation</a>:</p>
+<p class="prompt-in">Input[19]:</p>
 <pre><code class="language-python">from astropy.timeseries import LombScargle
 
 ls = LombScargle(t * u.day, rv, rv_err)
@@ -724,9 +757,11 @@ freq, power = ls.autopower(
 init_P = (1 / freq[power.argmax()]).to_value(u.day)
 print(init_P)
 </code></pre>
-<pre><code class="language-output">2.841198392949277
-</code></pre>
-<p>With an estimate of the period (our one nonlinear parameter), we can now use least-squares linear algebra to estimate initial guesses for our linear parameters $a, b, v_0$ (see the <a href="https://adrian.pw/blog/fitting-a-line">Least-squares section of this blog post</a> for more information about this - we don&rsquo;t have time to dive in here!):</p>
+<p class="prompt-out">Output[19]:</p>```output
+2.841198392949277
+```
+With an estimate of the period (our one nonlinear parameter), we can now use least-squares linear algebra to estimate initial guesses for our linear parameters $a, b, v_0$ (see the [Least-squares section of this blog post](https://adrian.pw/blog/fitting-a-line) for more information about this - we don't have time to dive in here!):
+<p class="prompt-in">Input[20]:</p>
 <pre><code class="language-python"># Design matrix:
 X = np.stack(
     (np.cos(2 * np.pi * t / init_P), np.sin(2 * np.pi * t / init_P), np.ones(len(t)))
@@ -742,6 +777,7 @@ init_vals = {&quot;P&quot;: init_P, &quot;a&quot;: theta_best[0], &quot;b&quot;:
 </code></pre>
 <p><strong>Task 1: Implement a Python function to evaluate the parametric model for the radial velocities that we defined above</strong></p>
 <p><em>Hint: We will want to be able to evaluate this function from within a pymc model and with regular numpy arrays, so allow passing in the math library as an argument <code>lib</code> to this function</em></p>
+<p class="prompt-in">Input[21]:</p>
 <pre><code class="language-python">def rv_model(t, P, a, b, v0, lib=np):
     # WRITE CODE HERE
     pass
@@ -751,6 +787,7 @@ init_vals = {&quot;P&quot;: init_P, &quot;a&quot;: theta_best[0], &quot;b&quot;:
 </code></pre>
 <p><strong>Task 2: Evaluate and plot this model over the data given the initial parameter values we defined above</strong></p>
 <p><em>Hint: The data span a wide range of times, so you wither want to zoom in the plot (with <code>xlim</code>) to show a few regions, or you can phase-fold the data and model using the initial period estimate</em></p>
+<p class="prompt-in">Input[22]:</p>
 <pre><code class="language-python"># SOLUTION:
 t_grid = np.arange(t.min(), t.max(), init_P / 128)
 
@@ -759,12 +796,14 @@ plt.errorbar(t, rv, rv_err, marker=&quot;o&quot;, ls=&quot;none&quot;)
 plt.plot(t_grid, rv_model(t_grid, **init_vals), marker=&quot;&quot;)
 plt.xlim(0, 100)
 </code></pre>
+<p class="prompt-out">Output[22]:</p>
 <pre><code class="language-output">(0.0, 100.0)
 </code></pre>
 <p><img src="output_45_1.png" alt="png"></p>
 <p><strong>Task 3: Define the pymc model and run the sampler</strong></p>
 <p>Use a Uniform prior for the period between 1.5 and 20 days, and Normal priors for $a, b, v_0$ each centered at 0 (but you pick the standard deviations).</p>
 <p><em>Hint: When you define the model RV values, make sure to pass in <code>lib=pm.math</code> to your <code>rv_model</code> function</em></p>
+<p class="prompt-in">Input[23]:</p>
 <pre><code class="language-python">with pm.Model() as model1:
     # Leave this here: We want to store the value of the log-probability for later:
     pm.Deterministic(&quot;log_prob&quot;, model1.logp())
@@ -787,13 +826,14 @@ plt.xlim(0, 100)
     # Leave this here: Run the sampler!
     samples1 = pm.sample(init=&quot;adapt_full&quot;)
 </code></pre>
-<pre><code class="language-output">Auto-assigning NUTS sampler...
+<p class="prompt-out">Output[23]:</p>```output
+Auto-assigning NUTS sampler...
 Initializing NUTS using adapt_full...
 /opt/hostedtoolcache/Python/3.10.6/x64/lib/python3.10/site-packages/pymc/step_methods/hmc/quadpotential.py:615: UserWarning: QuadPotentialFullAdapt is an experimental feature
-  warnings.warn(&quot;QuadPotentialFullAdapt is an experimental feature&quot;)
+  warnings.warn("QuadPotentialFullAdapt is an experimental feature")
 Sequential sampling (2 chains in 1 job)
 NUTS: [P, a, b, v0]
-</code></pre>
+```
 <style>
     /* Turns off some styling */
     progress {
@@ -838,8 +878,10 @@ The acceptance probability does not match the target. It is 0.9999, but should b
 The chain reached the maximum tree depth. Increase max_treedepth, increase target_accept or reparameterize.
 </code></pre>
 <p>Assess the sampling: Does it look like it was successful?</p>
+<p class="prompt-in">Input[24]:</p>
 <pre><code class="language-python">az.summary(samples1, var_names=[&quot;P&quot;, &quot;a&quot;, &quot;b&quot;, &quot;v0&quot;])
 </code></pre>
+<p class="prompt-out">Output[24]:</p>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -922,10 +964,12 @@ The chain reached the maximum tree depth. Increase max_treedepth, increase targe
 </table>
 </div>
 <p>We will now use arviz to pull out the maximum a posterior (MAP) sample from our chains: This is the value of the parameters that have the highest value of the log-posterior (and this is why we had to store the <code>model.logp()</code> value in the pymc model above):</p>
+<p class="prompt-in">Input[25]:</p>
 <pre><code class="language-python">stacked_samples = az.extract_dataset(samples1)
 MAP_sample = stacked_samples.isel(sample=stacked_samples.log_prob.argmax())
 </code></pre>
 <p>We can now plot the data folded at the MAP period value, and over-plot the model at the MAP parameters:</p>
+<p class="prompt-in">Input[26]:</p>
 <pre><code class="language-python">plt.errorbar(t % MAP_sample.P.values, rv, rv_err, ls=&quot;none&quot;, marker=&quot;o&quot;)
 
 t_grid = np.linspace(0, MAP_sample.P.values, 1024)
@@ -942,6 +986,7 @@ plt.xlabel(&quot;time (phase-folded)&quot;)
 plt.ylabel(f&quot;RV [{u.km/u.s:latex_inline}]&quot;)
 plt.xlim(0, MAP_sample.P.values)
 </code></pre>
+<p class="prompt-out">Output[26]:</p>
 <pre><code class="language-output">(0.0, 2.8411442796406092)
 </code></pre>
 <p><img src="output_53_1.png" alt="png"></p>
@@ -949,6 +994,7 @@ plt.xlim(0, MAP_sample.P.values)
 <h3 id="part-2-infer-the-log-period-distribution">Part 2: Infer the log-period distribution</h3>
 <p>We now need to generalize the pymc model we used above to include parameters that control the (log)period distribution (i.e. make the parameters of the period prior themselves random variables). We then have to loop over the 14 unique sources we have and add period, amplitude, and mean velocity parameters for each object. One change we will make compared to the single-source model is that here we will fit for the parameters of the log-period instead of the period, so you should work in $\ln P$ and transform this to $P$ when calling our <code>rv_model()</code> function.</p>
 <p>Let&rsquo;s first look at a PGM for this model, where $n$ indexes the $N=14$ systems and $j$ indexes the $J_n$ radial velocity measurements per system:</p>
+<p class="prompt-in">Input[27]:</p>
 <pre><code class="language-python">pgm = daft.PGM(dpi=120)
 
 pgm.add_node(&quot;RV&quot;, r&quot;$v_r$&quot;, 0, 0, observed=True)
@@ -975,9 +1021,11 @@ pgm.add_plate([-0.5, -0.4, 1.8, 0.8], label=r&quot;$j = 1...J_n$&quot;, position
 
 pgm.render();
 </code></pre>
+<p class="prompt-out">Output[27]:</p>
 <p><img src="output_56_0.png" alt="png"></p>
 <p>In your definition of the model, you will need to get initial values for the period, amplitudes, and mean velocity as we did above. It will therefore be useful to have a Python function that takes in three arrays (time, radial velocity, and radial velocity uncertainty) and returns a dictionary of initial guesses for $P, a, b, v0$.</p>
 <p><strong>Task 1: Implement a function that takes in RV data for one source and returns initial guesses for its parameters</strong></p>
+<p class="prompt-in">Input[28]:</p>
 <pre><code class="language-python">from astropy.timeseries import LombScargle
 
 
@@ -1031,6 +1079,7 @@ def get_init_vals(t, rv, rv_err):
 <p><strong>Task 2: Define a pymc model for the hierarchical model over the log-period distribution of these binary-star systems</strong></p>
 <p>Use a Gaussian (<code>Normal()</code>) with hyperparameters mean $\mu$ and standard deviation $\sigma$ to model the log-period distribution.</p>
 <p><em>Hint: You can loop over source ID&rsquo;s (as we did above to make the plot of all RV data) and define parameters inside of the loop - pymc will keep track of them! Just make sure to give the parameters unique names, like &rsquo;lnP_1&rsquo;, &rsquo;lnP_2&rsquo;, etc. for each system in our sample.</em></p>
+<p class="prompt-in">Input[29]:</p>
 <pre><code class="language-python">with pm.Model() as model2:
     # ---------
     # SOLUTION:
@@ -1063,11 +1112,12 @@ def get_init_vals(t, rv, rv_err):
     # Leave this here: Run the sampler!
     samples2 = pm.sample(init=&quot;adapt_diag&quot;)
 </code></pre>
-<pre><code class="language-output">Auto-assigning NUTS sampler...
+<p class="prompt-out">Output[29]:</p>```output
+Auto-assigning NUTS sampler...
 Initializing NUTS using adapt_diag...
 Sequential sampling (2 chains in 1 job)
 NUTS: [mu, lnsigma, lnP[0], a[0], b[0], v0[0], lnP[1], a[1], b[1], v0[1], lnP[2], a[2], b[2], v0[2], lnP[3], a[3], b[3], v0[3], lnP[4], a[4], b[4], v0[4], lnP[5], a[5], b[5], v0[5], lnP[6], a[6], b[6], v0[6], lnP[7], a[7], b[7], v0[7], lnP[8], a[8], b[8], v0[8], lnP[9], a[9], b[9], v0[9], lnP[10], a[10], b[10], v0[10], lnP[11], a[11], b[11], v0[11], lnP[12], a[12], b[12], v0[12], lnP[13], a[13], b[13], v0[13]]
-</code></pre>
+```
 <style>
     /* Turns off some styling */
     progress {
@@ -1110,8 +1160,10 @@ NUTS: [mu, lnsigma, lnP[0], a[0], b[0], v0[0], lnP[1], a[1], b[1], v0[1], lnP[2]
 </code></pre>
 <p><strong>Task 3: Assess the sampling</strong></p>
 <p>Did the sampling succeed? Make a corner plot (<code>az.plot_pair()</code>) of the hyperparameters of the log-period distribution. What is the mean log-period we infer?</p>
+<p class="prompt-in">Input[30]:</p>
 <pre><code class="language-python">az.summary(samples2, var_names=[&quot;mu&quot;, &quot;lnsigma&quot;])
 </code></pre>
+<p class="prompt-out">Output[30]:</p>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -1169,13 +1221,17 @@ NUTS: [mu, lnsigma, lnP[0], a[0], b[0], v0[0], lnP[1], a[1], b[1], v0[1], lnP[2]
   </tbody>
 </table>
 </div>
+<p class="prompt-in">Input[31]:</p>
 <pre><code class="language-python">az.plot_pair(samples2, var_names=[&quot;mu&quot;, &quot;lnsigma&quot;], figsize=(5, 5))
 </code></pre>
+<p class="prompt-out">Output[31]:</p>
 <pre><code class="language-output">&lt;AxesSubplot: xlabel='mu', ylabel='lnsigma'&gt;
 </code></pre>
 <p><img src="output_63_1.png" alt="png"></p>
+<p class="prompt-in">Input[32]:</p>
 <pre><code class="language-python">az.plot_trace(samples2, var_names=[&quot;mu&quot;, &quot;lnsigma&quot;], figsize=(5, 5))
 </code></pre>
+<p class="prompt-out">Output[32]:</p>
 <pre><code class="language-output">array([[&lt;AxesSubplot: title={'center': 'mu'}&gt;,
         &lt;AxesSubplot: title={'center': 'mu'}&gt;],
        [&lt;AxesSubplot: title={'center': 'lnsigma'}&gt;,

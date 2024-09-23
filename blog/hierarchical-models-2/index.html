@@ -120,7 +120,8 @@
       
     </p>
 
-    <pre><code class="language-python">import pathlib
+    <p class="prompt-in">Input[1]:</p>
+<pre><code class="language-python">import pathlib
 
 import astropy.coordinates as coord
 import astropy.units as u
@@ -158,6 +159,7 @@ $$</div>
 <h3 id="example-fitting-a-line-to-data-with-gaussian-outliers">Example: Fitting a line to data with Gaussian outliers</h3>
 <p>As a demonstration of using a Gaussian Mixture Model to handle outliers, we will return to the example case of fitting a straight line to data, but now we will assume that the data we have been given include outliers.</p>
 <p>Let&rsquo;s first generate simulated data to work with:</p>
+<p class="prompt-in">Input[2]:</p>
 <pre><code class="language-python">rng = np.random.default_rng(seed=42)
 
 N = 32
@@ -173,6 +175,7 @@ y_err = rng.uniform(0.5, 3, N)
 gmm_data = {&quot;x&quot;: true_x, &quot;y&quot;: rng.normal(true_y, y_err), &quot;y_err&quot;: y_err}
 </code></pre>
 <p>Because this is simulated data, we know which points are outliers — let&rsquo;s plot the data and use a different marker for the outliers to see:</p>
+<p class="prompt-in">Input[3]:</p>
 <pre><code class="language-python">plt.figure(figsize=(8, 6))
 plt.errorbar(gmm_data[&quot;x&quot;], gmm_data[&quot;y&quot;], gmm_data[&quot;y_err&quot;], marker=&quot;o&quot;, ls=&quot;none&quot;)
 
@@ -187,12 +190,15 @@ plt.scatter(
 plt.xlabel(&quot;$x$&quot;)
 plt.ylabel(&quot;$y$&quot;);
 </code></pre>
+<p class="prompt-out">Output[3]:</p>
 <p><img src="output_4_0.png" alt="png"></p>
 <p>As a demonstration of the impact of outliers or populations of objects that belong to a different class in the context of model fitting, let&rsquo;s do a linear least-squares regression to the data assuming now that we don&rsquo;t know a priori which points are outliers vs. not:</p>
+<p class="prompt-in">Input[4]:</p>
 <pre><code class="language-python">X = np.vander(gmm_data[&quot;x&quot;], N=2)
 Cinv = np.diag(1 / gmm_data[&quot;y_err&quot;] ** 2)
 leastsq_m, leastsq_b = np.linalg.solve(X.T @ Cinv @ X, X.T @ Cinv @ gmm_data[&quot;y&quot;])
 </code></pre>
+<p class="prompt-in">Input[5]:</p>
 <pre><code class="language-python">plt.figure(figsize=(8, 6))
 plt.errorbar(gmm_data[&quot;x&quot;], gmm_data[&quot;y&quot;], gmm_data[&quot;y_err&quot;], marker=&quot;o&quot;, ls=&quot;none&quot;)
 
@@ -213,6 +219,7 @@ plt.legend(fontsize=16)
 plt.xlabel(&quot;$x$&quot;)
 plt.ylabel(&quot;$y$&quot;);
 </code></pre>
+<p class="prompt-out">Output[5]:</p>
 <p><img src="output_7_0.png" alt="png"></p>
 <p>The outliers have clearly biased our fit and led us to infer parameters for this linear model that are not consistent with the truth. Let&rsquo;s now construct a model to deal with these outlier data points.</p>
 <p>As mentioned above, we will use a <em>Gaussian Mixture Model</em> as a way of modeling the true density of objects, with one mixture component to represent the objects that follow the linear relation as we expect, and a second mixture component to represent the outliers. When constructing an outlier model, it sometimes helps to know about why these objects are outliers and to explicitly write down a generative model for the process that leads to these other data. This adds a little additional complexity to a model, but allows us to be more justified in our choice of outlier model and can lead to more precise inferences of the parameters you actually want to learn. Plus, as we saw, if you use MCMC methods to generate posterior samples over all of the parameters (inlier and outlier model components), you can use these samples to marginalize over the outlier model and obtain robust estimates of the inlier model.</p>
@@ -227,6 +234,7 @@ p(\hat{y} \,|\, m, b) &=
 \end{align}
 $$</div>
 <p>where $\delta\left[\cdot\right]$ is the Dirac delta function.</p>
+<p class="prompt-in">Input[6]:</p>
 <pre><code class="language-python">pgm = daft.PGM(dpi=120)
 
 pgm.add_node(&quot;y&quot;, r&quot;$y$&quot;, 0, 0, observed=True)
@@ -248,6 +256,7 @@ pgm.add_plate([-1.25, -0.5, 2.5, 2], label=r&quot;$n = 1...N$&quot;, position=&q
 
 pgm.render();
 </code></pre>
+<p class="prompt-out">Output[6]:</p>
 <p><img src="output_10_0.png" alt="png"></p>
 <p>At face value, this looks like the stellar distance model we explored in the previous notebook: We have some population-level parameters ($m, b, \sigma_{\rm out}, \boldsymbol{w}$), and many object-level parameters (the $\hat{y}$&rsquo;s). Given the PGM above, our joint probability for the parameters can be factorized as:</p>
 <div>$$
@@ -278,6 +287,7 @@ p(m, b, \sigma_{\rm out}, w, \boldsymbol{y}) &=
 \end{align}
 $$</div>
 <p>Let&rsquo;s implement this model with pymc:</p>
+<p class="prompt-in">Input[7]:</p>
 <pre><code class="language-python">with pm.Model() as model_line:
     # We will be lazy and use fairly simple prior pdfs for the slope and intercept of
     # the linear model:
@@ -308,11 +318,12 @@ $$</div>
     # With all model components defined, we can now generate posterior samples:
     samples_line = pm.sample()
 </code></pre>
-<pre><code class="language-output">Auto-assigning NUTS sampler...
+<p class="prompt-out">Output[7]:</p>```output
+Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Sequential sampling (2 chains in 1 job)
 NUTS: [m, b, ln_s_out, w]
-</code></pre>
+```
 <style>
     /* Turns off some styling */
     progress {
@@ -354,8 +365,10 @@ NUTS: [m, b, ln_s_out, w]
 <pre><code class="language-output">Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 16 seconds.
 </code></pre>
 <p>Let&rsquo;s look at statistics of the parameter chains:</p>
+<p class="prompt-in">Input[8]:</p>
 <pre><code class="language-python">az.summary(samples_line)
 </code></pre>
+<p class="prompt-out">Output[8]:</p>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -462,6 +475,7 @@ NUTS: [m, b, ln_s_out, w]
 </table>
 </div>
 <p>Based on the convergence statistic (<code>r_hat</code> close to 1) and the ESS parameters (in the thousands), it looks like the sampling succeeded. Let&rsquo;s make a corner plot:</p>
+<p class="prompt-in">Input[9]:</p>
 <pre><code class="language-python">az.plot_pair(
     samples_line,
     var_names=[&quot;m&quot;, &quot;b&quot;, &quot;s_out&quot;, &quot;w&quot;],
@@ -475,13 +489,16 @@ NUTS: [m, b, ln_s_out, w]
     ),
 );
 </code></pre>
-<pre><code class="language-output">/opt/hostedtoolcache/Python/3.10.7/x64/lib/python3.10/site-packages/arviz/plots/backends/matplotlib/pairplot.py:94: UserWarning: Argument reference_values does not include reference value for: w 0, w 1, s_out
+<p class="prompt-out">Output[9]:</p>```output
+/opt/hostedtoolcache/Python/3.10.7/x64/lib/python3.10/site-packages/arviz/plots/backends/matplotlib/pairplot.py:94: UserWarning: Argument reference_values does not include reference value for: w 0, w 1, s_out
   warnings.warn(
-</code></pre>
+```
 <p><img src="output_16_1.png" alt="png"></p>
 <p>We can also use the posterior samples to plot a credible region for our straight line model in the space of our data. First, we will extract a subset of the samples to use:</p>
+<p class="prompt-in">Input[10]:</p>
 <pre><code class="language-python">samples_line_subset = az.extract_dataset(samples_line, num_samples=1024, rng=rng)
 </code></pre>
+<p class="prompt-in">Input[11]:</p>
 <pre><code class="language-python">plt.figure(figsize=(8, 6))
 plt.errorbar(gmm_data[&quot;x&quot;], gmm_data[&quot;y&quot;], gmm_data[&quot;y_err&quot;], marker=&quot;o&quot;, ls=&quot;none&quot;)
 
@@ -516,6 +533,7 @@ plt.legend(fontsize=16)
 plt.xlabel(&quot;$x$&quot;)
 plt.ylabel(&quot;$y$&quot;);
 </code></pre>
+<p class="prompt-out">Output[11]:</p>
 <p><img src="output_19_0.png" alt="png"></p>
 <p>Already our inference looks much more robust, and we recover parameters for the line model that are much more consistent with the truth. Awesome!</p>
 <p>One other thing we can do with a model like this is to compute membership probabilities for each object in our sample — that is, we can compute estimates of the marginal posterior probability that a given object belongs in each of the classes in our model (here either the straight line component or the outlier population).</p>
@@ -569,6 +587,7 @@ $$</div>
 p(q=0 \,|\, \boldsymbol{y}) \approx \frac{w_1 \, p(\boldsymbol{y} \,|\, \boldsymbol{\theta}_j, q=0) \, }{w_1 \, p(\boldsymbol{y} \,|\, \boldsymbol{\theta}_j, q=0) + w_2 \, p(\boldsymbol{y} \,|\, \boldsymbol{\theta}_j, q=1)}
 $$</div>
 <p>Phew! That was a lot of math, but the end result is a fairly simple expression that we can compute using the mixture model component distributions evaluated at the parameter values in the MCMC chains. Unfortunately, the <code>NormalMixture</code> implementation does not give us access to the individual mixture component probabilities, so we have to re-implement the model using the more general <code>Mixture</code> class, and keep track of the component probabilities as pymc <code>Deterministic</code> variables:</p>
+<p class="prompt-in">Input[12]:</p>
 <pre><code class="language-python">with pm.Model() as model_line2:
     # Same as above:
     m = pm.Uniform(&quot;m&quot;, 0, 10, initval=3.0)
@@ -592,11 +611,12 @@ $$</div>
     # With all model components defined, we can now generate posterior samples:
     samples_line2 = pm.sample()
 </code></pre>
-<pre><code class="language-output">Auto-assigning NUTS sampler...
+<p class="prompt-out">Output[12]:</p>```output
+Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Sequential sampling (2 chains in 1 job)
 NUTS: [m, b, ln_s_out, w]
-</code></pre>
+```
 <style>
     /* Turns off some styling */
     progress {
@@ -638,9 +658,11 @@ NUTS: [m, b, ln_s_out, w]
 <pre><code class="language-output">Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 18 seconds.
 </code></pre>
 <p>Over the parameters $m, b, \sigma_{\rm out}, \boldsymbol{w}$, this model should be equivalent to the previous implementation. However, this model has two additional variables computed at each location in the chains: <code>logp1</code> and <code>logp2</code>, which contain the log-probability values of the two mixture components at each location in the chains. Let&rsquo;s extract these values:</p>
+<p class="prompt-in">Input[13]:</p>
 <pre><code class="language-python">line2_logps = az.extract_dataset(samples_line2, var_names=[&quot;logp1&quot;, &quot;logp2&quot;])
 </code></pre>
 <p>To implement the sum defined above we need the un-logged values of the probabilities, so a more robust way of computing these sums is to use <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.logsumexp.html"><code>logsumexp</code></a>:</p>
+<p class="prompt-in">Input[14]:</p>
 <pre><code class="language-python">from scipy.special import logsumexp
 
 denom = np.logaddexp(line2_logps.logp1.values, line2_logps.logp2.values)
@@ -651,7 +673,9 @@ membership_probs = (
 
 plt.hist(membership_probs, bins=np.linspace(0, 1, 32));
 </code></pre>
+<p class="prompt-out">Output[14]:</p>
 <p><img src="output_25_0.png" alt="png"></p>
+<p class="prompt-in">Input[15]:</p>
 <pre><code class="language-python">plt.figure(figsize=(9, 6))
 plt.errorbar(
     gmm_data[&quot;x&quot;],
@@ -696,6 +720,7 @@ plt.plot(
 plt.xlabel(&quot;$x$&quot;)
 plt.ylabel(&quot;$y$&quot;);
 </code></pre>
+<p class="prompt-out">Output[15]:</p>
 <p><img src="output_26_0.png" alt="png"></p>
 <h2 id="other-resources">Other Resources</h2>
 <p>Other good resources on this topic are:</p>
@@ -707,6 +732,7 @@ plt.ylabel(&quot;$y$&quot;);
 <p>The above example with Gaussian Mixture Models introduced us to a lot of the key concepts of working with mixture models, but it&rsquo;s important to note that mixture models do not only have to contain Gaussian mixture component distributions. In the problem below, you will implement and use a mixture model that contains different forms of component distributions.</p>
 <h3 id="problem-choose-your-own-adventure-in-star-cluster-membership-modeling">Problem: Choose your own adventure in star cluster membership modeling</h3>
 <p>You have a few different options for this problem, but all involve inferring the properties of a star cluster — NGC 6819, which was discovered by <a href="https://en.wikipedia.org/wiki/Caroline_Herschel">Caroline Herschel</a> — given real astrometric measurements of stars in the sky region around the cluster from the Gaia mission&rsquo;s Data Release 3 (DR3). Here is an image of NGC 6819 from the Digitized Sky Survey (DSS):</p>
+<p class="prompt-in">Input[16]:</p>
 <pre><code class="language-python">from astropy.io import fits
 from astropy.wcs import WCS
 
@@ -719,16 +745,20 @@ ax.set_xlabel(&quot;RA&quot;)
 ax.set_ylabel(&quot;Dec&quot;)
 ax.set_title(&quot;NGC 6819&quot;);
 </code></pre>
+<p class="prompt-out">Output[16]:</p>
 <p><img src="output_30_0.png" alt="png"></p>
 <p>I already downloaded Gaia data for a region around the known location of the cluster (see the <code>Get-data.ipynb</code> notebook if you want to know how I queried and downloaded this data), so let&rsquo;s start by loading the data using <code>pyia</code>:</p>
+<p class="prompt-in">Input[17]:</p>
 <pre><code class="language-python">from pyia import GaiaData
 
 g = GaiaData(&quot;NGC6819-gaiadr3.fits.gz&quot;)
 </code></pre>
 <p>In case it is useful, we can create an Astropy <code>SkyCoord</code> object with:</p>
+<p class="prompt-in">Input[18]:</p>
 <pre><code class="language-python">c = g.get_skycoord(distance=False)
 </code></pre>
 <p>And for the know position of the center of the cluster:</p>
+<p class="prompt-in">Input[19]:</p>
 <pre><code class="language-python">c_cluster = coord.SkyCoord.from_name(&quot;NGC 6819&quot;)
 </code></pre>
 <h4 id="options">Options:</h4>
@@ -748,11 +778,13 @@ g = GaiaData(&quot;NGC6819-gaiadr3.fits.gz&quot;)
 </li>
 </ol>
 <p>In whatever path you take, you may find it useful to have a subsample of stars that contains a high (fractional) number of cluster members, and a comparison subsample that is mostly field stars. You can make boolean masks based on on sky separation from the cluster center with, e.g.:</p>
+<p class="prompt-in">Input[20]:</p>
 <pre><code class="language-python">cl_sky_mask = c.separation(c_cluster) &lt; 5 * u.arcmin
 no_cl_sky_mask = c.separation(c_cluster) &gt; 15 * u.arcmin
 
 cl_sky_mask.sum(), no_cl_sky_mask.sum()
 </code></pre>
+<p class="prompt-out">Output[20]:</p>
 <pre><code class="language-output">(3328, 13664)
 </code></pre>
 

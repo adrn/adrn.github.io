@@ -53,7 +53,21 @@ article > div {
     }
 }
 
+pre.language-python {
+    margin-top: 0;
+}
+
 pre.language-output {
-    background-color: #dddddd;
-    opacity: 0.8;
+    margin-top: 0;
+    background-color: rgb(248,248,248);
+}
+
+.prompt-in {
+    color: #307fc1;
+    margin-bottom: 0;
+}
+
+.prompt-out {
+    color: #aaaaaa;
+    margin-bottom: 0;
 }
