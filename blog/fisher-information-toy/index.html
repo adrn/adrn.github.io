@@ -460,9 +460,9 @@ mcmc_samples = states.position
 <pre><code class="language-python">{k: np.std(samples, axis=0) for k, samples in mcmc_samples.items()}
 </code></pre>
 <p class="prompt-out">Output[23]:</p>
-<pre><code class="language-output">{'a': Array(0.00182059, dtype=float64),
- 'b': Array(0.01345026, dtype=float64),
- 'freq': Array(5.03068845e-05, dtype=float64)}
+<pre><code class="language-output">{'a': Array(0.00179954, dtype=float64),
+ 'b': Array(0.01373089, dtype=float64),
+ 'freq': Array(5.02877977e-05, dtype=float64)}
 </code></pre>
 <p>Let&rsquo;s compare that to our Fisher approach above:</p>
 <p class="prompt-in">Input[24]:</p>
@@ -477,9 +477,9 @@ mcmc_samples = states.position
 <pre><code class="language-python">np.cov(np.stack(list(mcmc_samples.values())))
 </code></pre>
 <p class="prompt-out">Output[25]:</p>
-<pre><code class="language-output">array([[ 3.31488757e-06, -4.44198391e-06,  4.81551850e-08],
-       [-4.44198391e-06,  1.80927702e-04, -2.51937535e-07],
-       [ 4.81551850e-08, -2.51937535e-07,  2.53103573e-09]])
+<pre><code class="language-output">array([[ 3.23865103e-06, -4.73535183e-06,  4.84084279e-08],
+       [-4.73535183e-06,  1.88556146e-04, -2.83758377e-07],
+       [ 4.84084279e-08, -2.83758377e-07,  2.52911551e-09]])
 </code></pre>
 <p class="prompt-in">Input[26]:</p>
 <pre><code class="language-python">Finv
@@ -716,7 +716,7 @@ plt.axvspan(
 )
 </code></pre>
 <p class="prompt-out">Output[41]:</p>
-<pre><code class="language-output">&lt;matplotlib.patches.Rectangle at 0x7f011016b5f0&gt;
+<pre><code class="language-output">&lt;matplotlib.patches.Rectangle at 0x7f63f8feeba0&gt;
 </code></pre>
 <p><img src="output_68_1.png" alt="png"></p>
 
@@ -727,9 +727,9 @@ plt.axvspan(
 <footer class="text-center footer">
   <hr />
   
-  <h6 class="text-center copyright">© 2015-2024 Adrian Price-Whelan</h6>
+  <h6 class="text-center copyright">© 2015-2026 Adrian Price-Whelan</h6>
   
-  <h6 class="text-center extra-footer">Reach me at <a href="mailto:adrianmpw@gmail.com">adrianmpw@gmail.com</a></h6>
+  <h6 class="text-center extra-footer">Reach me at <a href="mailto:aprice-whelan@flatironinstitute.org">aprice-whelan@flatironinstitute.org</a></h6>
   
   
 </footer>

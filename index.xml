@@ -6,8 +6,22 @@
     <description>Recent content on apw</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 23 Sep 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 23 Feb 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://adrian.pw/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Carl Grillmair</title>
+      <link>https://adrian.pw/blog/carl-grillmair/</link>
+      <pubDate>Mon, 23 Feb 2026 00:00:00 +0000</pubDate>
+      <guid>https://adrian.pw/blog/carl-grillmair/</guid>
+      <description>Carl Grillmair was shot and killed at his home a few days ago. I knew Carl through his foundational work on stellar streams, but also as a colleague and collaborator at conferences and other events. He was a creative, generous, and kind person, and he will be missed.&#xA;Carl was one of the first (and certainly the most prolific) to apply matched filters to search for stellar streams in catalog data from large photometric surveys like the SDSS and Pan-STARRS.</description>
+    </item>
+    <item>
+      <title>In defense of (inefficient) human learning in science and astronomy</title>
+      <link>https://adrian.pw/blog/in-defense-of-human-learning/</link>
+      <pubDate>Wed, 30 Apr 2025 00:00:00 +0000</pubDate>
+      <guid>https://adrian.pw/blog/in-defense-of-human-learning/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Toy examples and pitfalls of the Fisher information matrix</title>
       <link>https://adrian.pw/blog/fisher-information-toy/</link>
